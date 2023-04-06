@@ -171,15 +171,6 @@
     <ClCompile Include="AIBrain.cpp">
       <Filter>Artificial Intelligence</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationManager.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="CarAnimations.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimationEvents.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
     <ClCompile Include="JSONPersitence.cpp">
       <Filter>savedata</Filter>
     </ClCompile>
@@ -302,23 +293,17 @@
     <ClInclude Include="quaternion_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationManager.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="CarAnimations.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationEvents.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
     <ClInclude Include="JSONPersitence.h">
       <Filter>savedata</Filter>
     </ClInclude>
     <ClInclude Include="GameObject\GameObject.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneHierarchy.h">
+      <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

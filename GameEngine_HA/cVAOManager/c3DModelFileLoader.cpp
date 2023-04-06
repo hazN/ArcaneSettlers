@@ -1,189 +1,328 @@
 #include "c3DModelFileLoader.h"
-#include "..\globalThings.h"   
+#include "..\globalThings.h"
 #include <fstream>
 #include <iostream>
 #include <istream>
 #include <sstream>
-
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 extern glm::vec3 g_cameraEye;
 extern glm::vec3 g_cameraTarget;
-bool c3DModelFileLoader::LoadPLYFile_Format_XYZ_N_RGBA_UV(std::string filename,
-    sModelDrawInfo& modelDrawInfo,
-    std::string& errorText)
+Assimp::Importer importer;
+void CastToGLM(const aiMatrix4x4& in, glm::mat4& out)
 {
-    errorText = "";     // Clear the error (i.e. no error)
+	out = glm::mat4(in.a1, in.b1, in.c1, in.d1,
+		in.a2, in.b2, in.c2, in.d2,
+		in.a3, in.b3, in.c3, in.d3,
+		in.a4, in.b4, in.c4, in.d4);
+}
+bool c3DModelFileLoader::LoadPLYFile_Format_XYZ_N_RGBA_UV(std::string filename,
+	sModelDrawInfo& modelDrawInfo,
+	std::string& errorText)
+{
+	errorText = "";     // Clear the error (i.e. no error)
 
-    struct sVertex_XYZ_N_RGBA_UV
-    {
-        float x, y, z;
-        float nx, ny, nz;
-        //uchar red, green, blue, alpha;
-        float red, green, blue, alpha;
-        float texture_u, texture_v;
-    };
+	struct sVertex_XYZ_N_RGBA_UV
+	{
+		float x, y, z;
+		float nx, ny, nz;
+		//uchar red, green, blue, alpha;
+		float red, green, blue, alpha;
+		float texture_u, texture_v;
+	};
 
-    struct sTrianglePLY
-    {
-        // The 3 vertex index values from the ply file
-        unsigned int vertexIndices[3];
-    };
+	struct sTrianglePLY
+	{
+		// The 3 vertex index values from the ply file
+		unsigned int vertexIndices[3];
+	};
 
-    // Array we will load into
-    sVertex_XYZ_N_RGBA_UV* pTheModelArray = NULL;   // NULL, 0, nullptr
-    sTrianglePLY* pTheModelTriangleArray = NULL;
-    //    unsigned int numberOfvertices = 0;
-    //    unsigned int numberOfTriangles = 0;
+	// Array we will load into
+	sVertex_XYZ_N_RGBA_UV* pTheModelArray = NULL;   // NULL, 0, nullptr
+	sTrianglePLY* pTheModelTriangleArray = NULL;
+	//    unsigned int numberOfvertices = 0;
+	//    unsigned int numberOfTriangles = 0;
 
-        // Start loading the file
+		// Start loading the file
 
-    std::ifstream theFile(filename);
-    if (!theFile.is_open())
-    {
-        //        std::cout << "Didn't open it!" << std::endl;
-        errorText = "Can't open the file.";
-        return false;
-    }
+	std::ifstream theFile(filename);
+	if (!theFile.is_open())
+	{
+		//        std::cout << "Didn't open it!" << std::endl;
+		errorText = "Can't open the file.";
+		return false;
+	}
 
-    // Read an entire line
-    char buffer[10000];
-    theFile.getline(buffer, 10000);
+	// Read an entire line
+	char buffer[10000];
+	theFile.getline(buffer, 10000);
 
-    std::string theNextToken;
+	std::string theNextToken;
 
-    // Scan for the word "vertex"
-    while (theFile >> theNextToken)
-    {
-        if (theNextToken == "vertex")
-        {
-            break;
-        }
-    }
-    // 
-    theFile >> modelDrawInfo.numberOfVertices;
+	// Scan for the word "vertex"
+	while (theFile >> theNextToken)
+	{
+		if (theNextToken == "vertex")
+		{
+			break;
+		}
+	}
+	//
+	theFile >> modelDrawInfo.numberOfVertices;
 
-    // Scan for the word "face"
-    while (theFile >> theNextToken)
-    {
-        if (theNextToken == "face")
-        {
-            break;
-        }
-    }
-    // 
-    theFile >> modelDrawInfo.numberOfTriangles;
+	// Scan for the word "face"
+	while (theFile >> theNextToken)
+	{
+		if (theNextToken == "face")
+		{
+			break;
+		}
+	}
+	//
+	theFile >> modelDrawInfo.numberOfTriangles;
 
-    // Scan for the word "end_header"
-    while (theFile >> theNextToken)
-    {
-        if (theNextToken == "end_header")
-        {
-            break;
-        }
-    }
+	// Scan for the word "end_header"
+	while (theFile >> theNextToken)
+	{
+		if (theNextToken == "end_header")
+		{
+			break;
+		}
+	}
 
-    // Now we load the vertices
-    // -0.036872 0.127727 0.00440925 0.2438786 0.9638011 -0.1077533 127 127 127 255 0.337485 0.8899501
+	// Now we load the vertices
+	// -0.036872 0.127727 0.00440925 0.2438786 0.9638011 -0.1077533 127 127 127 255 0.337485 0.8899501
 
-    pTheModelArray = new sVertex_XYZ_N_RGBA_UV[modelDrawInfo.numberOfVertices];
+	pTheModelArray = new sVertex_XYZ_N_RGBA_UV[modelDrawInfo.numberOfVertices];
 
-    //    std::cout << "Loading";
-    for (unsigned int count = 0; count != modelDrawInfo.numberOfVertices; count++)
-    {
-        theFile >> pTheModelArray[count].x;
-        theFile >> pTheModelArray[count].y;
-        theFile >> pTheModelArray[count].z;
+	//    std::cout << "Loading";
+	for (unsigned int count = 0; count != modelDrawInfo.numberOfVertices; count++)
+	{
+		theFile >> pTheModelArray[count].x;
+		theFile >> pTheModelArray[count].y;
+		theFile >> pTheModelArray[count].z;
 
-        theFile >> pTheModelArray[count].nx;
-        theFile >> pTheModelArray[count].ny;
-        theFile >> pTheModelArray[count].nz;
+		theFile >> pTheModelArray[count].nx;
+		theFile >> pTheModelArray[count].ny;
+		theFile >> pTheModelArray[count].nz;
 
-        theFile >> pTheModelArray[count].red;
-        theFile >> pTheModelArray[count].green;
-        theFile >> pTheModelArray[count].blue;
-        theFile >> pTheModelArray[count].alpha;
+		theFile >> pTheModelArray[count].red;
+		theFile >> pTheModelArray[count].green;
+		theFile >> pTheModelArray[count].blue;
+		theFile >> pTheModelArray[count].alpha;
 
-        theFile >> pTheModelArray[count].texture_u;
-        theFile >> pTheModelArray[count].texture_v;
+		theFile >> pTheModelArray[count].texture_u;
+		theFile >> pTheModelArray[count].texture_v;
 
-        //        if (count % 10000 == 0)
-        //        {
-        //            std::cout << ".";
-        //        }
-    }
-    //    std::cout << "done" << std::endl;
+		//        if (count % 10000 == 0)
+		//        {
+		//            std::cout << ".";
+		//        }
+	}
+	//    std::cout << "done" << std::endl;
 
+		// Load the faces (or triangles)
+	pTheModelTriangleArray = new sTrianglePLY[modelDrawInfo.numberOfTriangles];
 
+	for (unsigned int count = 0; count != modelDrawInfo.numberOfTriangles; count++)
+	{
+		// 3 15393 15394 15395
+		unsigned int discard = 0;
+		theFile >> discard;
 
+		theFile >> pTheModelTriangleArray[count].vertexIndices[0];
+		theFile >> pTheModelTriangleArray[count].vertexIndices[1];
+		theFile >> pTheModelTriangleArray[count].vertexIndices[2];
+	}
 
+	theFile.close();
 
-        // Load the faces (or triangles)
-    pTheModelTriangleArray = new sTrianglePLY[modelDrawInfo.numberOfTriangles];
+	// This is now different because the vertex layout in the shader is different
+	modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
+	//    modelDrawInfo.pVertices = new sVertex[modelDrawInfo.numberOfVertices];
 
-    for (unsigned int count = 0; count != modelDrawInfo.numberOfTriangles; count++)
-    {
-        // 3 15393 15394 15395 
-        unsigned int discard = 0;
-        theFile >> discard;
+		// Now copy the information from the PLY infomation to the model draw info structure
+	for (unsigned int index = 0; index != modelDrawInfo.numberOfVertices; index++)
+	{
+		// To The Shader                        From the file
+		modelDrawInfo.pVertices[index].x = pTheModelArray[index].x;
+		modelDrawInfo.pVertices[index].y = pTheModelArray[index].y;
+		modelDrawInfo.pVertices[index].z = pTheModelArray[index].z;
 
-        theFile >> pTheModelTriangleArray[count].vertexIndices[0];
-        theFile >> pTheModelTriangleArray[count].vertexIndices[1];
-        theFile >> pTheModelTriangleArray[count].vertexIndices[2];
-    }
+		modelDrawInfo.pVertices[index].r = pTheModelArray[index].red;
+		modelDrawInfo.pVertices[index].g = pTheModelArray[index].green;
+		modelDrawInfo.pVertices[index].b = pTheModelArray[index].blue;
 
-    theFile.close();
+		// Copy the normal information we loaded, too! :)
+		modelDrawInfo.pVertices[index].nx = pTheModelArray[index].nx;
+		modelDrawInfo.pVertices[index].ny = pTheModelArray[index].ny;
+		modelDrawInfo.pVertices[index].nz = pTheModelArray[index].nz;
 
-    // This is now different because the vertex layout in the shader is different
-    modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
-    //    modelDrawInfo.pVertices = new sVertex[modelDrawInfo.numberOfVertices];
+		// Copy the texture coordinates we loaded
+		modelDrawInfo.pVertices[index].u0 = pTheModelArray[index].texture_u;
+		modelDrawInfo.pVertices[index].v0 = pTheModelArray[index].texture_v;
+		// For now, I'll ignore the other two
+	}
 
-        // Now copy the information from the PLY infomation to the model draw info structure
-    for (unsigned int index = 0; index != modelDrawInfo.numberOfVertices; index++)
-    {
-        // To The Shader                        From the file
-        modelDrawInfo.pVertices[index].x = pTheModelArray[index].x;
-        modelDrawInfo.pVertices[index].y = pTheModelArray[index].y;
-        modelDrawInfo.pVertices[index].z = pTheModelArray[index].z;
+	modelDrawInfo.numberOfIndices = modelDrawInfo.numberOfTriangles * 3;
 
-        modelDrawInfo.pVertices[index].r = pTheModelArray[index].red;
-        modelDrawInfo.pVertices[index].g = pTheModelArray[index].green;
-        modelDrawInfo.pVertices[index].b = pTheModelArray[index].blue;
+	// This is the "index" (or element) buffer
+	modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
 
-        // Copy the normal information we loaded, too! :)
-        modelDrawInfo.pVertices[index].nx = pTheModelArray[index].nx;
-        modelDrawInfo.pVertices[index].ny = pTheModelArray[index].ny;
-        modelDrawInfo.pVertices[index].nz = pTheModelArray[index].nz;
+	unsigned int vertex_element_index_index = 0;
 
-        // Copy the texture coordinates we loaded
-        modelDrawInfo.pVertices[index].u0 = pTheModelArray[index].texture_u;
-        modelDrawInfo.pVertices[index].v0 = pTheModelArray[index].texture_v;
-        // For now, I'll ignore the other two
+	for (unsigned int triangleIndex = 0; triangleIndex != modelDrawInfo.numberOfTriangles; triangleIndex++)
+	{
+		modelDrawInfo.pIndices[vertex_element_index_index + 0] = pTheModelTriangleArray[triangleIndex].vertexIndices[0];
+		modelDrawInfo.pIndices[vertex_element_index_index + 1] = pTheModelTriangleArray[triangleIndex].vertexIndices[1];
+		modelDrawInfo.pIndices[vertex_element_index_index + 2] = pTheModelTriangleArray[triangleIndex].vertexIndices[2];
 
+		// Each +1 of the triangle index moves the "vertex element index" by 3
+		// (3 vertices per triangle)
+		vertex_element_index_index += 3;
+	}
 
-    }
+	delete[] pTheModelArray;
+	delete[] pTheModelTriangleArray;
 
-    modelDrawInfo.numberOfIndices = modelDrawInfo.numberOfTriangles * 3;
+	return true;
+}
 
-    // This is the "index" (or element) buffer
-    modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
+bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, sModelDrawInfo& modelDrawInfo, std::string& errorText)
+{
+	const aiScene* scene = importer.ReadFile(filename,
+		aiProcess_Triangulate |
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_LimitBoneWeights);
 
-    unsigned int vertex_element_index_index = 0;
+	// Check for errors
+	if (!scene)
+	{
+		errorText = "Failed to load FBX file: " + filename;
+		std::cout << errorText << std::endl;
+		return false;
+	}
+	else std::cout << "Loaded FBX File: " << filename << std::endl;
 
-    for (unsigned int triangleIndex = 0; triangleIndex != modelDrawInfo.numberOfTriangles; triangleIndex++)
-    {
-        modelDrawInfo.pIndices[vertex_element_index_index + 0] = pTheModelTriangleArray[triangleIndex].vertexIndices[0];
-        modelDrawInfo.pIndices[vertex_element_index_index + 1] = pTheModelTriangleArray[triangleIndex].vertexIndices[1];
-        modelDrawInfo.pIndices[vertex_element_index_index + 2] = pTheModelTriangleArray[triangleIndex].vertexIndices[2];
+	// Load mesh
+	if (scene->HasMeshes())
+	{
+		aiMesh* mesh = scene->mMeshes[0];
+		modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
+		modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
 
-        // Each +1 of the triangle index moves the "vertex element index" by 3
-        // (3 vertices per triangle)
-        vertex_element_index_index += 3;
-    }
+		modelDrawInfo.numberOfVertices = mesh->mNumVertices;
+		modelDrawInfo.numberOfTriangles = mesh->mNumFaces;
+		modelDrawInfo.numberOfIndices = modelDrawInfo.numberOfTriangles * 3;
 
-    delete[] pTheModelArray;
-    delete[] pTheModelTriangleArray;
+		// Create a bone reference map
+		CharacterAnimationData animationData(scene);
+		int totalWeights = 0;
 
+		std::vector<BoneVertexData> boneVertexData;
+		boneVertexData.resize(mesh->mNumVertices);
+		int boneCount = 0;
+		for (int i = 0; i < mesh->mNumBones; i++)
+		{
+			aiBone* bone = mesh->mBones[i];
 
-    return true;
+			// Bone ids
+			int boneIdx = 0;
+			std::string boneName(bone->mName.data);
+
+			std::map<std::string, int>::iterator it = animationData.boneNameToIdMap.find(boneName);
+			if (it == animationData.boneNameToIdMap.end())
+			{
+				boneIdx = boneCount;
+				boneCount++;
+				BoneInfo bi;
+				bi.name = boneName;
+				animationData.boneInfoVec.push_back(bi);
+
+				CastToGLM(bone->mOffsetMatrix, animationData.boneInfoVec[boneIdx].boneOffset);
+				animationData.boneNameToIdMap[boneName] = boneIdx;
+			}
+			else
+			{
+				boneIdx = animationData.boneNameToIdMap[boneName];
+			}
+			// Bone weights
+			for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
+			{
+				float weight = bone->mWeights[weightIdx].mWeight;
+				int vertexId = bone->mWeights[weightIdx].mVertexId;
+				boneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
+			}
+		}
+
+		// Loop through vertices
+		for (unsigned int i = 0; i < modelDrawInfo.numberOfVertices; ++i)
+		{
+			// Vertices
+			modelDrawInfo.pVertices[i].x = mesh->mVertices[i].x;
+			modelDrawInfo.pVertices[i].y = mesh->mVertices[i].y;
+			modelDrawInfo.pVertices[i].z = mesh->mVertices[i].z;
+			modelDrawInfo.pVertices[i].w = 1.f;
+
+			// Normals
+			if (mesh->HasNormals())
+			{
+				modelDrawInfo.pVertices[i].nx = mesh->mNormals[i].x;
+				modelDrawInfo.pVertices[i].ny = mesh->mNormals[i].y;
+				modelDrawInfo.pVertices[i].nz = mesh->mNormals[i].z;
+				modelDrawInfo.pVertices[i].nw = 0.f;
+			}
+			else
+			{
+				modelDrawInfo.pVertices[i].nx = 1.f;
+				modelDrawInfo.pVertices[i].ny = 0.f;
+				modelDrawInfo.pVertices[i].nz = 0.f;
+				modelDrawInfo.pVertices[i].nw = 0.f;
+			}
+
+			// Texture coordinates
+			if (mesh->HasTextureCoords(0))
+			{
+				modelDrawInfo.pVertices[i].u0 = mesh->mTextureCoords[0][i].x;
+				modelDrawInfo.pVertices[i].v0 = mesh->mTextureCoords[0][i].y;
+			}
+			if (mesh->HasTextureCoords(1))
+			{
+				modelDrawInfo.pVertices[i].u1 = mesh->mTextureCoords[1][i].x;
+				modelDrawInfo.pVertices[i].v1 = mesh->mTextureCoords[1][i].y;
+			}
+			// Colors
+			if (mesh->mColors[0])
+			{
+				modelDrawInfo.pVertices[i].r = mesh->mColors[0][i].r;
+				modelDrawInfo.pVertices[i].g = mesh->mColors[0][i].g;
+				modelDrawInfo.pVertices[i].b = mesh->mColors[0][i].b;
+				modelDrawInfo.pVertices[i].a = mesh->mColors[0][i].a;
+			}
+			// Use a BoneInformation Map to get bone info and store the values here
+			BoneVertexData& bvd = boneVertexData[i];
+			modelDrawInfo.pVertices[i].vBoneID[0] = bvd.ids[0];
+			modelDrawInfo.pVertices[i].vBoneID[1] = bvd.ids[1];
+			modelDrawInfo.pVertices[i].vBoneID[2] = bvd.ids[2];
+			modelDrawInfo.pVertices[i].vBoneID[3] = bvd.ids[3];
+
+			modelDrawInfo.pVertices[i].vBoneWeight[0] = bvd.weights[0];
+			modelDrawInfo.pVertices[i].vBoneWeight[1] = bvd.weights[1];
+			modelDrawInfo.pVertices[i].vBoneWeight[2] = bvd.weights[2];
+			modelDrawInfo.pVertices[i].vBoneWeight[3] = bvd.weights[3];
+		}
+		// Load triangles
+		for (unsigned int i = 0; i < modelDrawInfo.numberOfTriangles; ++i)
+		{
+			aiFace face = mesh->mFaces[i];
+			modelDrawInfo.pIndices[i * 3] = face.mIndices[0];
+			modelDrawInfo.pIndices[i * 3 + 1] = face.mIndices[1];
+			modelDrawInfo.pIndices[i * 3 + 2] = face.mIndices[2];
+		}
+	}
+
+	return true;
 }
 
 void cVAOManager::Load()
@@ -204,9 +343,9 @@ void cVAOManager::Load()
 			in >> type;
 			if (type == "c")
 			{
-                std::getline(saveFile, line);
-                std::istringstream in2(line);
-                in2 >> ::g_cameraEye.x >> ::g_cameraEye.y >> ::g_cameraEye.z >> ::g_cameraTarget.x >> ::g_cameraTarget.y >> ::g_cameraTarget.z;
+				std::getline(saveFile, line);
+				std::istringstream in2(line);
+				in2 >> ::g_cameraEye.x >> ::g_cameraEye.y >> ::g_cameraEye.z >> ::g_cameraTarget.x >> ::g_cameraTarget.y >> ::g_cameraTarget.z;
 			}
 			if (type == "l")
 			{
@@ -229,18 +368,18 @@ void cVAOManager::Load()
 				{
 					std::getline(saveFile, line);
 					std::istringstream in2(line);
-                    std::string meshname;
-                    in2 >> meshname;
-                    if(meshname == "Floor1" || meshname == "Wall1")
-                    {
-                        modelIndex++;
-                        continue;
-                    }
-                    g_pMeshObjects[modelIndex]->meshName = meshname;
+					std::string meshname;
+					in2 >> meshname;
+					if (meshname == "Floor1" || meshname == "Wall1")
+					{
+						modelIndex++;
+						continue;
+					}
+					g_pMeshObjects[modelIndex]->meshName = meshname;
 					in2 >> g_pMeshObjects[modelIndex]->friendlyName >> g_pMeshObjects[modelIndex]->position.x >> g_pMeshObjects[modelIndex]->position.y >> g_pMeshObjects[modelIndex]->position.z
 						>> g_pMeshObjects[modelIndex]->qRotation.x >> g_pMeshObjects[modelIndex]->qRotation.y >> g_pMeshObjects[modelIndex]->qRotation.z >> g_pMeshObjects[modelIndex]->qRotation.w >> g_pMeshObjects[modelIndex]->scaleXYZ.x >> g_pMeshObjects[modelIndex]->scaleXYZ.y >> g_pMeshObjects[modelIndex]->scaleXYZ.z >> g_pMeshObjects[modelIndex]->isWireframe
 						>> g_pMeshObjects[modelIndex]->bUse_RGBA_colour >> g_pMeshObjects[modelIndex]->RGBA_colour.x >> g_pMeshObjects[modelIndex]->RGBA_colour.y >> g_pMeshObjects[modelIndex]->RGBA_colour.z >> g_pMeshObjects[modelIndex]->RGBA_colour.w
-                        >> g_pMeshObjects[modelIndex]->specular_colour_and_power.x >> g_pMeshObjects[modelIndex]->specular_colour_and_power.y >> g_pMeshObjects[modelIndex]->specular_colour_and_power.z >> g_pMeshObjects[modelIndex]->specular_colour_and_power.w
+						>> g_pMeshObjects[modelIndex]->specular_colour_and_power.x >> g_pMeshObjects[modelIndex]->specular_colour_and_power.y >> g_pMeshObjects[modelIndex]->specular_colour_and_power.z >> g_pMeshObjects[modelIndex]->specular_colour_and_power.w
 						>> g_pMeshObjects[modelIndex]->bDoNotLight >> g_pMeshObjects[modelIndex]->bIsVisible;
 					modelIndex++;
 				}
@@ -252,10 +391,10 @@ void cVAOManager::Load()
 
 void cVAOManager::AddObject(cMeshObject obj)
 {
-    std::ofstream saveFile;
-    saveFile.open("assets/createObjects.txt", std::ios::app);
-    saveFile << "basic " << obj.meshName << " " << obj.friendlyName << " 0 0 0 0 0 0 1\n";
-    saveFile.close();
+	std::ofstream saveFile;
+	saveFile.open("assets/createObjects.txt", std::ios::app);
+	saveFile << "basic " << obj.meshName << " " << obj.friendlyName << " 0 0 0 0 0 0 1\n";
+	saveFile.close();
 }
 void cVAOManager::Save()
 {
