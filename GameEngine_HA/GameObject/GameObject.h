@@ -43,4 +43,3 @@ public:
     Animation Animation;
 };
 
-int GameObject::nextId = 0;

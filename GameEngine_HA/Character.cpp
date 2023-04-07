@@ -58,6 +58,35 @@ Character::~Character()
 {
 }
 
+void Character::LoadCharacterFromAssimp(const char* filename)
+{
+	unsigned int flags =
+	aiProcess_Triangulate
+		| aiProcess_LimitBoneWeights
+		| aiProcess_JoinIdenticalVertices;
+	m_Scene = new AssimpScene(filename, flags);
+
+	aiMatrix4x4 g = m_Scene->RootNode->mTransformation;
+	aiMatrix4x4 inverse = g.Inverse();
+
+	// Node hierarchy for rendering
+	m_RootNode = CreateNodeHierarchy(m_Scene->RootNode);
+	CastToGLM(inverse, m_GlobalInverseTransform);
+	if (m_Scene->HasMeshes())
+	{
+		aiMesh* mesh = m_Scene->Meshes[0];
+		for (size_t i = 0; i < m_Scene->NumMeshes(); i++)
+		{
+			if (m_Scene->Meshes[i]->HasBones())
+			{
+				std::cout << "Mesh #" << i << " has bones!" << std::endl;
+				mesh = m_Scene->Meshes[i];
+			}
+		}
+		LoadAssimpBones(mesh);
+	}
+}
+
 void Character::LoadAnimationFromAssimp(const char* filename)
 {
 	const aiScene* scene = m_AnimationImporter.ReadFile(filename, 0);
@@ -71,6 +100,49 @@ void Character::LoadAnimationFromAssimp(const char* filename)
 		aiAnimation* animation = scene->mAnimations[i];
 		std::cout << "Loading animation: " << scene->mAnimations[i]->mName.C_Str() << std::endl;
 		LoadAssimpAnimation(animation);
+	}
+}
+
+void Character::LoadAssimpBones(const aiMesh* assimpMesh)
+{
+	// Record Vertex Weights
+	int totalWeights = 0;
+	m_BoneVertexData.resize(assimpMesh->mNumVertices);
+	int boneCount = 0;
+
+	int numBones = assimpMesh->mNumBones;
+	for (int i = 0; i < numBones; i++)
+	{
+		aiBone* bone = assimpMesh->mBones[i];
+
+		int boneIdx = 0;
+		std::string boneName(bone->mName.data);
+
+		printf("%d: %s\n", i, boneName.c_str());
+
+		std::map<std::string, int>::iterator it = m_BoneNameToIdMap.find(boneName);
+		if (it == m_BoneNameToIdMap.end())
+		{
+			boneIdx = boneCount;
+			boneCount++;
+			BoneInfo bi;
+			bi.name = boneName;
+			m_BoneInfoVec.push_back(bi);
+
+			CastToGLM(bone->mOffsetMatrix, m_BoneInfoVec[boneIdx].boneOffset);
+			m_BoneNameToIdMap[boneName] = boneIdx;
+		}
+		else
+		{
+			boneIdx = it->second;
+		}
+
+		for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
+		{
+			float weight = bone->mWeights[weightIdx].mWeight;
+			int vertexId = bone->mWeights[weightIdx].mVertexId;
+			m_BoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
+		}
 	}
 }
 
@@ -135,7 +207,7 @@ void Character::LoadAssimpAnimation(const aiAnimation* animation)
 	if (animation == nullptr)
 		return;
 
-	if (m_NumAnimationsLoaded >= 10)
+	if (m_NumAnimationsLoaded >= 14)
 		return;
 
 	unsigned int numChannels = animation->mNumChannels;

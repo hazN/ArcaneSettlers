@@ -56,7 +56,7 @@ public:
 	// Loading
 	void LoadCharacterFromAssimp(const char* filename);
 	void LoadAnimationFromAssimp(const char* filename);
-
+	void LoadAssimpBones(const aiMesh* assimpMesh);
 	void UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt);
 
 	void SetAnimation(int animationId, float time = 1.f) {
@@ -122,10 +122,10 @@ private:
 	int m_PreviousAnimation;
 	float m_TransitionTime;
 
-	std::vector<AnimationData*> m_Channels[10];
-	double m_DurationInTicks[10];
-	double m_TicksPerSecond[10];
-	double m_DurationInSeconds[10];
+	std::vector<AnimationData*> m_Channels[20];
+	double m_DurationInTicks[20];
+	double m_TicksPerSecond[20];
+	double m_DurationInSeconds[20];
 
 	std::map<std::string, int> m_BoneNameToAnimationMap;
 

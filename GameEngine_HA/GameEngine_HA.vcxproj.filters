@@ -165,6 +165,12 @@
     <ClCompile Include="Character.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationManager.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cVAOManager\sModelDrawInfo.h">
@@ -291,6 +297,9 @@
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="Character.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationManager.h">
       <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>

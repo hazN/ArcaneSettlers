@@ -4,6 +4,7 @@
 // The variable is HERE.
 cLightManager* g_pTheLightManager = NULL;
 std::vector< cMeshObject* > g_pMeshObjects;
+AnimationManager* animationManager = new AnimationManager();
 int currentLight = 0;
 int currentModel = 0;
 cVAOManager* pVAOManager = new cVAOManager;
@@ -13,7 +14,6 @@ bool isTyping = false;
 GLFWwindow* window;
 int numHitTargets = 0;
 bool menuMode = true;
-cMeshObject* player = new cMeshObject;
 glm::vec3 angles[3] = {glm::vec3(0.651306f, -0.335724f, -0.680554f),
 						glm::vec3(0.355136f, -0.425400f, -0.832417f),
 						glm::vec3(-0.165933f, -0.375744f, -0.911748f) };

@@ -10,16 +10,17 @@
 #include "cVAOManager/cVAOManager.h"
 #include <Interface/iPhysicsFactory.h>
 #include <Interface/iPhysicsWorld.h>
+#include "AnimationManager.h"
 // extern means the variable isn't actually here...
 // ...it's somewhere else (in a .cpp file somewhere)
 extern GLFWwindow* window;
 extern cLightManager* g_pTheLightManager;
 extern std::vector< cMeshObject* > g_pMeshObjects;
+extern AnimationManager* animationManager;
 extern int currentLight;
 extern int currentModel;
 extern cVAOManager* pVAOManager;
 extern bool isTyping;
-extern 	cMeshObject* player;
 enum eEditMode
 {
 	MOVING_CAMERA,

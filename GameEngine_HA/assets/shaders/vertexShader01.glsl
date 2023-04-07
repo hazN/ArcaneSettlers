@@ -28,7 +28,8 @@ uniform mat4 mModel;
 uniform mat4 mModelInverseTranspose;		// mModel with Only Rotation;
 uniform mat4 mView;
 uniform mat4 mProjection;
-
+uniform bool bHasBones;
+uniform mat4 BoneMatrices[66];
 void main()
 {
 
@@ -38,8 +39,21 @@ void main()
 	// Output is in screen space 
 	// x & y are in (normalized) screen space, z is the depth from the camera
 	mat4 mMVP = mProjection * mView * mModel;
-	
-	gl_Position = mMVP * vec4(vertPosition, 1.0f);
+	if(bHasBones)
+	{
+		mat4 boneTransform = BoneMatrices[int(vBoneID[0])] * vBoneWeight.x;
+		boneTransform += BoneMatrices[int(vBoneID[1])] * vBoneWeight.y;
+		boneTransform += BoneMatrices[int(vBoneID[2])] * vBoneWeight.z;
+		boneTransform += BoneMatrices[int(vBoneID[3])] * vBoneWeight.w;
+		vec4 position = boneTransform * vec4(vPosition.xyz, 1.0);
+		gl_Position = mMVP * position;
+		//gl_Position = mMVP * BoneMatrices[ int(vBoneID[0]) ] * vec4(vPosition.xyz, 1.0);
+	}
+	else
+	{
+		gl_Position = mMVP * vec4(vertPosition, 1.0f);
+	}
+	//gl_Position = mMVP * vec4(vertPosition, 1.0f);
 	
 	// The location of the vertex in WORLD SPACE 
 	// for the lighting
@@ -58,9 +72,3 @@ void main()
 	fBinormal = vBiNormal;
 
 }
-
-
-// You can also set the layout with the location keyword
-//	layout(location=0) in vec3 vCol;
-//	layout(location=1) in vec3 vPos;
-//	layout(location=2) in vec3 vNormal;

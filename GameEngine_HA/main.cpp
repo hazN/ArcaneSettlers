@@ -2,7 +2,6 @@
 //#define GLFW_INCLUDE_NONE
 //#include <GLFW/glfw3.h>
 #include "globalOpenGL.h"
-#include "cLuaBrain.h"
 #include "Animation.h"
 #include "JSONPersitence.h"
 //#include "linmath.h"
@@ -23,7 +22,6 @@
 // Some STL (Standard Template Library) things
 #include <vector>           // aka a "smart array"
 
-#include "AIBrain.h"
 #include "globalThings.h"
 
 #include "cShaderManager.h"
@@ -44,6 +42,7 @@
 #include <Interface/CylinderShape.h>
 #include <Interface/PlaneShape.h>
 #include <physics/physx/PhysicsFactory.h>
+#include "AnimationManager.h"
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -51,7 +50,6 @@ std::vector<GameObject*> gameObjects;
 std::vector<GameObject*> randomBalls;
 extern int ballIndex;
 cBasicTextureManager* g_pTextureManager = NULL;
-cCommandScheduler* g_scheduler = new cCommandScheduler;
 
 void CreateScene(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world);
 void CreateRandomSphere(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 radius, glm::vec2 mass);
@@ -734,10 +732,16 @@ int main(int argc, char* argv[])
 	world->AddBody(PlayerBall->rigidBody);
 	gameObjects.push_back(PlayerBall);
 
+	// ANIMATION
+	//CharacterAnimationData* characterAnimation = new CharacterAnimationData();
+	//animationManager->LoadAnimation();
+
+
 	const char* ANIMATION1 = "CharacterArmature|Run";
 	GameObject* goWarrior = new GameObject();
 	goWarrior->animCharacter = new Character();
 	goWarrior->mesh = pWarrior;
+	goWarrior->animCharacter->LoadCharacterFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
 	goWarrior->animCharacter->LoadAnimationFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
 	goWarrior->Animation.IsCharacterAnimation = true;
 	goWarrior->Animation.AnimationTime = 0.f;
@@ -747,12 +751,15 @@ int main(int argc, char* argv[])
 	goWarrior->Animation.Speed = 1.f;
 	goWarrior->hasBones = true;
 	goWarrior->animCharacter->SetAnimation(0);
+
+
+
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	//theEditMode = PHYSICS_TEST;
 	std::vector<GameObject*> goVector;
 	goVector.push_back(goWarrior);
-	float g_PrevTime;
+	float g_PrevTime = 0.f;
 	while (!glfwWindowShouldClose(window))
 	{
 		{
@@ -767,7 +774,7 @@ int main(int argc, char* argv[])
 				elapsedTimeInSeconds = 0.001f;
 
 			// Update the animation
-			//g_AnimationManager.Update(goVector, elapsedTimeInSeconds);
+			//animationManager->Update(goVector, elapsedTimeInSeconds);
 
 			if (goWarrior != nullptr)
 			{
@@ -950,6 +957,36 @@ int main(int argc, char* argv[])
 				matModel,
 				shaderID, ::g_pTextureManager,
 				pVAOManager, mModel_location, mModelInverseTransform_location);
+		}
+		for (GameObject* go : goVector)
+		{
+			if (go->hasBones)
+			{
+
+				for (size_t i = 0; i < go->BoneModelMatrices.size(); i++)
+				{
+					std::string name = "BoneMatrices[" + std::to_string(i) + "]";
+					GLint boneMatrix = glGetUniformLocation(shaderID, name.c_str());
+					glUniformMatrix4fv(boneMatrix, 1, GL_FALSE, glm::value_ptr(go->BoneModelMatrices[i]));
+					//std::string name = "BoneMatrices[" + std::to_string(i) + "]";
+				}
+				GLint bHasBones = glGetUniformLocation(shaderID, "bHasBones");
+				if (go->hasBones)
+				{
+					glUniform1f(bHasBones, (GLfloat)GL_TRUE);
+				}
+				// The parent's model matrix is set to the identity
+				glm::mat4x4 matModel = glm::mat4x4(1.0f);
+
+				// All the drawing code has been moved to the DrawObject function
+				if (go->mesh == nullptr)
+					continue;
+				DrawObject(go->mesh,
+					matModel,
+					shaderID, ::g_pTextureManager,
+					pVAOManager, mModel_location, mModelInverseTransform_location);
+				glUniform1f(bHasBones, (GLfloat)GL_FALSE);
+			}
 		}
 		for (std::vector< cMeshObject* >::iterator itCurrentMesh = g_pMeshObjects.begin();
 			itCurrentMesh != g_pMeshObjects.end();

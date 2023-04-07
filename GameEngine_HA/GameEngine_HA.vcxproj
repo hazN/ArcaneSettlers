@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="C24BitBMPpixel.cpp" />
     <ClCompile Include="cBasicTextureManager.cpp" />
     <ClCompile Include="cCommandGroup.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="EditGUI.cpp" />
     <ClCompile Include="ExpandBeholder.cpp" />
     <ClCompile Include="Follow.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GenerateDungeon.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="globalThings.cpp" />
@@ -185,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="BoneHierarchy.h" />
     <ClInclude Include="C24BitBMPpixel.h" />
     <ClInclude Include="cBasicTextureManager.h" />
