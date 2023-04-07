@@ -208,117 +208,120 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 	// Load mesh
 	if (scene->HasMeshes())
 	{
-		aiMesh* mesh = scene->mMeshes[0];
-		modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
-		modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
-
-		modelDrawInfo.numberOfVertices = mesh->mNumVertices;
-		modelDrawInfo.numberOfTriangles = mesh->mNumFaces;
-		modelDrawInfo.numberOfIndices = modelDrawInfo.numberOfTriangles * 3;
-
-		// Create a bone reference map
-		CharacterAnimationData animationData(scene);
-		int totalWeights = 0;
-
-		std::vector<BoneVertexData> boneVertexData;
-		boneVertexData.resize(mesh->mNumVertices);
-		int boneCount = 0;
-		for (int i = 0; i < mesh->mNumBones; i++)
+		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 		{
-			aiBone* bone = mesh->mBones[i];
+			aiMesh* mesh = scene->mMeshes[meshIndex];
+			//aiMesh* mesh = scene->mMeshes[0];
+			modelDrawInfo.numberOfVertices = mesh->mNumVertices;
+			modelDrawInfo.numberOfTriangles = mesh->mNumFaces;
+			modelDrawInfo.numberOfIndices = modelDrawInfo.numberOfTriangles * 3;
 
-			// Bone ids
-			int boneIdx = 0;
-			std::string boneName(bone->mName.data);
+			modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
+			modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
+			// Create a bone reference map
+			CharacterAnimationData animationData(scene);
+			int totalWeights = 0;
 
-			std::map<std::string, int>::iterator it = animationData.boneNameToIdMap.find(boneName);
-			if (it == animationData.boneNameToIdMap.end())
+			std::vector<BoneVertexData> boneVertexData;
+			boneVertexData.resize(mesh->mNumVertices);
+			int boneCount = 0;
+			for (int i = 0; i < mesh->mNumBones; i++)
 			{
-				boneIdx = boneCount;
-				boneCount++;
-				BoneInfo bi;
-				bi.name = boneName;
-				animationData.boneInfoVec.push_back(bi);
+				aiBone* bone = mesh->mBones[i];
 
-				CastToGLM(bone->mOffsetMatrix, animationData.boneInfoVec[boneIdx].boneOffset);
-				animationData.boneNameToIdMap[boneName] = boneIdx;
-			}
-			else
-			{
-				boneIdx = animationData.boneNameToIdMap[boneName];
-			}
-			// Bone weights
-			for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
-			{
-				float weight = bone->mWeights[weightIdx].mWeight;
-				int vertexId = bone->mWeights[weightIdx].mVertexId;
-				boneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
-			}
-		}
+				// Bone ids
+				int boneIdx = 0;
+				std::string boneName(bone->mName.data);
 
-		// Loop through vertices
-		for (unsigned int i = 0; i < modelDrawInfo.numberOfVertices; ++i)
-		{
-			// Vertices
-			modelDrawInfo.pVertices[i].x = mesh->mVertices[i].x;
-			modelDrawInfo.pVertices[i].y = mesh->mVertices[i].y;
-			modelDrawInfo.pVertices[i].z = mesh->mVertices[i].z;
-			modelDrawInfo.pVertices[i].w = 1.f;
+				std::map<std::string, int>::iterator it = animationData.boneNameToIdMap.find(boneName);
+				if (it == animationData.boneNameToIdMap.end())
+				{
+					boneIdx = boneCount;
+					boneCount++;
+					BoneInfo bi;
+					bi.name = boneName;
+					animationData.boneInfoVec.push_back(bi);
 
-			// Normals
-			if (mesh->HasNormals())
-			{
-				modelDrawInfo.pVertices[i].nx = mesh->mNormals[i].x;
-				modelDrawInfo.pVertices[i].ny = mesh->mNormals[i].y;
-				modelDrawInfo.pVertices[i].nz = mesh->mNormals[i].z;
-				modelDrawInfo.pVertices[i].nw = 0.f;
-			}
-			else
-			{
-				modelDrawInfo.pVertices[i].nx = 1.f;
-				modelDrawInfo.pVertices[i].ny = 0.f;
-				modelDrawInfo.pVertices[i].nz = 0.f;
-				modelDrawInfo.pVertices[i].nw = 0.f;
+					CastToGLM(bone->mOffsetMatrix, animationData.boneInfoVec[boneIdx].boneOffset);
+					animationData.boneNameToIdMap[boneName] = boneIdx;
+				}
+				else
+				{
+					boneIdx = animationData.boneNameToIdMap[boneName];
+				}
+				// Bone weights
+				for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
+				{
+					float weight = bone->mWeights[weightIdx].mWeight;
+					int vertexId = bone->mWeights[weightIdx].mVertexId;
+					boneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
+				}
 			}
 
-			// Texture coordinates
-			if (mesh->HasTextureCoords(0))
+			// Loop through vertices
+			for (unsigned int i = 0; i < modelDrawInfo.numberOfVertices; ++i)
 			{
-				modelDrawInfo.pVertices[i].u0 = mesh->mTextureCoords[0][i].x;
-				modelDrawInfo.pVertices[i].v0 = mesh->mTextureCoords[0][i].y;
-			}
-			if (mesh->HasTextureCoords(1))
-			{
-				modelDrawInfo.pVertices[i].u1 = mesh->mTextureCoords[1][i].x;
-				modelDrawInfo.pVertices[i].v1 = mesh->mTextureCoords[1][i].y;
-			}
-			// Colors
-			if (mesh->mColors[0])
-			{
-				modelDrawInfo.pVertices[i].r = mesh->mColors[0][i].r;
-				modelDrawInfo.pVertices[i].g = mesh->mColors[0][i].g;
-				modelDrawInfo.pVertices[i].b = mesh->mColors[0][i].b;
-				modelDrawInfo.pVertices[i].a = mesh->mColors[0][i].a;
-			}
-			// Use a BoneInformation Map to get bone info and store the values here
-			BoneVertexData& bvd = boneVertexData[i];
-			modelDrawInfo.pVertices[i].vBoneID[0] = bvd.ids[0];
-			modelDrawInfo.pVertices[i].vBoneID[1] = bvd.ids[1];
-			modelDrawInfo.pVertices[i].vBoneID[2] = bvd.ids[2];
-			modelDrawInfo.pVertices[i].vBoneID[3] = bvd.ids[3];
+				// Vertices
+				modelDrawInfo.pVertices[i].x = mesh->mVertices[i].x;
+				modelDrawInfo.pVertices[i].y = mesh->mVertices[i].y;
+				modelDrawInfo.pVertices[i].z = mesh->mVertices[i].z;
+				modelDrawInfo.pVertices[i].w = 1.f;
 
-			modelDrawInfo.pVertices[i].vBoneWeight[0] = bvd.weights[0];
-			modelDrawInfo.pVertices[i].vBoneWeight[1] = bvd.weights[1];
-			modelDrawInfo.pVertices[i].vBoneWeight[2] = bvd.weights[2];
-			modelDrawInfo.pVertices[i].vBoneWeight[3] = bvd.weights[3];
-		}
-		// Load triangles
-		for (unsigned int i = 0; i < modelDrawInfo.numberOfTriangles; ++i)
-		{
-			aiFace face = mesh->mFaces[i];
-			modelDrawInfo.pIndices[i * 3] = face.mIndices[0];
-			modelDrawInfo.pIndices[i * 3 + 1] = face.mIndices[1];
-			modelDrawInfo.pIndices[i * 3 + 2] = face.mIndices[2];
+				// Normals
+				if (mesh->HasNormals())
+				{
+					modelDrawInfo.pVertices[i].nx = mesh->mNormals[i].x;
+					modelDrawInfo.pVertices[i].ny = mesh->mNormals[i].y;
+					modelDrawInfo.pVertices[i].nz = mesh->mNormals[i].z;
+					modelDrawInfo.pVertices[i].nw = 0.f;
+				}
+				else
+				{
+					modelDrawInfo.pVertices[i].nx = 1.f;
+					modelDrawInfo.pVertices[i].ny = 0.f;
+					modelDrawInfo.pVertices[i].nz = 0.f;
+					modelDrawInfo.pVertices[i].nw = 0.f;
+				}
+
+				// Texture coordinates
+				if (mesh->HasTextureCoords(0))
+				{
+					modelDrawInfo.pVertices[i].u0 = mesh->mTextureCoords[0][i].x;
+					modelDrawInfo.pVertices[i].v0 = mesh->mTextureCoords[0][i].y;
+				}
+				if (mesh->HasTextureCoords(1))
+				{
+					modelDrawInfo.pVertices[i].u1 = mesh->mTextureCoords[1][i].x;
+					modelDrawInfo.pVertices[i].v1 = mesh->mTextureCoords[1][i].y;
+				}
+				// Colors
+				if (mesh->mColors[0])
+				{
+					modelDrawInfo.pVertices[i].r = mesh->mColors[0][i].r;
+					modelDrawInfo.pVertices[i].g = mesh->mColors[0][i].g;
+					modelDrawInfo.pVertices[i].b = mesh->mColors[0][i].b;
+					modelDrawInfo.pVertices[i].a = mesh->mColors[0][i].a;
+				}
+				// Use a BoneInformation Map to get bone info and store the values here
+				BoneVertexData& bvd = boneVertexData[i];
+				modelDrawInfo.pVertices[i].vBoneID[0] = bvd.ids[0];
+				modelDrawInfo.pVertices[i].vBoneID[1] = bvd.ids[1];
+				modelDrawInfo.pVertices[i].vBoneID[2] = bvd.ids[2];
+				modelDrawInfo.pVertices[i].vBoneID[3] = bvd.ids[3];
+
+				modelDrawInfo.pVertices[i].vBoneWeight[0] = bvd.weights[0];
+				modelDrawInfo.pVertices[i].vBoneWeight[1] = bvd.weights[1];
+				modelDrawInfo.pVertices[i].vBoneWeight[2] = bvd.weights[2];
+				modelDrawInfo.pVertices[i].vBoneWeight[3] = bvd.weights[3];
+			}
+			// Load triangles
+			for (unsigned int i = 0; i < modelDrawInfo.numberOfTriangles; ++i)
+			{
+				aiFace face = mesh->mFaces[i];
+				modelDrawInfo.pIndices[i * 3] = face.mIndices[0];
+				modelDrawInfo.pIndices[i * 3 + 1] = face.mIndices[1];
+				modelDrawInfo.pIndices[i * 3 + 2] = face.mIndices[2];
+			}
 		}
 	}
 

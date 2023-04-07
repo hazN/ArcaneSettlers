@@ -24,7 +24,6 @@
 #include <vector>           // aka a "smart array"
 
 #include "AIBrain.h"
-#include "CarAnimations.h"
 #include "globalThings.h"
 
 #include "cShaderManager.h"
@@ -93,37 +92,26 @@ bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName,
 
 	// At this point, the file is open and ready for reading
 
-	std::string PLYFileNameToLoad;     // = "assets/models/MOTO/Blender (load from OBJ export) - only Moto_xyz_n_rgba_uv.ply";
-	std::string friendlyName;   // = "MOTO";
+	std::string PLYFileNameToLoad;
+	std::string friendlyName;
 
 	bool bKeepReadingFile = true;
 
 	const unsigned int BUFFER_SIZE = 1000;  // 1000 characters
-	char textBuffer[BUFFER_SIZE];       // Allocate AND clear (that's the {0} part)
-	// Clear that array to all zeros
-	memset(textBuffer, 0, BUFFER_SIZE);
-
-	// Or if it's integers, you can can do this short cut:
-	// char textBuffer[BUFFER_SIZE] = { 0 };       // Allocate AND clear (that's the {0} part)
+	char textBuffer[BUFFER_SIZE] = { 0 };  // Allocate AND clear (that's the {0} part)
 
 	while (bKeepReadingFile)
 	{
-		// Reads the entire line into the buffer (including any white space)
 		modelTypeFile.getline(textBuffer, BUFFER_SIZE);
 
-		PLYFileNameToLoad.clear();  // Erase whatever is already there (from before)
+		PLYFileNameToLoad.clear();
 		PLYFileNameToLoad.append(textBuffer);
 
-		// Is this the end of the file (have I read "EOF" yet?)?
 		if (PLYFileNameToLoad == "EOF")
 		{
-			// All done
 			bKeepReadingFile = false;
-			// Skip to the end of the while loop
 			continue;
 		}
-
-		// Load the "friendly name" line also
 
 		memset(textBuffer, 0, BUFFER_SIZE);
 		modelTypeFile.getline(textBuffer, BUFFER_SIZE);
@@ -133,25 +121,43 @@ bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName,
 		sModelDrawInfo motoDrawInfo;
 
 		c3DModelFileLoader fileLoader;
-		//if (LoadThePLYFile(PLYFileNameToLoad, motoDrawInfo))
 		std::string errorText = "";
-		if (fileLoader.LoadPLYFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
+
+		std::string fileExtension = PLYFileNameToLoad.substr(PLYFileNameToLoad.length() - 3);
+		bool isFBX = (fileExtension == "fbx" || fileExtension == "FBX");
+
+		if (isFBX)
 		{
-			std::cout << "Loaded the file OK" << std::endl;
+			if (fileLoader.LoadFBXFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
+			{
+				std::cout << "Loaded the FBX file OK" << std::endl;
+			}
+			else
+			{
+				std::cout << errorText;
+			}
 		}
 		else
 		{
-			std::cout << errorText;
+			if (fileLoader.LoadPLYFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
+			{
+				//std::cout << "Loaded the file OK" << std::endl;
+			}
+			else
+			{
+				std::cout << errorText;
+			}
 		}
 
 		if (pVAOManager->LoadModelIntoVAO(friendlyName, motoDrawInfo, shaderID))
 		{
 			std::cout << "Loaded the " << friendlyName << " model" << std::endl;
 		}
-	}//while (modelTypeFile
+	}
 
 	return true;
 }
+
 
 bool CreateObjects(std::string fileName)
 {
@@ -539,6 +545,19 @@ int main(int argc, char* argv[])
 	pBall->SetUniformScale(1);
 	g_pMeshObjects.push_back(pBall);
 
+	cMeshObject* pWarrior = new cMeshObject();
+	pWarrior->meshName = "Warrior";
+	pWarrior->friendlyName = "Warrior";
+	pWarrior->position = glm::vec3(0.f, 20.f, 0.f);
+	pWarrior->bUse_RGBA_colour = false;
+	pWarrior->scaleXYZ = glm::vec3(3.f);
+	pWarrior->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
+	pWarrior->textures[0] = "Warrior_Texture.bmp";
+	pWarrior->textureRatios[0] = 1.f;
+	pWarrior->textureRatios[1] = 1.f;
+	pWarrior->textureRatios[2] = 1.f;
+	pWarrior->textureRatios[3] = 1.f;
+	g_pMeshObjects.push_back(pWarrior);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -640,6 +659,7 @@ int main(int argc, char* argv[])
 	::g_pTextureManager->Create2DTextureFromBMPFile("cobblestones_stencil_mask.bmp");
 
 	::g_pTextureManager->Create2DTextureFromBMPFile("carbon.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
 
 	// Load a skybox
 	// Here's an example of the various sides: http://www.3dcpptutorials.sk/obrazky/cube_map.jpg

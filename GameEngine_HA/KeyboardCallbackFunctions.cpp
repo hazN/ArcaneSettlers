@@ -232,56 +232,6 @@ void key_callback(GLFWwindow* window,
 			{
 				::g_cameraEye.y += CAMERA_MOVE_SPEED;
 			}
-			if (key == GLFW_KEY_1)
-			{
-				animation_speed = 0.01f;
-			}
-			if (key == GLFW_KEY_2)
-			{
-				animation_speed = 0.025f;
-			}
-			if (key == GLFW_KEY_3)
-			{
-				animation_speed = 0.05f;
-			}
-			if (key == GLFW_KEY_4)
-			{
-				animation_speed = 0.075f;
-			}
-			if (key == GLFW_KEY_5)
-			{
-				animation_speed = 0.1f;
-			}
-			if (key == GLFW_KEY_R && action == GLFW_PRESS)
-			{
-				reverse = !reverse;
-			}
-			if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-			{
-				event_handler->watching.clear();
-				event_handler->events_.clear();
-				animation_manager->ClearAnimations();
-				animation_to_play++;
-				if (animation_to_play > 3)
-				{
-					animation_to_play = 1;
-				}
-				button_pressed = true;
-
-			}
-			if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-			{
-				event_handler->watching.clear();
-				event_handler->events_.clear();
-				animation_manager->ClearAnimations();
-				animation_to_play--;
-				if (animation_to_play < 1)
-				{
-					animation_to_play = 3;
-				}
-				button_pressed = true;
-
-			}
 			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 			{
 				pause = !pause;

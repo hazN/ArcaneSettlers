@@ -33,10 +33,6 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{968474b3-718d-4ffa-b244-8877b8092e96}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="CTextureManager">
       <UniqueIdentifier>{5978b7d4-e7d2-4bb5-8ef5-55168122f8c2}</UniqueIdentifier>
     </Filter>
@@ -63,6 +59,10 @@
     </Filter>
     <Filter Include="LuaBrain">
       <UniqueIdentifier>{aa414f34-98a4-4eb3-bdde-3a6f143c2ff2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +173,9 @@
     </ClCompile>
     <ClCompile Include="JSONPersitence.cpp">
       <Filter>savedata</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -303,6 +306,9 @@
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="BoneHierarchy.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
       <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,9 +4,6 @@
 // This is anything that is shared by all (or many) of the files
 
 #include <GLFW/glfw3.h>
-
-#include "AnimationEvents.h"
-#include "AnimationManager.h"
 #include "cMeshObject.h"
 #include "cVAOManager/sModelDrawInfo.h"
 #include "cLightManager.h"
@@ -47,7 +44,5 @@ extern float animation_speed;
 extern bool button_pressed;
 extern bool pause;
 extern bool reverse;
-extern AnimationManager* animation_manager;
-extern AnimationEvents* event_handler;
 
 #endif

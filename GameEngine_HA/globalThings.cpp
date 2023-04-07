@@ -23,5 +23,3 @@ float animation_speed = 0.05f;
 bool button_pressed = false;
 bool pause = false;
 bool reverse = false;
-AnimationManager* animation_manager = new AnimationManager;
-AnimationEvents* event_handler = new AnimationEvents;

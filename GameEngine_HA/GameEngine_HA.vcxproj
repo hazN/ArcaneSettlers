@@ -152,6 +152,7 @@
     <ClCompile Include="cBasicTextureManager.cpp" />
     <ClCompile Include="cCommandGroup.cpp" />
     <ClCompile Include="cCommandScheduler.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cLightHelper.cpp" />
     <ClCompile Include="cLightManager.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="cBasicTextureManager.h" />
     <ClInclude Include="cCommand.h" />
     <ClInclude Include="cCommandScheduler.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="cLight.h" />
     <ClInclude Include="cLightHelper.h" />
     <ClInclude Include="cLightManager.h" />
