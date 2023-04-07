@@ -147,7 +147,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AIBrain.cpp" />
     <ClCompile Include="C24BitBMPpixel.cpp" />
     <ClCompile Include="cBasicTextureManager.cpp" />
     <ClCompile Include="cCommandGroup.cpp" />
@@ -156,7 +155,6 @@
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cLightHelper.cpp" />
     <ClCompile Include="cLightManager.cpp" />
-    <ClCompile Include="cLuaBrain.cpp" />
     <ClCompile Include="cMeshObject.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
@@ -186,7 +184,6 @@
     <ClCompile Include="OrientTo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AIBrain.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="BoneHierarchy.h" />
     <ClInclude Include="C24BitBMPpixel.h" />
@@ -197,7 +194,6 @@
     <ClInclude Include="cLight.h" />
     <ClInclude Include="cLightHelper.h" />
     <ClInclude Include="cLightManager.h" />
-    <ClInclude Include="cLuaBrain.h" />
     <ClInclude Include="cMeshObject.h" />
     <ClInclude Include="cShaderManager.h" />
     <ClInclude Include="CTextureFromBMP.h" />

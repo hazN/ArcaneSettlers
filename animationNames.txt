@@ -1,0 +1,14 @@
+Loading animation: CharacterArmature|Death
+Loading animation: CharacterArmature|Idle
+Loading animation: CharacterArmature|Idle_Attacking
+Loading animation: CharacterArmature|Idle_Weapon
+Loading animation: CharacterArmature|PickUp
+Loading animation: CharacterArmature|Punch
+Loading animation: CharacterArmature|RecieveHit
+Loading animation: CharacterArmature|RecieveHit_2
+Loading animation: CharacterArmature|Roll
+Loading animation: CharacterArmature|Run
+Loading animation: CharacterArmature|Run_Weapon
+Loading animation: CharacterArmature|Sword_Attack
+Loading animation: CharacterArmature|Sword_AttackFast
+Loading animation: CharacterArmature|Walk

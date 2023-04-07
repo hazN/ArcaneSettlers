@@ -33,7 +33,14 @@ public:
     bool Enabled;
     bool useModelMatrix;
     glm::mat4 modelMatrix;
+    
+    // Animation
+    bool hasBones;
+    std::vector<glm::mat4> BoneModelMatrices;
+    std::vector<glm::mat4> GlobalTransformations;
+    glm::mat4 BoneRotationMatrices[66];
 
+    Animation Animation;
 };
 
 int GameObject::nextId = 0;

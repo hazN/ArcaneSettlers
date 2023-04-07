@@ -45,9 +45,6 @@
     <Filter Include="Global">
       <UniqueIdentifier>{bd0856af-5a14-4234-8001-e2e345859cab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Artificial Intelligence">
-      <UniqueIdentifier>{6a6ae4c2-89e1-450b-85bc-55aa1dc726f7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Animation">
       <UniqueIdentifier>{0537280f-53f3-466a-a2f3-d12e77b0e697}</UniqueIdentifier>
     </Filter>
@@ -56,9 +53,6 @@
     </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{bee1fa1c-4bf1-4d2f-a54e-5ddcb05360de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="LuaBrain">
-      <UniqueIdentifier>{aa414f34-98a4-4eb3-bdde-3a6f143c2ff2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
@@ -150,9 +144,6 @@
     <ClCompile Include="cCommandGroup.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
-    <ClCompile Include="cLuaBrain.cpp">
-      <Filter>LuaBrain</Filter>
-    </ClCompile>
     <ClCompile Include="MoveTo.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
@@ -167,9 +158,6 @@
     </ClCompile>
     <ClCompile Include="Follow.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="AIBrain.cpp">
-      <Filter>Artificial Intelligence</Filter>
     </ClCompile>
     <ClCompile Include="JSONPersitence.cpp">
       <Filter>savedata</Filter>
@@ -272,9 +260,6 @@
     <ClInclude Include="cCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="cLuaBrain.h">
-      <Filter>LuaBrain</Filter>
-    </ClInclude>
     <ClInclude Include="MoveTo.h">
       <Filter>Commands</Filter>
     </ClInclude>
@@ -289,9 +274,6 @@
     </ClInclude>
     <ClInclude Include="Follow.h">
       <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="AIBrain.h">
-      <Filter>Artificial Intelligence</Filter>
     </ClInclude>
     <ClInclude Include="quaternion_utils.h">
       <Filter>Header Files</Filter>

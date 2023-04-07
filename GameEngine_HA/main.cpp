@@ -734,13 +734,48 @@ int main(int argc, char* argv[])
 	world->AddBody(PlayerBall->rigidBody);
 	gameObjects.push_back(PlayerBall);
 
-
-	
+	const char* ANIMATION1 = "CharacterArmature|Run";
+	GameObject* goWarrior = new GameObject();
+	goWarrior->animCharacter = new Character();
+	goWarrior->mesh = pWarrior;
+	goWarrior->animCharacter->LoadAnimationFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
+	goWarrior->Animation.IsCharacterAnimation = true;
+	goWarrior->Animation.AnimationTime = 0.f;
+	goWarrior->Animation.IsLooping = true;
+	goWarrior->Animation.IsPlaying = true;
+	goWarrior->Animation.AnimationType = ANIMATION1;
+	goWarrior->Animation.Speed = 1.f;
+	goWarrior->hasBones = true;
+	goWarrior->animCharacter->SetAnimation(0);
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
-	theEditMode = PHYSICS_TEST;
+	//theEditMode = PHYSICS_TEST;
+	std::vector<GameObject*> goVector;
+	goVector.push_back(goWarrior);
+	float g_PrevTime;
 	while (!glfwWindowShouldClose(window))
 	{
+		{
+			// Get the current time in seconds
+			double currTime = glfwGetTime();
+			float elapsedTimeInSeconds = static_cast<float>(currTime - g_PrevTime);
+			g_PrevTime = currTime;
+
+			if (elapsedTimeInSeconds > 0.1f)
+				elapsedTimeInSeconds = 0.1f;
+			if (elapsedTimeInSeconds <= 0.f)
+				elapsedTimeInSeconds = 0.001f;
+
+			// Update the animation
+			//g_AnimationManager.Update(goVector, elapsedTimeInSeconds);
+
+			if (goWarrior != nullptr)
+			{
+				goWarrior->animCharacter->UpdateTransforms(goWarrior->BoneModelMatrices,
+					goWarrior->GlobalTransformations,
+					elapsedTimeInSeconds);
+			}
+		}
 		// Update physics world
 		world->TimeStep(1.f);
 

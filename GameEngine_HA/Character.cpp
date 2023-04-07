@@ -69,6 +69,7 @@ void Character::LoadAnimationFromAssimp(const char* filename)
 	for (unsigned int i = 0; i < numAnimations; ++i)
 	{
 		aiAnimation* animation = scene->mAnimations[i];
+		std::cout << "Loading animation: " << scene->mAnimations[i]->mName.C_Str() << std::endl;
 		LoadAssimpAnimation(animation);
 	}
 }
@@ -116,9 +117,9 @@ AnimNode* Character::CreateNodeHierarchy(aiNode* assimpNode, int depth)
 	newNode->name = std::string(assimpNode->mName.data);
 	CastToGLM(assimpNode->mTransformation, newNode->transformation);
 
-	for (int i = 0; i < depth; i++)
-		printf(" ");
-	printf("%s (%d)\n", newNode->name.c_str(), assimpNode->mNumChildren);
+	//for (int i = 0; i < depth; i++)
+	//	printf(" ");
+	//printf("%s (%d)\n", newNode->name.c_str(), assimpNode->mNumChildren);
 
 	for (int i = 0; i < assimpNode->mNumChildren; i++)
 	{
@@ -154,7 +155,7 @@ void Character::LoadAssimpAnimation(const aiAnimation* animation)
 	{
 		const aiNodeAnim* nodeAnim = animation->mChannels[i];
 		std::string name(nodeAnim->mNodeName.data);
-		printf("%s\n", name.c_str());
+		//printf("%s\n", name.c_str());
 
 		m_BoneNameToAnimationMap[name] = i;
 
