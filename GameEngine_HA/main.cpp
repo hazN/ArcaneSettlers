@@ -555,7 +555,7 @@ int main(int argc, char* argv[])
 	pWarrior->textureRatios[1] = 1.f;
 	pWarrior->textureRatios[2] = 1.f;
 	pWarrior->textureRatios[3] = 1.f;
-	g_pMeshObjects.push_back(pWarrior);
+	//g_pMeshObjects.push_back(pWarrior);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -740,17 +740,13 @@ int main(int argc, char* argv[])
 	const char* ANIMATION1 = "CharacterArmature|Run";
 	GameObject* goWarrior = new GameObject();
 	goWarrior->animCharacter = new Character();
+	goWarrior->animCharacter->Mesh = goWarrior->mesh;
 	goWarrior->mesh = pWarrior;
+	goWarrior->mesh->scaleXYZ = glm::vec3(0.05f);
 	goWarrior->animCharacter->LoadCharacterFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
 	goWarrior->animCharacter->LoadAnimationFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
-	goWarrior->Animation.IsCharacterAnimation = true;
-	goWarrior->Animation.AnimationTime = 0.f;
-	goWarrior->Animation.IsLooping = true;
-	goWarrior->Animation.IsPlaying = true;
-	goWarrior->Animation.AnimationType = ANIMATION1;
-	goWarrior->Animation.Speed = 1.f;
 	goWarrior->hasBones = true;
-	goWarrior->animCharacter->SetAnimation(0);
+	goWarrior->animCharacter->SetAnimation(10);
 
 
 
