@@ -302,7 +302,10 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 	std::string nodeName(node->name);
 
 	glm::mat4 transformationMatrix = node->transformation;
-
+	if (node->name == "RootNode")
+	{
+		nodeName = "Root";
+	}
 	AnimationData* animNode = FindAnimationData(nodeName, m_CurrentAnimation);
 	AnimationData* animNode2 = FindAnimationData(nodeName, m_PreviousAnimation);
 	if (animNode != nullptr)
