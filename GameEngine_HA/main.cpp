@@ -153,7 +153,6 @@ bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName,
 	return true;
 }
 
-
 bool CreateObjects(std::string fileName)
 {
 	std::ifstream objectFile(fileName.c_str());
@@ -552,20 +551,20 @@ int main(int argc, char* argv[])
 	pWarrior->textureRatios[1] = 1.f;
 	pWarrior->textureRatios[2] = 1.f;
 	pWarrior->textureRatios[3] = 1.f;
-	//cMeshObject* pWarriorSword = new cMeshObject();
-	//pWarriorSword->meshName = "WarriorSword";
-	//pWarriorSword->friendlyName = "WarriorSword";
-	////pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
-	//pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
-	//pWarriorSword->bUse_RGBA_colour = false;
-	//pWarriorSword->scaleXYZ = glm::vec3(0.05f);
-	//pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
-	//pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
-	//pWarriorSword->textureRatios[0] = 1.f;
-	//pWarriorSword->textureRatios[1] = 1.f;
-	//pWarriorSword->textureRatios[2] = 1.f;
-	//pWarriorSword->textureRatios[3] = 1.f;
-	//g_pMeshObjects.push_back(pWarriorSword);
+	cMeshObject* pWarriorSword = new cMeshObject();
+	pWarriorSword->meshName = "WarriorSword";
+	pWarriorSword->friendlyName = "WarriorSword";
+	//pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
+	pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
+	pWarriorSword->bUse_RGBA_colour = false;
+	pWarriorSword->scaleXYZ = glm::vec3(0.05f);
+	pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
+	pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
+	pWarriorSword->textureRatios[0] = 1.f;
+	pWarriorSword->textureRatios[1] = 1.f;
+	pWarriorSword->textureRatios[2] = 1.f;
+	pWarriorSword->textureRatios[3] = 1.f;
+	g_pMeshObjects.push_back(pWarriorSword);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -687,7 +686,7 @@ int main(int argc, char* argv[])
 	//pVAOManager->Load();
 
 	// START OF PHYSICS
-	
+
 	// Initialize physicsfactory, only non-interface call
 	using namespace physics;
 	iPhysicsFactory* _physicsFactory = new PhysicsFactory;
@@ -716,7 +715,6 @@ int main(int argc, char* argv[])
 	//CharacterAnimationData* characterAnimation = new CharacterAnimationData();
 	//animationManager->LoadAnimation();
 
-
 	//GameObject* goWarrior = new GameObject();
 	//goWarrior->animCharacter = new Character();
 	//goWarrior->animCharacter->Mesh = goWarrior->mesh;
@@ -731,8 +729,11 @@ int main(int argc, char* argv[])
 	goWarrior->mesh = pWarrior;
 	goWarrior->mesh->scaleXYZ = glm::vec3(1.f);
 	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/FBX/Warrior.fbx", goWarrior, glm::vec3(0.05f));
+	pWarriorSword->scaleXYZ = glm::vec3(2.f);
 	//goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
-	goWarrior->animCharacter->SetAnimation(11);
+	goWarrior->animCharacter->AttachMeshToBone(pWarriorSword, "Weapon.R", glm::vec3(2.f, 13.f, 2.f), glm::quat(glm::vec3(0.f,0.f,0.f)));
+	goWarrior->animCharacter->SetAnimation(12);
+	//g_pMeshObjects.push_back(pWarrior);
 	//g_pMeshObjects.push_back(pWarrior);
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
@@ -931,7 +932,6 @@ int main(int argc, char* argv[])
 		{
 			if (go->hasBones)
 			{
-
 				for (size_t i = 0; i < go->BoneModelMatrices.size(); i++)
 				{
 					std::string name = "BoneMatrices[" + std::to_string(i) + "]";
@@ -1414,7 +1414,7 @@ void CreateScene(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world)
 	}
 }
 // Create random sphere based on the min max of the position, radius and mass
-void CreateRandomSphere(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world,glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 radius, glm::vec2 mass)
+void CreateRandomSphere(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 radius, glm::vec2 mass)
 {
 	// Random position between two bounds
 	float x = (float)(std::rand() % (int)(maxBounds.x - minBounds.x + 1) + minBounds.x);

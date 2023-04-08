@@ -87,6 +87,27 @@ void Character::LoadCharacterFromAssimp(const char* filename)
 	}
 }
 
+void Character::AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset)
+{
+	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(boneName);
+
+	if (boneIt != m_BoneNameToIdMap.end()) {
+		int nodeIndex = boneIt->second;
+		aiBone* foundNode = m_BoneVec[nodeIndex];
+		ChildCharacter* child = new ChildCharacter();
+		child->mesh = mesh;
+		child->offset = offset;
+		child->attachedNode = foundNode;
+		child->attachedNodeName = boneName;
+		child->iAttachedNode = nodeIndex;
+		child->rotationOffset = rotationOffset;
+		m_ChildCharacters.push_back(child);
+	}
+	else {
+		std::cout << "Error: could not find node " << boneName << " for the character " << this->m_Name << std::endl;
+	}
+}
+
 void Character::LoadAnimationFromAssimp(const char* filename)
 {
 	const aiScene* scene = m_AnimationImporter.ReadFile(filename, 0);
@@ -345,32 +366,28 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 			int boneIdx = m_BoneNameToIdMap[nodeName];
 			m_BoneInfoVec[boneIdx].finalTransformation = m_GlobalInverseTransform * globalTransformation * m_BoneInfoVec[boneIdx].boneOffset;
 			m_BoneInfoVec[boneIdx].globalTransformation = globalTransformation;
+
+			if (!m_ChildCharacters.empty())
+			{
+				for (ChildCharacter* childChar : m_ChildCharacters)
+				{
+					if (node->name.c_str() == childChar->attachedNodeName)
+					{
+						// Use decompose to get the required vec3 and quat variables
+						glm::vec3 translation, scale, skew;
+						glm::vec4 perspective;
+						glm::quat rotation;
+						glm::decompose(m_BoneInfoVec[boneIdx].finalTransformation, scale, rotation, translation, skew, perspective);
+
+						// Apply the scale to the offset and then add it to the translation
+						glm::vec3 scaledOffset = childChar->offset * childChar->mesh->scaleXYZ;
+						childChar->mesh->position = (translation / scale) * childChar->mesh->scaleXYZ + scaledOffset;
+						childChar->mesh->qRotation = rotation;// *childChar->rotationOffset);
+					}
+				}
+			}
+
 		}
-
-		//if (m_Tool != nullptr)
-		//{
-		//	if (node->name == m_Tool->attachedNode->mName.C_Str())
-		//	{
-		//		// Get the transformation matrix of the bone
-		//		int boneIdx = m_BoneNameToIdMap[node->name];
-		//		glm::mat4 boneTransform = m_BoneInfoVec[boneIdx].globalTransformation;
-
-		//		// Convert the transformation matrix to position, rotation, and scale
-		//		glm::vec3 position;
-		//		glm::quat rotation;
-		//		glm::vec3 scale;
-		//		glm::vec3 skew;
-		//		glm::vec4 perspective;
-		//		glm::decompose(boneTransform, scale, rotation, position, skew, perspective);
-
-		//		// Set the position, rotation, and scale of the tool's mesh
-		//		m_Tool->mesh->position = position + glm::vec3(-1.3111f, 0.01257f, 1.80681f);
-		//		m_Tool->mesh->qRotation = rotation * glm::quat(glm::vec3(glm::radians(90.f),0.f,0.f));
-		//		//m_Tool->mesh->scaleXYZ = scale;
-		//	}
-		//}
-
-
 
 		for (int i = 0; i < node->children.size(); i++)
 		{
@@ -378,23 +395,23 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 		}
 	}
 }
-void Character::AttachTool(cMeshObject* tool, std::string nodeName) 
-{
-	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(nodeName);
-
-	if (boneIt != m_BoneNameToIdMap.end()) {
-		int nodeIndex = boneIt->second;
-		aiBone* foundNode = m_BoneVec[nodeIndex];
-		this->m_Tool = new Tool();
-		this->m_Tool->mesh = tool;
-		this->m_Tool->attachedNode = foundNode;
-		this->m_Tool->attachedNodeName = nodeName;
-		this->m_Tool->iAttachedNode = nodeIndex;
-	}
-	else {
-		std::cout << "Error: could not find node " << nodeName << " for the character " << this->m_Name << std::endl;
-	}
-}
+//void Character::AttachTool(cMeshObject* tool, std::string nodeName) 
+//{
+//	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(nodeName);
+//
+//	if (boneIt != m_BoneNameToIdMap.end()) {
+//		int nodeIndex = boneIt->second;
+//		aiBone* foundNode = m_BoneVec[nodeIndex];
+//		this->m_Tool = new Tool();
+//		this->m_Tool->mesh = tool;
+//		this->m_Tool->attachedNode = foundNode;
+//		this->m_Tool->attachedNodeName = nodeName;
+//		this->m_Tool->iAttachedNode = nodeIndex;
+//	}
+//	else {
+//		std::cout << "Error: could not find node " << nodeName << " for the character " << this->m_Name << std::endl;
+//	}
+//}
 
 int Character::FindPositionKeyFrameIndex(const AnimationData& animation, float keyFrameTime)
 {

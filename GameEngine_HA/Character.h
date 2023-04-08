@@ -47,11 +47,13 @@ private:
 	Assimp::Importer m_Importer;
 	const aiScene* m_Scene;
 };
-struct Tool {
+struct ChildCharacter {
 	std::string attachedNodeName;
 	cMeshObject* mesh;
 	aiBone* attachedNode;
 	int iAttachedNode;
+	glm::vec3 offset;
+	glm::quat rotationOffset;
 };
 class Character
 {
@@ -61,10 +63,12 @@ public:
 
 	// Loading
 	void LoadCharacterFromAssimp(const char* filename);
+	void AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset);
+	//void AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset);
 	void LoadAnimationFromAssimp(const char* filename);
 	void LoadAssimpBones(const aiMesh* assimpMesh);
 	void UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt);
-	void AttachTool(cMeshObject* tool, std::string nodeName);
+	//void AttachTool(cMeshObject* tool, std::string nodeName);
 
 	void SetAnimation(int animationId, float time = 1.f) {
 		m_TransitionTime = time;
@@ -112,7 +116,7 @@ private:
 	AnimNode* m_RootNode;
 	glm::mat4 m_GlobalInverseTransform;
 
-	Tool* m_Tool;
+	std::vector<ChildCharacter*> m_ChildCharacters;
 
 	std::vector<AnimNode*> m_BodyNodes;
 	std::map<NodeNames, int> m_NameToBodyNodeIndex;
