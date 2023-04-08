@@ -47,6 +47,12 @@ private:
 	Assimp::Importer m_Importer;
 	const aiScene* m_Scene;
 };
+struct Tool {
+	std::string attachedNodeName;
+	cMeshObject* mesh;
+	aiBone* attachedNode;
+	int iAttachedNode;
+};
 class Character
 {
 public:
@@ -58,6 +64,7 @@ public:
 	void LoadAnimationFromAssimp(const char* filename);
 	void LoadAssimpBones(const aiMesh* assimpMesh);
 	void UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt);
+	void AttachTool(cMeshObject* tool, std::string nodeName);
 
 	void SetAnimation(int animationId, float time = 1.f) {
 		m_TransitionTime = time;
@@ -105,8 +112,7 @@ private:
 	AnimNode* m_RootNode;
 	glm::mat4 m_GlobalInverseTransform;
 
-	AnimNode* m_RightHandNode;
-	int m_RightHandNodeIndex;
+	Tool* m_Tool;
 
 	std::vector<AnimNode*> m_BodyNodes;
 	std::map<NodeNames, int> m_NameToBodyNodeIndex;
@@ -115,6 +121,7 @@ private:
 	std::vector<BoneVertexData> m_BoneVertexData;		// Just need for Rendering vertex info
 	std::vector<BoneInfo> m_BoneInfoVec;				// This is used for offsets and final matrix
 	std::map<std::string, int> m_BoneNameToIdMap;		// Used for bone lookups
+	std::vector<aiBone*> m_BoneVec;		// Used for bone lookups
 
 	// Animation (Supports 2 animations)
 	int m_NumAnimationsLoaded;

@@ -63,7 +63,7 @@ cMeshObject* cMeshObject::findObjectByFriendlyName(std::string nameToFind, bool 
 			return pCurrentMesh;
 		}
 
-		// Search children too? 
+		// Search children too?
 		cMeshObject* pChildMesh = pCurrentMesh->findObjectByFriendlyName(nameToFind, bSearchChildren);
 
 		if (pChildMesh)       /* NULL = 0 = false) */
@@ -74,4 +74,5 @@ cMeshObject* cMeshObject::findObjectByFriendlyName(std::string nameToFind, bool 
 
 	// Didn't find it. How sad.
 	return NULL;
-}//cMeshObject* cMeshObject::findObjectByFriendlyName
+}
+//cMeshObject* cMeshObject::findObjectByFriendlyName

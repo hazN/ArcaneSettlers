@@ -12,4 +12,6 @@ assets/models/Cylinder.ply
 Cylinder
 assets/models/RPGCharacters/FBX/Warrior.fbx
 Warrior
+assets/models/RPGCharacters/FBX/Only Weapons/Warrior_Sword.fbx
+WarriorSword
 EOF

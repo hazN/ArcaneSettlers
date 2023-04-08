@@ -81,6 +81,7 @@ public:
 	int id;
 	Animation Animation;
 	bool Enabled;
+	bool isTool;
 };
 
 #endif // _cMeshObject_HG_

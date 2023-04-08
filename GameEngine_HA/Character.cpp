@@ -61,7 +61,7 @@ Character::~Character()
 void Character::LoadCharacterFromAssimp(const char* filename)
 {
 	unsigned int flags =
-	aiProcess_Triangulate
+		aiProcess_Triangulate
 		| aiProcess_LimitBoneWeights
 		| aiProcess_JoinIdenticalVertices;
 	m_Scene = new AssimpScene(filename, flags);
@@ -131,6 +131,7 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh)
 
 			CastToGLM(bone->mOffsetMatrix, m_BoneInfoVec[boneIdx].boneOffset);
 			m_BoneNameToIdMap[boneName] = boneIdx;
+			m_BoneVec.push_back(bone);
 		}
 		else
 		{
@@ -346,12 +347,55 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 			m_BoneInfoVec[boneIdx].globalTransformation = globalTransformation;
 		}
 
+		//if (m_Tool != nullptr)
+		//{
+		//	if (node->name == m_Tool->attachedNode->mName.C_Str())
+		//	{
+		//		// Get the transformation matrix of the bone
+		//		int boneIdx = m_BoneNameToIdMap[node->name];
+		//		glm::mat4 boneTransform = m_BoneInfoVec[boneIdx].globalTransformation;
+
+		//		// Convert the transformation matrix to position, rotation, and scale
+		//		glm::vec3 position;
+		//		glm::quat rotation;
+		//		glm::vec3 scale;
+		//		glm::vec3 skew;
+		//		glm::vec4 perspective;
+		//		glm::decompose(boneTransform, scale, rotation, position, skew, perspective);
+
+		//		// Set the position, rotation, and scale of the tool's mesh
+		//		m_Tool->mesh->position = position + glm::vec3(-1.3111f, 0.01257f, 1.80681f);
+		//		m_Tool->mesh->qRotation = rotation * glm::quat(glm::vec3(glm::radians(90.f),0.f,0.f));
+		//		//m_Tool->mesh->scaleXYZ = scale;
+		//	}
+		//}
+
+
+
 		for (int i = 0; i < node->children.size(); i++)
 		{
 			UpdateBoneHierarchy(node->children[i], globalTransformation, keyFrameTime);
 		}
 	}
 }
+void Character::AttachTool(cMeshObject* tool, std::string nodeName) 
+{
+	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(nodeName);
+
+	if (boneIt != m_BoneNameToIdMap.end()) {
+		int nodeIndex = boneIt->second;
+		aiBone* foundNode = m_BoneVec[nodeIndex];
+		this->m_Tool = new Tool();
+		this->m_Tool->mesh = tool;
+		this->m_Tool->attachedNode = foundNode;
+		this->m_Tool->attachedNodeName = nodeName;
+		this->m_Tool->iAttachedNode = nodeIndex;
+	}
+	else {
+		std::cout << "Error: could not find node " << nodeName << " for the character " << this->m_Name << std::endl;
+	}
+}
+
 int Character::FindPositionKeyFrameIndex(const AnimationData& animation, float keyFrameTime)
 {
 	for (int i = 0; i < animation.PositionKeyFrames.size() - 1; i++)

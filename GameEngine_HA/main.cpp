@@ -4,15 +4,12 @@
 #include "globalOpenGL.h"
 #include "Animation.h"
 #include "JSONPersitence.h"
-//#include "linmath.h"
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3        (x,y,z)
 #include <glm/vec4.hpp> // glm::vec4        (x,y,z,w)
 #include <glm/mat4x4.hpp> // glm::mat4
-// glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -548,14 +545,27 @@ int main(int argc, char* argv[])
 	pWarrior->friendlyName = "Warrior";
 	pWarrior->position = glm::vec3(0.f, 20.f, 0.f);
 	pWarrior->bUse_RGBA_colour = false;
-	pWarrior->scaleXYZ = glm::vec3(3.f);
+	pWarrior->scaleXYZ = glm::vec3(1.f);
 	pWarrior->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
 	pWarrior->textures[0] = "Warrior_Texture.bmp";
 	pWarrior->textureRatios[0] = 1.f;
 	pWarrior->textureRatios[1] = 1.f;
 	pWarrior->textureRatios[2] = 1.f;
 	pWarrior->textureRatios[3] = 1.f;
-	//g_pMeshObjects.push_back(pWarrior);
+	cMeshObject* pWarriorSword = new cMeshObject();
+	pWarriorSword->meshName = "WarriorSword";
+	pWarriorSword->friendlyName = "WarriorSword";
+	//pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
+	pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
+	pWarriorSword->bUse_RGBA_colour = false;
+	pWarriorSword->scaleXYZ = glm::vec3(0.05f);
+	pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
+	pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
+	pWarriorSword->textureRatios[0] = 1.f;
+	pWarriorSword->textureRatios[1] = 1.f;
+	pWarriorSword->textureRatios[2] = 1.f;
+	pWarriorSword->textureRatios[3] = 1.f;
+	g_pMeshObjects.push_back(pWarriorSword);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -622,79 +632,49 @@ int main(int argc, char* argv[])
 
 	// Textures
 	::g_pTextureManager = new cBasicTextureManager();
-
 	::g_pTextureManager->SetBasePath("assets/textures");
-	if (!::g_pTextureManager->Create2DTextureFromBMPFile("aerial-drone-view-rice-field.bmp"))
-	{
-		std::cout << "Didn't load texture" << std::endl;
-	}
-	else
-	{
-		std::cout << "texture loaded" << std::endl;
-	}
 	::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("lroc_color_poles_4k.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("taylor-swift-tour-dates-fan-wedding-plans.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("water.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("crystal.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("crystal2.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("crystal3.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("flame.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("Beholder_Base_color.bmp");
-
 	::g_pTextureManager->Create2DTextureFromBMPFile("grass.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("Long_blue_Jet_Flame.bmp");
-
-	::g_pTextureManager->Create2DTextureFromBMPFile("cobblestones_stencil_mask.bmp");
-
 	::g_pTextureManager->Create2DTextureFromBMPFile("carbon.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
 
 	// Load a skybox
 	// Here's an example of the various sides: http://www.3dcpptutorials.sk/obrazky/cube_map.jpg
-	std::string errorString = "";
-	if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
-		"SpaceBox_right1_posX.bmp", /* positive X */
-		"SpaceBox_left2_negX.bmp",  /* negative X */
-		"SpaceBox_top3_posY.bmp",    /* positive Y */
-		"SpaceBox_bottom4_negY.bmp",  /* negative Y */
-		"SpaceBox_front5_posZ.bmp",/* positive Z */
-		"SpaceBox_back6_negZ.bmp",/* negative Z */
-		true, errorString))
-	{
-		std::cout << "Loaded the night sky cube map OK" << std::endl;
-	}
-	else
-	{
-		std::cout << "ERROR: Didn't load the tropical sunny day cube map. How sad." << std::endl;
-		std::cout << "(because: " << errorString << std::endl;
-	}
 	//std::string errorString = "";
 	//if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
-	//	"TropicalSunnyDayRight2048.bmp", /* positive X */
-	//	"TropicalSunnyDayLeft2048.bmp",  /* negative X */
-	//	"TropicalSunnyDayUp2048.bmp",    /* positive Y */
-	//	"TropicalSunnyDayDown2048.bmp",  /* negative Y */
-	//	"TropicalSunnyDayBack2048.bmp",  /* positive Z */
-	//	"TropicalSunnyDayFront2048.bmp", /* negative Z */
+	//	"SpaceBox_right1_posX.bmp", /* positive X */
+	//	"SpaceBox_left2_negX.bmp",  /* negative X */
+	//	"SpaceBox_top3_posY.bmp",    /* positive Y */
+	//	"SpaceBox_bottom4_negY.bmp",  /* negative Y */
+	//	"SpaceBox_front5_posZ.bmp",/* positive Z */
+	//	"SpaceBox_back6_negZ.bmp",/* negative Z */
 	//	true, errorString))
 	//{
-	//	std::cout << "Loaded the tropical sunny day cube map OK" << std::endl;
+	//	std::cout << "Loaded the night sky cube map OK" << std::endl;
 	//}
 	//else
 	//{
 	//	std::cout << "ERROR: Didn't load the tropical sunny day cube map. How sad." << std::endl;
 	//	std::cout << "(because: " << errorString << std::endl;
 	//}
+	std::string errorString = "";
+	if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
+		"TropicalSunnyDayRight2048.bmp", /* positive X */
+		"TropicalSunnyDayLeft2048.bmp",  /* negative X */
+		"TropicalSunnyDayUp2048.bmp",    /* positive Y */
+		"TropicalSunnyDayDown2048.bmp",  /* negative Y */
+		"TropicalSunnyDayBack2048.bmp",  /* positive Z */
+		"TropicalSunnyDayFront2048.bmp", /* negative Z */
+		true, errorString))
+	{
+		std::cout << "Loaded the tropical sunny day cube map OK" << std::endl;
+	}
+	else
+	{
+		std::cout << "ERROR: Didn't load the tropical sunny day cube map. How sad." << std::endl;
+		std::cout << "(because: " << errorString << std::endl;
+	}
 	std::cout.flush();
 	// GUI
 	ImGui::StyleColorsDark();
@@ -737,19 +717,23 @@ int main(int argc, char* argv[])
 	//animationManager->LoadAnimation();
 
 
-	const char* ANIMATION1 = "CharacterArmature|Run";
+	//GameObject* goWarrior = new GameObject();
+	//goWarrior->animCharacter = new Character();
+	//goWarrior->animCharacter->Mesh = goWarrior->mesh;
+	//goWarrior->mesh = pWarrior;
+	//goWarrior->mesh->scaleXYZ = glm::vec3(0.05f);
+	//goWarrior->animCharacter->LoadCharacterFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
+	//goWarrior->animCharacter->LoadAnimationFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
+	//goWarrior->hasBones = true;
+	//goWarrior->animCharacter->SetAnimation(10);
+
 	GameObject* goWarrior = new GameObject();
-	goWarrior->animCharacter = new Character();
-	goWarrior->animCharacter->Mesh = goWarrior->mesh;
 	goWarrior->mesh = pWarrior;
-	goWarrior->mesh->scaleXYZ = glm::vec3(0.05f);
-	goWarrior->animCharacter->LoadCharacterFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
-	goWarrior->animCharacter->LoadAnimationFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
-	goWarrior->hasBones = true;
-	goWarrior->animCharacter->SetAnimation(10);
-
-
-
+	goWarrior->mesh->scaleXYZ = glm::vec3(1.f);
+	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/FBX/Warrior.fbx", goWarrior, glm::vec3(0.05f));
+	goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
+	goWarrior->animCharacter->SetAnimation(11);
+	//g_pMeshObjects.push_back(pWarrior);
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	//theEditMode = PHYSICS_TEST;
@@ -760,58 +744,15 @@ int main(int argc, char* argv[])
 	bool isKeyPressed = false;
 	while (!glfwWindowShouldClose(window))
 	{
+		// Play random animation
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		if (duration > 2.f)
 		{
 			deltaTime = std::clock();
-			goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
+			//goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
 		}
-		//if (glfwGetKey(window, GLFW_KEY_KP_0) && !isKeyPressed)
-		//{
-		//	isKeyPressed = true;
-		//	goWarrior->animCharacter->SetAnimation(1);
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_KP_1) && !isKeyPressed)
-		//{
-		//	isKeyPressed = true;
-		//	goWarrior->animCharacter->SetAnimation(10);
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_KP_2) && !isKeyPressed)
-		//{
-		//	isKeyPressed = true;
-		//	goWarrior->animCharacter->SetAnimation(11);
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_KP_3) && !isKeyPressed)
-		//{
-		//	isKeyPressed = true;
-		//	goWarrior->animCharacter->SetAnimation(4);
-		//}
-		//else if (!glfwGetKey(window, GLFW_KEY_KP_0))
-		//{
-		//	isKeyPressed = false;
-		//}
-		{
-			// Get the current time in seconds
-			double currTime = glfwGetTime();
-			float elapsedTimeInSeconds = static_cast<float>(currTime - g_PrevTime);
-			g_PrevTime = currTime;
-
-			if (elapsedTimeInSeconds > 0.1f)
-				elapsedTimeInSeconds = 0.1f;
-			if (elapsedTimeInSeconds <= 0.f)
-				elapsedTimeInSeconds = 0.001f;
-
-			// Update the animation
-			//animationManager->Update(goVector, elapsedTimeInSeconds);
-
-			if (goWarrior != nullptr)
-			{
-				goWarrior->animCharacter->UpdateTransforms(goWarrior->BoneModelMatrices,
-					goWarrior->GlobalTransformations,
-					elapsedTimeInSeconds);
-			}
-		}
-		// Update physics world
+		// Update animation manager(all animations)
+		animationManager->UpdateAll(0.1f);
 		world->TimeStep(1.f);
 
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
@@ -1029,7 +970,6 @@ int main(int argc, char* argv[])
 				// Skip the rest of the loop
 				continue;
 			}
-
 			// The parent's model matrix is set to the identity
 			glm::mat4x4 matModel = glm::mat4x4(1.0f);
 
