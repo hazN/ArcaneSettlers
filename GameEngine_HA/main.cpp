@@ -756,8 +756,40 @@ int main(int argc, char* argv[])
 	std::vector<GameObject*> goVector;
 	goVector.push_back(goWarrior);
 	float g_PrevTime = 0.f;
+
+	bool isKeyPressed = false;
 	while (!glfwWindowShouldClose(window))
 	{
+		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+		if (duration > 2.f)
+		{
+			deltaTime = std::clock();
+			goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
+		}
+		//if (glfwGetKey(window, GLFW_KEY_KP_0) && !isKeyPressed)
+		//{
+		//	isKeyPressed = true;
+		//	goWarrior->animCharacter->SetAnimation(1);
+		//}
+		//if (glfwGetKey(window, GLFW_KEY_KP_1) && !isKeyPressed)
+		//{
+		//	isKeyPressed = true;
+		//	goWarrior->animCharacter->SetAnimation(10);
+		//}
+		//if (glfwGetKey(window, GLFW_KEY_KP_2) && !isKeyPressed)
+		//{
+		//	isKeyPressed = true;
+		//	goWarrior->animCharacter->SetAnimation(11);
+		//}
+		//if (glfwGetKey(window, GLFW_KEY_KP_3) && !isKeyPressed)
+		//{
+		//	isKeyPressed = true;
+		//	goWarrior->animCharacter->SetAnimation(4);
+		//}
+		//else if (!glfwGetKey(window, GLFW_KEY_KP_0))
+		//{
+		//	isKeyPressed = false;
+		//}
 		{
 			// Get the current time in seconds
 			double currTime = glfwGetTime();

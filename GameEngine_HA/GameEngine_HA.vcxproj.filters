@@ -165,9 +165,6 @@
     <ClCompile Include="Character.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationManager.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
