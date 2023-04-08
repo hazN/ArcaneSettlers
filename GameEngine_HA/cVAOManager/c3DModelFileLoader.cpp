@@ -208,16 +208,32 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 	// Load mesh
 	if (scene->HasMeshes())
 	{
+		unsigned int totalVertices = 0;
+		unsigned int totalTriangles = 0;
+		// Count total vertices/triangles for all meshes
 		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 		{
 			aiMesh* mesh = scene->mMeshes[meshIndex];
-			//aiMesh* mesh = scene->mMeshes[0];
-			modelDrawInfo.numberOfVertices = mesh->mNumVertices;
-			modelDrawInfo.numberOfTriangles = mesh->mNumFaces;
-			modelDrawInfo.numberOfIndices = modelDrawInfo.numberOfTriangles * 3;
+			std::cout << "Loading mesh " << mesh->mName.C_Str() << std::endl;
+			totalVertices += mesh->mNumVertices;
+			totalTriangles += mesh->mNumFaces;
+		}
+		modelDrawInfo.numberOfVertices = totalVertices;
+		modelDrawInfo.numberOfTriangles = totalTriangles;
+		modelDrawInfo.numberOfIndices = totalTriangles * 3;
+		modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
+		modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
 
-			modelDrawInfo.pVertices = new sVertex_RGBA_XYZ_N_UV_T_BiN_Bones[modelDrawInfo.numberOfVertices];
-			modelDrawInfo.pIndices = new unsigned int[modelDrawInfo.numberOfIndices];
+		// Offsets for combining mesh
+		unsigned int vertexOffset = 0;
+		unsigned int indexOffset = 0;
+		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
+		{
+			aiMesh* mesh = scene->mMeshes[meshIndex];
+			unsigned int numVertices = mesh->mNumVertices;
+			unsigned int numTriangles = mesh->mNumFaces;
+			unsigned int numIndices = numTriangles * 3;
+
 			// Create a bone reference map
 			CharacterAnimationData animationData(scene);
 			int totalWeights = 0;
@@ -259,69 +275,74 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 			}
 
 			// Loop through vertices
-			for (unsigned int i = 0; i < modelDrawInfo.numberOfVertices; ++i)
+			for (unsigned int i = 0; i < numVertices; ++i)
 			{
+				unsigned int currentIndex = vertexOffset + i;
+
 				// Vertices
-				modelDrawInfo.pVertices[i].x = mesh->mVertices[i].x;
-				modelDrawInfo.pVertices[i].y = mesh->mVertices[i].y;
-				modelDrawInfo.pVertices[i].z = mesh->mVertices[i].z;
-				modelDrawInfo.pVertices[i].w = 1.f;
+				modelDrawInfo.pVertices[currentIndex].x = mesh->mVertices[i].x;
+				modelDrawInfo.pVertices[currentIndex].y = mesh->mVertices[i].y;
+				modelDrawInfo.pVertices[currentIndex].z = mesh->mVertices[i].z;
+				modelDrawInfo.pVertices[currentIndex].w = 1.f;
 
 				// Normals
 				if (mesh->HasNormals())
 				{
-					modelDrawInfo.pVertices[i].nx = mesh->mNormals[i].x;
-					modelDrawInfo.pVertices[i].ny = mesh->mNormals[i].y;
-					modelDrawInfo.pVertices[i].nz = mesh->mNormals[i].z;
-					modelDrawInfo.pVertices[i].nw = 0.f;
+					modelDrawInfo.pVertices[currentIndex].nx = mesh->mNormals[i].x;
+					modelDrawInfo.pVertices[currentIndex].ny = mesh->mNormals[i].y;
+					modelDrawInfo.pVertices[currentIndex].nz = mesh->mNormals[i].z;
+					modelDrawInfo.pVertices[currentIndex].nw = 0.f;
 				}
 				else
 				{
-					modelDrawInfo.pVertices[i].nx = 1.f;
-					modelDrawInfo.pVertices[i].ny = 0.f;
-					modelDrawInfo.pVertices[i].nz = 0.f;
-					modelDrawInfo.pVertices[i].nw = 0.f;
+					modelDrawInfo.pVertices[currentIndex].nx = 1.f;
+					modelDrawInfo.pVertices[currentIndex].ny = 0.f;
+					modelDrawInfo.pVertices[currentIndex].nz = 0.f;
+					modelDrawInfo.pVertices[currentIndex].nw = 0.f;
 				}
 
 				// Texture coordinates
 				if (mesh->HasTextureCoords(0))
 				{
-					modelDrawInfo.pVertices[i].u0 = mesh->mTextureCoords[0][i].x;
-					modelDrawInfo.pVertices[i].v0 = mesh->mTextureCoords[0][i].y;
+					modelDrawInfo.pVertices[currentIndex].u0 = mesh->mTextureCoords[0][i].x;
+					modelDrawInfo.pVertices[currentIndex].v0 = mesh->mTextureCoords[0][i].y;
 				}
 				if (mesh->HasTextureCoords(1))
 				{
-					modelDrawInfo.pVertices[i].u1 = mesh->mTextureCoords[1][i].x;
-					modelDrawInfo.pVertices[i].v1 = mesh->mTextureCoords[1][i].y;
+					modelDrawInfo.pVertices[currentIndex].u1 = mesh->mTextureCoords[1][i].x;
+					modelDrawInfo.pVertices[currentIndex].v1 = mesh->mTextureCoords[1][i].y;
 				}
 				// Colors
 				if (mesh->mColors[0])
 				{
-					modelDrawInfo.pVertices[i].r = mesh->mColors[0][i].r;
-					modelDrawInfo.pVertices[i].g = mesh->mColors[0][i].g;
-					modelDrawInfo.pVertices[i].b = mesh->mColors[0][i].b;
-					modelDrawInfo.pVertices[i].a = mesh->mColors[0][i].a;
+					modelDrawInfo.pVertices[currentIndex].r = mesh->mColors[0][i].r;
+					modelDrawInfo.pVertices[currentIndex].g = mesh->mColors[0][i].g;
+					modelDrawInfo.pVertices[currentIndex].b = mesh->mColors[0][i].b;
+					modelDrawInfo.pVertices[currentIndex].a = mesh->mColors[0][i].a;
 				}
 				// Use a BoneInformation Map to get bone info and store the values here
 				BoneVertexData& bvd = boneVertexData[i];
-				modelDrawInfo.pVertices[i].vBoneID[0] = bvd.ids[0];
-				modelDrawInfo.pVertices[i].vBoneID[1] = bvd.ids[1];
-				modelDrawInfo.pVertices[i].vBoneID[2] = bvd.ids[2];
-				modelDrawInfo.pVertices[i].vBoneID[3] = bvd.ids[3];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[0] = bvd.ids[0];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[1] = bvd.ids[1];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[2] = bvd.ids[2];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[3] = bvd.ids[3];
 
-				modelDrawInfo.pVertices[i].vBoneWeight[0] = bvd.weights[0];
-				modelDrawInfo.pVertices[i].vBoneWeight[1] = bvd.weights[1];
-				modelDrawInfo.pVertices[i].vBoneWeight[2] = bvd.weights[2];
-				modelDrawInfo.pVertices[i].vBoneWeight[3] = bvd.weights[3];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[0] = bvd.weights[0];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[1] = bvd.weights[1];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[2] = bvd.weights[2];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[3] = bvd.weights[3];
 			}
 			// Load triangles
-			for (unsigned int i = 0; i < modelDrawInfo.numberOfTriangles; ++i)
+			for (unsigned int i = 0; i < numTriangles; ++i)
 			{
 				aiFace face = mesh->mFaces[i];
-				modelDrawInfo.pIndices[i * 3] = face.mIndices[0];
-				modelDrawInfo.pIndices[i * 3 + 1] = face.mIndices[1];
-				modelDrawInfo.pIndices[i * 3 + 2] = face.mIndices[2];
+				modelDrawInfo.pIndices[indexOffset + i * 3] = vertexOffset + face.mIndices[0];
+				modelDrawInfo.pIndices[indexOffset + i * 3 + 1] = vertexOffset + face.mIndices[1];
+				modelDrawInfo.pIndices[indexOffset + i * 3 + 2] = vertexOffset + face.mIndices[2];
 			}
+			// Update offsets for the next mesh
+			vertexOffset += mesh->mNumVertices;
+			indexOffset += mesh->mNumFaces * 3;
 		}
 	}
 

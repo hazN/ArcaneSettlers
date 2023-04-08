@@ -552,20 +552,20 @@ int main(int argc, char* argv[])
 	pWarrior->textureRatios[1] = 1.f;
 	pWarrior->textureRatios[2] = 1.f;
 	pWarrior->textureRatios[3] = 1.f;
-	cMeshObject* pWarriorSword = new cMeshObject();
-	pWarriorSword->meshName = "WarriorSword";
-	pWarriorSword->friendlyName = "WarriorSword";
-	//pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
-	pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
-	pWarriorSword->bUse_RGBA_colour = false;
-	pWarriorSword->scaleXYZ = glm::vec3(0.05f);
-	pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
-	pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
-	pWarriorSword->textureRatios[0] = 1.f;
-	pWarriorSword->textureRatios[1] = 1.f;
-	pWarriorSword->textureRatios[2] = 1.f;
-	pWarriorSword->textureRatios[3] = 1.f;
-	g_pMeshObjects.push_back(pWarriorSword);
+	//cMeshObject* pWarriorSword = new cMeshObject();
+	//pWarriorSword->meshName = "WarriorSword";
+	//pWarriorSword->friendlyName = "WarriorSword";
+	////pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
+	//pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
+	//pWarriorSword->bUse_RGBA_colour = false;
+	//pWarriorSword->scaleXYZ = glm::vec3(0.05f);
+	//pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
+	//pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
+	//pWarriorSword->textureRatios[0] = 1.f;
+	//pWarriorSword->textureRatios[1] = 1.f;
+	//pWarriorSword->textureRatios[2] = 1.f;
+	//pWarriorSword->textureRatios[3] = 1.f;
+	//g_pMeshObjects.push_back(pWarriorSword);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -731,7 +731,7 @@ int main(int argc, char* argv[])
 	goWarrior->mesh = pWarrior;
 	goWarrior->mesh->scaleXYZ = glm::vec3(1.f);
 	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/FBX/Warrior.fbx", goWarrior, glm::vec3(0.05f));
-	goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
+	//goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
 	goWarrior->animCharacter->SetAnimation(11);
 	//g_pMeshObjects.push_back(pWarrior);
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
