@@ -382,7 +382,7 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 						// Apply the scale to the offset and then add it to the translation
 						glm::vec3 scaledOffset = childChar->offset * childChar->mesh->scaleXYZ;
 						childChar->mesh->position = (translation / scale) * childChar->mesh->scaleXYZ + scaledOffset;
-						childChar->mesh->qRotation = rotation;// *childChar->rotationOffset);
+						childChar->mesh->qRotation = rotation;//glm::inverse(rotation);// *childChar->rotationOffset);
 					}
 				}
 			}

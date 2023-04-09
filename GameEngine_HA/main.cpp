@@ -564,7 +564,7 @@ int main(int argc, char* argv[])
 	pWarriorSword->textureRatios[1] = 1.f;
 	pWarriorSword->textureRatios[2] = 1.f;
 	pWarriorSword->textureRatios[3] = 1.f;
-	g_pMeshObjects.push_back(pWarriorSword);
+	//g_pMeshObjects.push_back(pWarriorSword);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
 	pDebugSphere_1 = new cMeshObject();
@@ -731,7 +731,7 @@ int main(int argc, char* argv[])
 	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/FBX/Warrior.fbx", goWarrior, glm::vec3(0.05f));
 	pWarriorSword->scaleXYZ = glm::vec3(2.f);
 	//goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
-	goWarrior->animCharacter->AttachMeshToBone(pWarriorSword, "Weapon.R", glm::vec3(2.f, 13.f, 2.f), glm::quat(glm::vec3(0.f,0.f,0.f)));
+	//goWarrior->animCharacter->AttachMeshToBone(pWarriorSword, "Weapon.R", glm::vec3(-2.f, 13.f, 2.f), glm::quat(glm::vec3(0.f,0.f,0.f)));
 	goWarrior->animCharacter->SetAnimation(12);
 	//g_pMeshObjects.push_back(pWarrior);
 	//g_pMeshObjects.push_back(pWarrior);

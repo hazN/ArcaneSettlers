@@ -10,7 +10,7 @@ assets/models/ISO_Shphere_flat_4div_xyz_n_rgba_uv.ply
 ISO_Sphere_2
 assets/models/Cylinder.ply
 Cylinder
-assets/models/RPGCharacters/FBX/Warrior.fbx
+assets/models/RPGCharacters/FBX/WarriorTest.fbx
 Warrior
 assets/models/RPGCharacters/FBX/Only Weapons/Warrior_Sword.fbx
 WarriorSword
