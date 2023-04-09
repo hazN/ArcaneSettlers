@@ -49,11 +49,9 @@ private:
 };
 struct ChildCharacter {
 	std::string attachedNodeName;
-	cMeshObject* mesh;
+	aiMesh* mesh;
 	aiBone* attachedNode;
 	int iAttachedNode;
-	glm::vec3 offset;
-	glm::quat rotationOffset;
 };
 class Character
 {
@@ -67,6 +65,8 @@ public:
 	//void AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset);
 	void LoadAnimationFromAssimp(const char* filename);
 	void LoadAssimpBones(const aiMesh* assimpMesh);
+	void LoadAssimpBones(const aiMesh* mainMesh, const std::vector<aiMesh*> additionalMeshes);
+	//void LoadAssimpBones(std::vector<aiMesh*> assimpMeshes);
 	void UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt);
 	//void AttachTool(cMeshObject* tool, std::string nodeName);
 
@@ -124,9 +124,9 @@ private:
 	// Bones
 	std::vector<BoneVertexData> m_BoneVertexData;		// Just need for Rendering vertex info
 	std::vector<BoneInfo> m_BoneInfoVec;				// This is used for offsets and final matrix
+	std::vector<BoneInfo> m_BoneInfoVecChildren;				// This is used for offsets and final matrix
 	std::map<std::string, int> m_BoneNameToIdMap;		// Used for bone lookups
 	std::vector<aiBone*> m_BoneVec;		// Used for bone lookups
-
 	// Animation (Supports 2 animations)
 	int m_NumAnimationsLoaded;
 	int m_CurrentAnimation;

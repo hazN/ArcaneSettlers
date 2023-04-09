@@ -728,7 +728,7 @@ int main(int argc, char* argv[])
 	GameObject* goWarrior = new GameObject();
 	goWarrior->mesh = pWarrior;
 	goWarrior->mesh->scaleXYZ = glm::vec3(1.f);
-	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/FBX/Warrior.fbx", goWarrior, glm::vec3(0.05f));
+	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.05f));
 	pWarriorSword->scaleXYZ = glm::vec3(2.f);
 	//goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
 	//goWarrior->animCharacter->AttachMeshToBone(pWarriorSword, "Weapon.R", glm::vec3(-2.f, 13.f, 2.f), glm::quat(glm::vec3(0.f,0.f,0.f)));

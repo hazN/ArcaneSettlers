@@ -204,6 +204,7 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 		return false;
 	}
 	else std::cout << "Loaded FBX File: " << filename << std::endl;
+	CharacterAnimationData animationData(scene);
 
 	// Load mesh
 	if (scene->HasMeshes())
@@ -235,7 +236,6 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 			unsigned int numIndices = numTriangles * 3;
 
 			// Create a bone reference map
-			CharacterAnimationData animationData(scene);
 			int totalWeights = 0;
 
 			std::vector<BoneVertexData> boneVertexData;

@@ -74,39 +74,54 @@ void Character::LoadCharacterFromAssimp(const char* filename)
 	CastToGLM(inverse, m_GlobalInverseTransform);
 	if (m_Scene->HasMeshes())
 	{
-		aiMesh* mesh = m_Scene->Meshes[0];
+		aiMesh* mainMesh = nullptr;
+		std::vector<aiMesh*> additionalMeshes;
+
+		int maxBones = -1;
 		for (size_t i = 0; i < m_Scene->NumMeshes(); i++)
 		{
 			if (m_Scene->Meshes[i]->HasBones())
 			{
-				std::cout << "Mesh #" << i << " has bones!" << std::endl;
-				mesh = m_Scene->Meshes[i];
+				int boneCount = m_Scene->Meshes[i]->mNumBones;
+				if (boneCount > maxBones)
+				{
+					maxBones = boneCount;
+					mainMesh = m_Scene->Meshes[i];
+				}
+				else
+				{
+					additionalMeshes.push_back(m_Scene->Meshes[i]);
+				}
 			}
 		}
-		LoadAssimpBones(mesh);
+
+		if (mainMesh)
+		{
+			LoadAssimpBones(mainMesh, additionalMeshes);
+		}
 	}
 }
 
-void Character::AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset)
-{
-	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(boneName);
-
-	if (boneIt != m_BoneNameToIdMap.end()) {
-		int nodeIndex = boneIt->second;
-		aiBone* foundNode = m_BoneVec[nodeIndex];
-		ChildCharacter* child = new ChildCharacter();
-		child->mesh = mesh;
-		child->offset = offset;
-		child->attachedNode = foundNode;
-		child->attachedNodeName = boneName;
-		child->iAttachedNode = nodeIndex;
-		child->rotationOffset = rotationOffset;
-		m_ChildCharacters.push_back(child);
-	}
-	else {
-		std::cout << "Error: could not find node " << boneName << " for the character " << this->m_Name << std::endl;
-	}
-}
+//void Character::AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset)
+//{
+//	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(boneName);
+//
+//	if (boneIt != m_BoneNameToIdMap.end()) {
+//		int nodeIndex = boneIt->second;
+//		aiBone* foundNode = m_BoneVec[nodeIndex];
+//		ChildCharacter* child = new ChildCharacter();
+//		child->mesh = mesh;
+//		child->offset = offset;
+//		child->attachedNode = foundNode;
+//		child->attachedNodeName = boneName;
+//		child->iAttachedNode = nodeIndex;
+//		child->rotationOffset = rotationOffset;
+//		m_ChildCharacters.push_back(child);
+//	}
+//	else {
+//		std::cout << "Error: could not find node " << boneName << " for the character " << this->m_Name << std::endl;
+//	}
+//}
 
 void Character::LoadAnimationFromAssimp(const char* filename)
 {
@@ -168,6 +183,52 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh)
 	}
 }
 
+void Character::LoadAssimpBones(const aiMesh* assimpMesh, const std::vector<aiMesh*> additionalMeshes)
+{
+	// Record Vertex Weights
+	int totalWeights = 0;
+	m_BoneVertexData.resize(assimpMesh->mNumVertices);
+	int boneCount = 0;
+
+	int numBones = assimpMesh->mNumBones;
+	for (int i = 0; i < numBones; i++)
+	{
+		aiBone* bone = assimpMesh->mBones[i];
+
+		int boneIdx = 0;
+		std::string boneName(bone->mName.data);
+
+		printf("%d: %s\n", i, boneName.c_str());
+
+		std::map<std::string, int>::iterator it = m_BoneNameToIdMap.find(boneName);
+		if (it == m_BoneNameToIdMap.end())
+		{
+			boneIdx = boneCount;
+			boneCount++;
+			BoneInfo bi;
+			bi.name = boneName;
+			m_BoneInfoVec.push_back(bi);
+
+			CastToGLM(bone->mOffsetMatrix, m_BoneInfoVec[boneIdx].boneOffset);
+			m_BoneNameToIdMap[boneName] = boneIdx;
+			m_BoneVec.push_back(bone);
+		}
+		else
+		{
+			boneIdx = it->second;
+		}
+
+		for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
+		{
+			float weight = bone->mWeights[weightIdx].mWeight;
+			int vertexId = bone->mWeights[weightIdx].mVertexId;
+			m_BoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
+		}
+	}
+
+}
+
+
 void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt)
 {
 	if (m_IsPlaying && m_AnimationSpeed != 0.0f)
@@ -190,10 +251,12 @@ void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector
 			}
 		}
 
-		printf("--------------------\n");
-		printf("Time: %.4f %d/%d\n", m_CurrentTimeInSeconds, keyFrameTime, (int)m_DurationInTicks);
+		//printf("--------------------\n");
+		//printf("Time: %.4f %d/%d\n", m_CurrentTimeInSeconds, keyFrameTime, (int)m_DurationInTicks);
 
 		UpdateBoneHierarchy(m_RootNode, identity, keyFrameTime);
+
+
 		transforms.resize(m_BoneInfoVec.size());
 		globals.resize(m_BoneInfoVec.size());
 		int numTransforms = m_BoneInfoVec.size();
@@ -328,6 +391,7 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 	{
 		nodeName = "Root";
 	}
+
 	AnimationData* animNode = FindAnimationData(nodeName, m_CurrentAnimation);
 	AnimationData* animNode2 = FindAnimationData(nodeName, m_PreviousAnimation);
 	if (animNode != nullptr)
@@ -366,27 +430,6 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 			int boneIdx = m_BoneNameToIdMap[nodeName];
 			m_BoneInfoVec[boneIdx].finalTransformation = m_GlobalInverseTransform * globalTransformation * m_BoneInfoVec[boneIdx].boneOffset;
 			m_BoneInfoVec[boneIdx].globalTransformation = globalTransformation;
-
-			if (!m_ChildCharacters.empty())
-			{
-				for (ChildCharacter* childChar : m_ChildCharacters)
-				{
-					if (node->name.c_str() == childChar->attachedNodeName)
-					{
-						// Use decompose to get the required vec3 and quat variables
-						glm::vec3 translation, scale, skew;
-						glm::vec4 perspective;
-						glm::quat rotation;
-						glm::decompose(m_BoneInfoVec[boneIdx].finalTransformation, scale, rotation, translation, skew, perspective);
-
-						// Apply the scale to the offset and then add it to the translation
-						glm::vec3 scaledOffset = childChar->offset * childChar->mesh->scaleXYZ;
-						childChar->mesh->position = (translation / scale) * childChar->mesh->scaleXYZ + scaledOffset;
-						childChar->mesh->qRotation = rotation;//glm::inverse(rotation);// *childChar->rotationOffset);
-					}
-				}
-			}
-
 		}
 
 		for (int i = 0; i < node->children.size(); i++)
