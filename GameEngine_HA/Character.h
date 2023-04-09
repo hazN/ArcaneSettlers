@@ -61,7 +61,7 @@ public:
 
 	// Loading
 	void LoadCharacterFromAssimp(const char* filename);
-	void AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset);
+	//void AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset);
 	//void AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset);
 	void LoadAnimationFromAssimp(const char* filename);
 	void LoadAssimpBones(const aiMesh* assimpMesh);
@@ -69,7 +69,7 @@ public:
 	//void LoadAssimpBones(std::vector<aiMesh*> assimpMeshes);
 	void UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt);
 	//void AttachTool(cMeshObject* tool, std::string nodeName);
-
+	int GetAnimationID(const char* animation);
 	void SetAnimation(int animationId, float time = 1.f) {
 		m_TransitionTime = time;
 		m_PreviousAnimation = m_CurrentAnimation;

@@ -32,6 +32,16 @@ void GUI::render()
 	ImGui::SameLine();
 	if (ImGui::Button("Load"))
 		persistence::LoadAll(g_pMeshObjects, g_pTheLightManager->vecTheLights);
+
+	static char characterToAnimate[128] = "";
+	static int animationToPlay = 0;
+	ImGui::InputText("Character ID", characterToAnimate, sizeof(characterToAnimate));
+	ImGui::InputInt("Animation ID", &animationToPlay);
+
+	if (ImGui::Button("Change Animation"))
+	{
+		animationManager->SetAnimation(characterToAnimate, animationToPlay);
+	}
 	if (theEditMode == eEditMode::MOVING_LIGHT)
 	{
 		if (ImGui::BeginCombo("##combo", g_pTheLightManager->vecTheLights[currentLight].name.c_str())) // The second parameter is the label previewed before opening the combo.

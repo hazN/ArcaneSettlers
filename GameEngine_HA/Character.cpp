@@ -102,27 +102,6 @@ void Character::LoadCharacterFromAssimp(const char* filename)
 	}
 }
 
-//void Character::AttachMeshToBone(cMeshObject* mesh, const char* boneName, glm::vec3 offset, glm::quat rotationOffset)
-//{
-//	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(boneName);
-//
-//	if (boneIt != m_BoneNameToIdMap.end()) {
-//		int nodeIndex = boneIt->second;
-//		aiBone* foundNode = m_BoneVec[nodeIndex];
-//		ChildCharacter* child = new ChildCharacter();
-//		child->mesh = mesh;
-//		child->offset = offset;
-//		child->attachedNode = foundNode;
-//		child->attachedNodeName = boneName;
-//		child->iAttachedNode = nodeIndex;
-//		child->rotationOffset = rotationOffset;
-//		m_ChildCharacters.push_back(child);
-//	}
-//	else {
-//		std::cout << "Error: could not find node " << boneName << " for the character " << this->m_Name << std::endl;
-//	}
-//}
-
 void Character::LoadAnimationFromAssimp(const char* filename)
 {
 	const aiScene* scene = m_AnimationImporter.ReadFile(filename, 0);
@@ -266,6 +245,18 @@ void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector
 			globals[i] = m_BoneInfoVec[i].globalTransformation;
 		}
 	}
+}
+
+int Character::GetAnimationID(const char* animation)
+{
+	for (size_t i = 0; i < m_Scene->NumAnimations(); i++)
+	{
+		if (m_Scene->Animations[i]->mName.C_Str() == animation)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 AnimNode* Character::CreateNodeHierarchy(aiNode* assimpNode, int depth)

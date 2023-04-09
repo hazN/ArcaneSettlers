@@ -732,7 +732,7 @@ int main(int argc, char* argv[])
 	pWarriorSword->scaleXYZ = glm::vec3(2.f);
 	//goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
 	//goWarrior->animCharacter->AttachMeshToBone(pWarriorSword, "Weapon.R", glm::vec3(-2.f, 13.f, 2.f), glm::quat(glm::vec3(0.f,0.f,0.f)));
-	goWarrior->animCharacter->SetAnimation(12);
+	goWarrior->animCharacter->SetAnimation(10);
 	//g_pMeshObjects.push_back(pWarrior);
 	//g_pMeshObjects.push_back(pWarrior);
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
