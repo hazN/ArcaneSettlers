@@ -150,8 +150,6 @@
     <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="C24BitBMPpixel.cpp" />
     <ClCompile Include="cBasicTextureManager.cpp" />
-    <ClCompile Include="cCommandGroup.cpp" />
-    <ClCompile Include="cCommandScheduler.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="cLight.cpp" />
     <ClCompile Include="cLightHelper.cpp" />
@@ -164,13 +162,9 @@
     <ClCompile Include="cVAOManager\cVAOManager.cpp" />
     <ClCompile Include="DrawObject_function.cpp" />
     <ClCompile Include="EditGUI.cpp" />
-    <ClCompile Include="ExpandBeholder.cpp" />
-    <ClCompile Include="Follow.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GenerateDungeon.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="globalThings.cpp" />
-    <ClCompile Include="GoInvisible.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imGuIZMO.quat\imGuIZMOquat.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -182,8 +176,7 @@
     <ClCompile Include="JSONPersitence.cpp" />
     <ClCompile Include="KeyboardCallbackFunctions.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MoveTo.cpp" />
-    <ClCompile Include="OrientTo.cpp" />
+    <ClCompile Include="PhysicsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -191,8 +184,6 @@
     <ClInclude Include="BoneHierarchy.h" />
     <ClInclude Include="C24BitBMPpixel.h" />
     <ClInclude Include="cBasicTextureManager.h" />
-    <ClInclude Include="cCommand.h" />
-    <ClInclude Include="cCommandScheduler.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="cLight.h" />
     <ClInclude Include="cLightHelper.h" />
@@ -203,13 +194,9 @@
     <ClInclude Include="cVAOManager\c3DModelFileLoader.h" />
     <ClInclude Include="cVAOManager\cVAOManager.h" />
     <ClInclude Include="cVAOManager\sModelDrawInfo.h" />
-    <ClInclude Include="ExpandBeholder.h" />
-    <ClInclude Include="Follow.h" />
     <ClInclude Include="GameObject\GameObject.h" />
-    <ClInclude Include="GenerateDungeon.h" />
     <ClInclude Include="globalOpenGL.h" />
     <ClInclude Include="globalThings.h" />
-    <ClInclude Include="GoInvisible.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -226,8 +213,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="JSONPersitence.h" />
-    <ClInclude Include="MoveTo.h" />
-    <ClInclude Include="OrientTo.h" />
+    <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="quaternion_utils.h" />
   </ItemGroup>
   <ItemGroup>

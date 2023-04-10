@@ -39,9 +39,6 @@
     <Filter Include="imgui\imGuIZMO.quat">
       <UniqueIdentifier>{93b8749f-ddde-4558-b529-046891e0dd5a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Commands">
-      <UniqueIdentifier>{58d4037c-0942-4275-8bcd-7f6158420af0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Global">
       <UniqueIdentifier>{bd0856af-5a14-4234-8001-e2e345859cab}</UniqueIdentifier>
     </Filter>
@@ -129,35 +126,8 @@
     <ClCompile Include="CTextureFromBMP.cpp">
       <Filter>CTextureManager</Filter>
     </ClCompile>
-    <ClCompile Include="DrawObject_function.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imGuIZMO.quat\imGuIZMOquat.cpp">
       <Filter>imgui\imGuIZMO.quat</Filter>
-    </ClCompile>
-    <ClCompile Include="GenerateDungeon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cCommandScheduler.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="cCommandGroup.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="MoveTo.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="OrientTo.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="ExpandBeholder.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="GoInvisible.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Follow.cpp">
-      <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="JSONPersitence.cpp">
       <Filter>savedata</Filter>
@@ -170,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="AnimationManager.cpp">
       <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawObject_function.cpp">
+      <Filter>cMeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsHelper.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,30 +233,6 @@
     <ClInclude Include="imgui\imGuIZMO.quat\vGizmo.h">
       <Filter>imgui\imGuIZMO.quat</Filter>
     </ClInclude>
-    <ClInclude Include="GenerateDungeon.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cCommandScheduler.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="cCommand.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="MoveTo.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="OrientTo.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="ExpandBeholder.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="GoInvisible.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="Follow.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
     <ClInclude Include="quaternion_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -301,6 +253,9 @@
     </ClInclude>
     <ClInclude Include="AnimationManager.h">
       <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsHelper.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

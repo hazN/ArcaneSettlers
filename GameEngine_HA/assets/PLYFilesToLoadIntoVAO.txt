@@ -1,5 +1,3 @@
-assets/models/plane.ply
-Terrain
 assets/models/UV_Sphere_for_Skybox_inverted_Normals_xyz_uv_n_rgba.ply
 Skybox_Sphere
 assets/models/Cube.ply
@@ -14,4 +12,6 @@ assets/models/RPGCharacters/riggedWarrior.fbx
 Warrior
 assets/models/RPGCharacters/FBX/Only Weapons/Warrior_Sword.fbx
 WarriorSword
+assets/models/colonyTerrain.ply
+Terrain
 EOF

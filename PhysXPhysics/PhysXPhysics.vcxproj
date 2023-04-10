@@ -93,11 +93,13 @@
     <IncludePath>$(SolutionDir)GameEngine_HA/include;$(SolutionDir)PhysicsInterface;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)GameEngine_HA/lib/Debug_x64;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)PhysicsInterface;$(SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)GameEngine_HA\lib\Debug_x64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)GameEngine_HA/include;$(SolutionDir)PhysicsInterface;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)GameEngine_HA/lib/Release_x64;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SolutionDir)PhysicsInterface;$(SourcePath)</SourcePath>
+    <OutDir>$(SolutionDir)GameEngine_HA\lib\Release_x64</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

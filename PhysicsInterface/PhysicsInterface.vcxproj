@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Interface\BoxShape.cpp" />
     <ClCompile Include="Interface\CylinderShape.cpp" />
+    <ClCompile Include="Interface\HeightFieldShape.cpp" />
     <ClCompile Include="Interface\PlaneShape.cpp" />
     <ClCompile Include="Interface\SphereShape.cpp" />
   </ItemGroup>
@@ -28,6 +29,7 @@
     <ClInclude Include="Interface\BodyType.h" />
     <ClInclude Include="Interface\BoxShape.h" />
     <ClInclude Include="Interface\CylinderShape.h" />
+    <ClInclude Include="Interface\HeightFieldShape.h" />
     <ClInclude Include="Interface\iCollisionBody.h" />
     <ClInclude Include="Interface\iPhysicsFactory.h" />
     <ClInclude Include="Interface\iPhysicsWorld.h" />
@@ -95,9 +97,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)GameEngine_HA/include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)GameEngine_HA\lib\Debug_x64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)GameEngine_HA/include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)GameEngine_HA\lib\Release_x64</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

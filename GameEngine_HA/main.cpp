@@ -30,7 +30,6 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "cBasicTextureManager.h"
-#include "GenerateDungeon.h"
 #include "GameObject/GameObject.h"
 
 #include <Interface/iPhysicsFactory.h>
@@ -38,8 +37,10 @@
 #include <Interface/BoxShape.h>
 #include <Interface/CylinderShape.h>
 #include <Interface/PlaneShape.h>
+#include <Interface/HeightFieldShape.h>
 #include <physics/physx/PhysicsFactory.h>
 #include "AnimationManager.h"
+#include "PhysicsHelper.h"
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -432,50 +433,7 @@ int main(int argc, char* argv[])
 	cMeshObject* pSkyBox = new cMeshObject();
 	pSkyBox->meshName = "Skybox_Sphere";
 	pSkyBox->friendlyName = "skybox";
-	// I'm NOT going to add it to the list of objects to draw
 
-	//	// ISLAND Terrain (final exam 2021 example)
-	//cMeshObject* pIslandTerrain = new cMeshObject();
-	//pIslandTerrain->meshName = "Terrain";     //  "Terrain";
-	//pIslandTerrain->friendlyName = "Ground";
-	//pIslandTerrain->position = glm::vec3(0.0f, -25.0f, 0.0f);
-	//pIslandTerrain->isWireframe = false;
-	//pIslandTerrain->textures[0] = "grass.bmp";
-	//pIslandTerrain->textureRatios[0] = 1.f;
-	//pIslandTerrain->SetUniformScale(5);
-	////g_pMeshObjects.push_back(pIslandTerrain);
-
-	//cMeshObject* pTerrain = new cMeshObject();
-	//pTerrain->meshName = "Terrain";     //  "Terrain";
-	//pTerrain->friendlyName = "Ground";
-	////pTerrain->bUse_RGBA_colour = false;      // Use file colours    pTerrain->RGBA_colour = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	////pTerrain->specular_colour_and_power
-	////	= glm::vec4(1.0f, 1.0f, 1.0f, 1000.0f);
-	//// Make it REALY transparent
-	////pTerrain->RGBA_colour.w = 1.f;
-	//pTerrain->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	//pTerrain->isWireframe = false;
-	//pTerrain->SetUniformScale(1);
-	//pTerrain->textures[0] = "grass.bmp";
-	//pTerrain->textures[1] = "grass.bmp";
-	//pTerrain->textures[2] = "grass.bmp";
-	//pTerrain->textures[3] = "grass.bmp";
-	//pTerrain->textureRatios[0] = 0.5f;
-	//pTerrain->textureRatios[1] = 0.5f;
-	//pTerrain->textureRatios[2] = 0.5f;
-	//pTerrain->textureRatios[3] = 0.5f;
-
-	//cMeshObject* pPlatform = new cMeshObject();
-	//pPlatform->meshName = "Cube";     //  "Terrain";
-	//pPlatform->friendlyName = "Platform";
-	//pPlatform->bUse_RGBA_colour = true;
-	//pPlatform->RGBA_colour = glm::vec4(1.f,1.f,1.f,1.f);
-	//pPlatform->position = glm::vec3(0.0f, -5.0f, 0.0f);
-	//pPlatform->isWireframe = false;
-	//pPlatform->scaleXYZ = glm::vec3(64.f, 5.f, 64.f);
-	//pPlatform->textures[0] = "grass.bmp";
-	//pPlatform->textureRatios[0] = 0.5f;
-	//g_pMeshObjects.push_back(pPlatform);
 	{
 		// Top left
 		cMeshObject* pPlatform1 = new cMeshObject();
@@ -638,25 +596,6 @@ int main(int argc, char* argv[])
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
 
-	// Load a skybox
-	// Here's an example of the various sides: http://www.3dcpptutorials.sk/obrazky/cube_map.jpg
-	//std::string errorString = "";
-	//if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
-	//	"SpaceBox_right1_posX.bmp", /* positive X */
-	//	"SpaceBox_left2_negX.bmp",  /* negative X */
-	//	"SpaceBox_top3_posY.bmp",    /* positive Y */
-	//	"SpaceBox_bottom4_negY.bmp",  /* negative Y */
-	//	"SpaceBox_front5_posZ.bmp",/* positive Z */
-	//	"SpaceBox_back6_negZ.bmp",/* negative Z */
-	//	true, errorString))
-	//{
-	//	std::cout << "Loaded the night sky cube map OK" << std::endl;
-	//}
-	//else
-	//{
-	//	std::cout << "ERROR: Didn't load the tropical sunny day cube map. How sad." << std::endl;
-	//	std::cout << "(because: " << errorString << std::endl;
-	//}
 	std::string errorString = "";
 	if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
 		"TropicalSunnyDayRight2048.bmp", /* positive X */
@@ -686,12 +625,27 @@ int main(int argc, char* argv[])
 	//pVAOManager->Load();
 
 	// START OF PHYSICS
+	PhysicsHelper* physicsHelper = new PhysicsHelper();
 
 	// Initialize physicsfactory, only non-interface call
 	using namespace physics;
 	iPhysicsFactory* _physicsFactory = new PhysicsFactory;
 	iPhysicsWorld* world = _physicsFactory->CreateWorld();;
 
+		// LOAD TERRAIN
+	{
+		sModelDrawInfo terrainInfo;
+		pVAOManager->FindDrawInfoByModelName("Terrain", terrainInfo);
+		float resolution = 1.0f;
+		unsigned int gridWidth, gridDepth;
+		physicsHelper->getTerrainGridSize(terrainInfo, resolution, gridWidth, gridDepth);
+		std::vector<float> heightData = physicsHelper->generateHeightData(terrainInfo, gridWidth, gridDepth);
+		iShape* terrainShape = new HeightFieldShape(gridWidth, gridDepth, heightData, resolution);
+		RigidBodyDesc terrainDesc;
+		terrainDesc.isStatic = true;
+		terrainDesc.position = Vector3(0.0f, -20.0f, 0.0f);
+		world->AddBody(_physicsFactory->CreateRigidBody(terrainDesc, terrainShape));
+	}
 	// Create Scene
 	CreateScene(_physicsFactory, world);
 	// Create Player Ball
@@ -712,36 +666,18 @@ int main(int argc, char* argv[])
 	gameObjects.push_back(PlayerBall);
 
 	// ANIMATION
-	//CharacterAnimationData* characterAnimation = new CharacterAnimationData();
-	//animationManager->LoadAnimation();
-
-	//GameObject* goWarrior = new GameObject();
-	//goWarrior->animCharacter = new Character();
-	//goWarrior->animCharacter->Mesh = goWarrior->mesh;
-	//goWarrior->mesh = pWarrior;
-	//goWarrior->mesh->scaleXYZ = glm::vec3(0.05f);
-	//goWarrior->animCharacter->LoadCharacterFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
-	//goWarrior->animCharacter->LoadAnimationFromAssimp("assets/models/RPGCharacters/FBX/Warrior.fbx");
-	//goWarrior->hasBones = true;
-	//goWarrior->animCharacter->SetAnimation(10);
+	std::vector<GameObject*> goVector;
 
 	GameObject* goWarrior = new GameObject();
 	goWarrior->mesh = pWarrior;
 	goWarrior->mesh->scaleXYZ = glm::vec3(1.f);
 	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.05f));
-	pWarriorSword->scaleXYZ = glm::vec3(2.f);
-	//goWarrior->animCharacter->AttachTool(pWarriorSword, "Weapon.R");
-	//goWarrior->animCharacter->AttachMeshToBone(pWarriorSword, "Weapon.R", glm::vec3(-2.f, 13.f, 2.f), glm::quat(glm::vec3(0.f,0.f,0.f)));
 	goWarrior->animCharacter->SetAnimation(10);
-	//g_pMeshObjects.push_back(pWarrior);
-	//g_pMeshObjects.push_back(pWarrior);
+	goVector.push_back(goWarrior);
+
+	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
-	//theEditMode = PHYSICS_TEST;
-	std::vector<GameObject*> goVector;
-	goVector.push_back(goWarrior);
-	float g_PrevTime = 0.f;
-
 	bool isKeyPressed = false;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -1211,12 +1147,12 @@ void DrawConcentricDebugLightObjects(void)
 void CreateScene(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world)
 {
 	{
-		float platformSize = 32.f;
-		iShape* platformShape = new BoxShape(Vector3(platformSize, 5.f, platformSize));
-		RigidBodyDesc platformDesc;
-		platformDesc.isStatic = true;
-		platformDesc.position = Vector3(0.0f, -7.5f, 0.0f);
-		world->AddBody(_physicsFactory->CreateRigidBody(platformDesc, platformShape));
+			float platformSize = 32.f;
+			iShape* platformShape = new BoxShape(Vector3(platformSize, 5.f, platformSize));
+			RigidBodyDesc platformDesc;
+			platformDesc.isStatic = true;
+			platformDesc.position = Vector3(0.0f, -7.5f, 0.0f);
+			world->AddBody(_physicsFactory->CreateRigidBody(platformDesc, platformShape));
 	}
 	// Stacked cubes
 	glm::vec3 center = glm::vec3(16.0f, 0.0f, 16.0f);

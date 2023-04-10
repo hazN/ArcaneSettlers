@@ -8,6 +8,7 @@
 #include <Interface/SphereShape.h>
 #include <Interface/BoxShape.h>
 #include <Interface/CylinderShape.h>
+#include <Interface/HeightFieldShape.h>
 
 //#include <pvd/PxPvd.h>
 //#include <extensions/PxSimpleFactory.h>
@@ -90,6 +91,37 @@ namespace physics
 				CylinderShape* cylinderShape = (CylinderShape*)rigidBody->GetShape();
 				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *PhysicsWorld::mMaterial);
 
+			}
+			else if (rigidBody->GetShape()->GetShapeType() == ShapeType::HeightField)
+			{
+				HeightFieldShape* heightFieldShape = (HeightFieldShape*)rigidBody->GetShape();
+
+				// Create heightfield desc
+				physx::PxHeightFieldDesc heightFieldDesc;
+				heightFieldDesc.nbRows = heightFieldShape->GetWidth();
+				heightFieldDesc.nbColumns = heightFieldShape->GetDepth();
+				heightFieldDesc.samples.data = heightFieldShape->GetHeightData().data();
+				heightFieldDesc.samples.stride = sizeof(float);
+
+				// Cook the heightfield 
+				physx::PxDefaultMemoryOutputStream memoryOutputStream;
+				physx::PxCookingParams cookingParams(PhysicsWorld::mPhysics->getTolerancesScale());
+				physx::PxCooking* cooking = PxCreateCooking(PX_PHYSICS_VERSION, *PhysicsWorld::mFoundation, cookingParams);
+				if (!cooking->cookHeightField(heightFieldDesc, memoryOutputStream))
+				{
+					std::cout << "Error: failed to cook height field" << std::endl;
+					return;
+				}
+
+				// Create the height field
+				physx::PxDefaultMemoryInputData memoryInputData(memoryOutputStream.getData(), memoryOutputStream.getSize());
+				physx::PxHeightField* heightField = PhysicsWorld::mPhysics->createHeightField(memoryInputData);
+				physx::PxHeightFieldGeometry heightFieldGeom(heightField, physx::PxMeshGeometryFlags(), heightFieldShape->GetResolution(), heightFieldShape->GetResolution(), heightFieldShape->GetResolution());
+				// Create the shape for it
+				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(heightFieldGeom, *PhysicsWorld::mMaterial);
+
+				// Release the cooking object
+				cooking->release();
 			}
 			if (rigidBody->IsStatic())
 			{
