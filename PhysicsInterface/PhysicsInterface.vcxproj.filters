@@ -27,7 +27,7 @@
     <ClCompile Include="Interface\CylinderShape.cpp">
       <Filter>Header Files\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Interface\HeightFieldShape.cpp">
+    <ClCompile Include="Interface\TriangleMeshShape.cpp">
       <Filter>Header Files\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,7 +77,7 @@
     <ClInclude Include="Interface\SphereShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interface\HeightFieldShape.h">
+    <ClInclude Include="Interface\TriangleMeshShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

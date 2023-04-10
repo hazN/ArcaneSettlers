@@ -63,6 +63,7 @@ namespace physics
 		static physx::PxPhysics* mPhysics;
 		static physx::PxScene* mScene;
 		static physx::PxMaterial* mMaterial;
+		static physx::PxCooking* mCooking;
 	private:
 		physx::PxDefaultAllocator      mDefaultAllocatorCallback;
 		physx::PxDefaultErrorCallback  mDefaultErrorCallback;

@@ -21,15 +21,14 @@
   <ItemGroup>
     <ClCompile Include="Interface\BoxShape.cpp" />
     <ClCompile Include="Interface\CylinderShape.cpp" />
-    <ClCompile Include="Interface\HeightFieldShape.cpp" />
     <ClCompile Include="Interface\PlaneShape.cpp" />
     <ClCompile Include="Interface\SphereShape.cpp" />
+    <ClCompile Include="Interface\TriangleMeshShape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface\BodyType.h" />
     <ClInclude Include="Interface\BoxShape.h" />
     <ClInclude Include="Interface\CylinderShape.h" />
-    <ClInclude Include="Interface\HeightFieldShape.h" />
     <ClInclude Include="Interface\iCollisionBody.h" />
     <ClInclude Include="Interface\iPhysicsFactory.h" />
     <ClInclude Include="Interface\iPhysicsWorld.h" />
@@ -42,6 +41,7 @@
     <ClInclude Include="Interface\ShapeType.h" />
     <ClInclude Include="Interface\SoftBodyDesc.h" />
     <ClInclude Include="Interface\SphereShape.h" />
+    <ClInclude Include="Interface\TriangleMeshShape.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

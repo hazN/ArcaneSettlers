@@ -37,7 +37,7 @@
 #include <Interface/BoxShape.h>
 #include <Interface/CylinderShape.h>
 #include <Interface/PlaneShape.h>
-#include <Interface/HeightFieldShape.h>
+#include <Interface/TriangleMeshShape.h>
 #include <physics/physx/PhysicsFactory.h>
 #include "AnimationManager.h"
 #include "PhysicsHelper.h"
@@ -637,15 +637,30 @@ int main(int argc, char* argv[])
 		sModelDrawInfo terrainInfo;
 		pVAOManager->FindDrawInfoByModelName("Terrain", terrainInfo);
 		float resolution = 1.0f;
-		unsigned int gridWidth, gridDepth;
-		physicsHelper->getTerrainGridSize(terrainInfo, resolution, gridWidth, gridDepth);
-		std::vector<float> heightData = physicsHelper->generateHeightData(terrainInfo, gridWidth, gridDepth);
-		iShape* terrainShape = new HeightFieldShape(gridWidth, gridDepth, heightData, resolution);
+		//unsigned int gridWidth, gridDepth;
+		//physicsHelper->getTerrainGridSize(terrainInfo, resolution, gridWidth, gridDepth);
+		//std::vector<float> heightData = physicsHelper->generateHeightData(terrainInfo, gridWidth, gridDepth);
+		std::vector<Vector3> vertices;
+		for (size_t i = 0; i < terrainInfo.numberOfVertices; i++)
+		{
+			Vector3 v;
+			v.x = terrainInfo.pVertices[i].x;
+			v.y = terrainInfo.pVertices[i].y;
+			v.z = terrainInfo.pVertices[i].z;
+			vertices.push_back(v);
+		}
+		std::vector<unsigned int> indices;
+		for (size_t i = 0; i < terrainInfo.numberOfIndices; i++)
+		{
+			indices.push_back(terrainInfo.pIndices[i]);
+		}
+		iShape* terrainShape = new TriangleMeshShape(vertices, indices);
 		RigidBodyDesc terrainDesc;
 		terrainDesc.isStatic = true;
-		terrainDesc.position = Vector3(0.0f, -20.0f, 0.0f);
+		terrainDesc.position = Vector3(-128.0f, -50.0f, -64.0f);
 		world->AddBody(_physicsFactory->CreateRigidBody(terrainDesc, terrainShape));
 	}
+
 	// Create Scene
 	CreateScene(_physicsFactory, world);
 	// Create Player Ball

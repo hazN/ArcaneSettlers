@@ -1,4 +1,5 @@
 #include "PhysicsHelper.h"
+#include <iostream>
 
 std::vector<float> PhysicsHelper::generateHeightData(sModelDrawInfo drawInfo, unsigned int gridWidth, unsigned int gridDepth)
 {

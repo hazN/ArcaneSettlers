@@ -9,6 +9,6 @@ namespace physics
 		Ghost,
 		Plane,
 		Sphere,
-		HeightField,
+		TriangleMesh,
 	};
 }

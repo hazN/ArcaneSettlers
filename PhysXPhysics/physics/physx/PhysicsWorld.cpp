@@ -8,7 +8,11 @@
 #include <Interface/SphereShape.h>
 #include <Interface/BoxShape.h>
 #include <Interface/CylinderShape.h>
-#include <Interface/HeightFieldShape.h>
+#include "../../../GameEngine_HA/cVAOManager/sModelDrawInfo.h"
+#include <physx/cooking/PxCooking.h>
+#include <physx/geometry/PxHeightField.h>
+#include <physx/geometry/PxHeightFieldDesc.h>
+#include <Interface/TriangleMeshShape.h>
 
 //#include <pvd/PxPvd.h>
 //#include <extensions/PxSimpleFactory.h>
@@ -18,6 +22,7 @@ namespace physics
 	physx::PxPhysics* PhysicsWorld::mPhysics = nullptr;
 	physx::PxScene* PhysicsWorld::mScene = nullptr;
 	physx::PxMaterial* PhysicsWorld::mMaterial = nullptr;
+	physx::PxCooking* PhysicsWorld::mCooking = nullptr;
 
 	PhysicsWorld::PhysicsWorld(void)
 	{
@@ -29,6 +34,7 @@ namespace physics
 		mToleranceScale.length = 100;        // typical length of an object
 		mToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
 		mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, mToleranceScale, true, mPvd);
+		mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation, physx::PxCookingParams(mToleranceScale));
 		physx::PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
 		sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 		mDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
@@ -55,6 +61,7 @@ namespace physics
 		mTransport->release();
 		mFoundation->release();
 		mPhysics->release();
+		mCooking->release();
 	}
 
 	void PhysicsWorld::TimeStep(float dt)
@@ -92,36 +99,34 @@ namespace physics
 				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *PhysicsWorld::mMaterial);
 
 			}
-			else if (rigidBody->GetShape()->GetShapeType() == ShapeType::HeightField)
+			else if (rigidBody->GetShape()->GetShapeType() == ShapeType::TriangleMesh)
 			{
-				HeightFieldShape* heightFieldShape = (HeightFieldShape*)rigidBody->GetShape();
+				TriangleMeshShape* triangleMeshShape = (TriangleMeshShape*)rigidBody->GetShape();
+				const std::vector<Vector3>& vertices = triangleMeshShape->GetVertices();
+				const std::vector<unsigned int>& indices = triangleMeshShape->GetIndices();
 
-				// Create heightfield desc
-				physx::PxHeightFieldDesc heightFieldDesc;
-				heightFieldDesc.nbRows = heightFieldShape->GetWidth();
-				heightFieldDesc.nbColumns = heightFieldShape->GetDepth();
-				heightFieldDesc.samples.data = heightFieldShape->GetHeightData().data();
-				heightFieldDesc.samples.stride = sizeof(float);
+				physx::PxTriangleMeshDesc meshDesc;
+				meshDesc.points.count = (physx::PxU32)vertices.size();
+				meshDesc.points.stride = sizeof(Vector3);
+				meshDesc.points.data = vertices.data();
 
-				// Cook the heightfield 
-				physx::PxDefaultMemoryOutputStream memoryOutputStream;
-				physx::PxCookingParams cookingParams(PhysicsWorld::mPhysics->getTolerancesScale());
-				physx::PxCooking* cooking = PxCreateCooking(PX_PHYSICS_VERSION, *PhysicsWorld::mFoundation, cookingParams);
-				if (!cooking->cookHeightField(heightFieldDesc, memoryOutputStream))
+				meshDesc.triangles.count = (physx::PxU32)indices.size() / 3;
+				meshDesc.triangles.stride = 3 * sizeof(physx::PxU32);
+				meshDesc.triangles.data = indices.data();
+
+				physx::PxTriangleMesh* triangleMesh = NULL;
+				physx::PxDefaultMemoryOutputStream writeBuffer;
+				if (mCooking->cookTriangleMesh(meshDesc, writeBuffer))
 				{
-					std::cout << "Error: failed to cook height field" << std::endl;
-					return;
+					physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+					triangleMesh = mPhysics->createTriangleMesh(readBuffer);
 				}
 
-				// Create the height field
-				physx::PxDefaultMemoryInputData memoryInputData(memoryOutputStream.getData(), memoryOutputStream.getSize());
-				physx::PxHeightField* heightField = PhysicsWorld::mPhysics->createHeightField(memoryInputData);
-				physx::PxHeightFieldGeometry heightFieldGeom(heightField, physx::PxMeshGeometryFlags(), heightFieldShape->GetResolution(), heightFieldShape->GetResolution(), heightFieldShape->GetResolution());
-				// Create the shape for it
-				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(heightFieldGeom, *PhysicsWorld::mMaterial);
-
-				// Release the cooking object
-				cooking->release();
+				if (triangleMesh)
+				{
+					physx::PxTriangleMeshGeometry triangleMeshGeom(triangleMesh);
+					rigidBody->pShape = PhysicsWorld::mPhysics->createShape(triangleMeshGeom, *PhysicsWorld::mMaterial);
+				}
 			}
 			if (rigidBody->IsStatic())
 			{
