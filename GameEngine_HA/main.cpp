@@ -434,59 +434,19 @@ int main(int argc, char* argv[])
 	pSkyBox->meshName = "Skybox_Sphere";
 	pSkyBox->friendlyName = "skybox";
 
-	{
-		// Top left
-		cMeshObject* pPlatform1 = new cMeshObject();
-		pPlatform1->meshName = "Cube";
-		pPlatform1->friendlyName = "Platform1";
-		pPlatform1->bUse_RGBA_colour = true;
-		pPlatform1->RGBA_colour = glm::vec4(0.8f, 0.2f, 0.8f, 1.f); // Dull pink
-		pPlatform1->position = glm::vec3(16.0f, -5.0f, 16.0f);
-		pPlatform1->isWireframe = false;
-		pPlatform1->scaleXYZ = glm::vec3(32.f, 5.f, 32.f);
-		pPlatform1->textures[0] = "grass.bmp";
-		pPlatform1->textureRatios[0] = 0.5f;
-		g_pMeshObjects.push_back(pPlatform1);
-
-		// Bottom left
-		cMeshObject* pPlatform2 = new cMeshObject();
-		pPlatform2->meshName = "Cube";
-		pPlatform2->friendlyName = "Platform2";
-		pPlatform2->bUse_RGBA_colour = true;
-		pPlatform2->RGBA_colour = glm::vec4(0.2f, 0.8f, 0.8f, 1.f); // Dull turquoise
-		pPlatform2->position = glm::vec3(16.0f, -5.0f, -16.0f);
-		pPlatform2->isWireframe = false;
-		pPlatform2->scaleXYZ = glm::vec3(32.f, 5.f, 32.f);
-		pPlatform2->textures[0] = "grass.bmp";
-		pPlatform2->textureRatios[0] = 0.5f;
-		g_pMeshObjects.push_back(pPlatform2);
-
-		// Top right
-		cMeshObject* pPlatform3 = new cMeshObject();
-		pPlatform3->meshName = "Cube";
-		pPlatform3->friendlyName = "Platform3";
-		pPlatform3->bUse_RGBA_colour = true;
-		pPlatform3->RGBA_colour = glm::vec4(0.8f, 0.8f, 0.8f, 1.f); // Dull white
-		pPlatform3->position = glm::vec3(-16.0f, -5.0f, 16.0f);
-		pPlatform3->isWireframe = false;
-		pPlatform3->scaleXYZ = glm::vec3(32.f, 5.f, 32.f);
-		pPlatform3->textures[0] = "grass.bmp";
-		pPlatform3->textureRatios[0] = 0.5f;
-		g_pMeshObjects.push_back(pPlatform3);
-
-		// Bottom right
-		cMeshObject* pPlatform4 = new cMeshObject();
-		pPlatform4->meshName = "Cube";
-		pPlatform4->friendlyName = "Platform4";
-		pPlatform4->bUse_RGBA_colour = true;
-		pPlatform4->RGBA_colour = glm::vec4(0.8f, 0.8f, 0.2f, 1.f); // Dull yellow
-		pPlatform4->position = glm::vec3(-16.0f, -5.0f, -16.0f);
-		pPlatform4->isWireframe = false;
-		pPlatform4->scaleXYZ = glm::vec3(32.f, 5.f, 32.f);
-		pPlatform4->textures[0] = "grass.bmp";
-		pPlatform4->textureRatios[0] = 0.5f;
-		g_pMeshObjects.push_back(pPlatform4);
-	}
+	cMeshObject* pTerrain = new cMeshObject();
+	pTerrain->meshName = "Terrain";
+	pTerrain->friendlyName = "Terrain";
+	pTerrain->bUse_RGBA_colour = false;
+	pTerrain->position = glm::vec3(-128.f, -50.0f, -64.f);
+	pTerrain->isWireframe = false;
+	pTerrain->scaleXYZ = glm::vec3(1.f);
+	pTerrain->textures[0] = "grass2.bmp";
+	pTerrain->textureRatios[0] = 1.f;
+	pTerrain->textureRatios[1] = 1.f;
+	pTerrain->textureRatios[2] = 1.f;
+	pTerrain->textureRatios[3] = 1.f;
+	g_pMeshObjects.push_back(pTerrain);
 
 	cMeshObject* pBall = new cMeshObject();
 	pBall->meshName = "ISO_Sphere_1";
@@ -595,6 +555,7 @@ int main(int argc, char* argv[])
 	::g_pTextureManager->Create2DTextureFromBMPFile("carbon.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
 
 	std::string errorString = "";
 	if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
@@ -1161,14 +1122,14 @@ void DrawConcentricDebugLightObjects(void)
 // code is here to clean up the main method a bit
 void CreateScene(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world)
 {
-	{
-			float platformSize = 32.f;
-			iShape* platformShape = new BoxShape(Vector3(platformSize, 5.f, platformSize));
-			RigidBodyDesc platformDesc;
-			platformDesc.isStatic = true;
-			platformDesc.position = Vector3(0.0f, -7.5f, 0.0f);
-			world->AddBody(_physicsFactory->CreateRigidBody(platformDesc, platformShape));
-	}
+	//{
+	//		float platformSize = 32.f;
+	//		iShape* platformShape = new BoxShape(Vector3(platformSize, 5.f, platformSize));
+	//		RigidBodyDesc platformDesc;
+	//		platformDesc.isStatic = true;
+	//		platformDesc.position = Vector3(0.0f, -7.5f, 0.0f);
+	//		world->AddBody(_physicsFactory->CreateRigidBody(platformDesc, platformShape));
+	//}
 	// Stacked cubes
 	glm::vec3 center = glm::vec3(16.0f, 0.0f, 16.0f);
 	float spacing = 2.1f;
