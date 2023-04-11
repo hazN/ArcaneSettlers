@@ -39,8 +39,10 @@
 #include <Interface/PlaneShape.h>
 #include <Interface/TriangleMeshShape.h>
 #include <physics/physx/PhysicsFactory.h>
+#include <physics/physx/CharacterController.h>
 #include "AnimationManager.h"
 #include "PhysicsHelper.h"
+#include <Interface/iCharacterController.h>
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -441,13 +443,20 @@ int main(int argc, char* argv[])
 	pTerrain->position = glm::vec3(-128.f, -50.0f, -64.f);
 	pTerrain->isWireframe = false;
 	pTerrain->scaleXYZ = glm::vec3(1.f);
-	pTerrain->textures[0] = "grass2.bmp";
+	pTerrain->textures[0] = "grass.bmp";
 	pTerrain->textureRatios[0] = 1.f;
 	pTerrain->textureRatios[1] = 1.f;
 	pTerrain->textureRatios[2] = 1.f;
 	pTerrain->textureRatios[3] = 1.f;
 	g_pMeshObjects.push_back(pTerrain);
-
+	cMeshObject* pTerrainWireFrame = new cMeshObject();
+	pTerrainWireFrame->meshName = "Terrain";
+	pTerrainWireFrame->friendlyName = "TerrainWireframe";
+	pTerrainWireFrame->bUse_RGBA_colour = false;
+	pTerrainWireFrame->position = glm::vec3(-128.f, -49.9f, -64.f);
+	pTerrainWireFrame->isWireframe = true;
+	pTerrainWireFrame->scaleXYZ = glm::vec3(1.f);
+	g_pMeshObjects.push_back(pTerrainWireFrame);
 	cMeshObject* pBall = new cMeshObject();
 	pBall->meshName = "ISO_Sphere_1";
 	pBall->friendlyName = "PlayerBall";
@@ -593,7 +602,7 @@ int main(int argc, char* argv[])
 	iPhysicsFactory* _physicsFactory = new PhysicsFactory;
 	iPhysicsWorld* world = _physicsFactory->CreateWorld();;
 
-		// LOAD TERRAIN
+	// LOAD TERRAIN
 	{
 		sModelDrawInfo terrainInfo;
 		pVAOManager->FindDrawInfoByModelName("Terrain", terrainInfo);
@@ -640,6 +649,14 @@ int main(int argc, char* argv[])
 	}
 	world->AddBody(PlayerBall->rigidBody);
 	gameObjects.push_back(PlayerBall);
+	// Create Character controller
+
+	iShape* cylinderShape = new CylinderShape(Vector3(1.f, 2.f, 1.f));
+	glm::vec3 position = glm::vec3(0.f, 1.f, 0.f);
+	glm::quat rotation = glm::quat(glm::vec3(0));
+
+	iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
+	world->AddCharacterController(playerCharacterController);
 
 	// ANIMATION
 	std::vector<GameObject*> goVector;
@@ -716,38 +733,6 @@ int main(int argc, char* argv[])
 				}
 				world->ResetWorld();
 			}
-			// Spawn a random ball
-			if (glfwGetKey(window, GLFW_KEY_KP_1) && duration > 0.3f)
-			{
-				glm::vec3 minBounds = glm::vec3(0.f, 5.f, -32.f);
-				glm::vec3 maxBounds = glm::vec3(32.f, 5.f, 0.f);
-				glm::vec2 radius = glm::vec2(0.25f, 1.5f);
-				glm::vec2 mass = glm::vec2(1.f, 25.f);
-				deltaTime = std::clock();
-
-				CreateRandomSphere(_physicsFactory, world, minBounds, maxBounds, radius, mass);
-			}
-			// Different keyset based on the camera being used
-			if (theEditMode == PHYSICS_TEST)
-			{
-				if (glfwGetKey(window, GLFW_KEY_W))
-				{
-					direction -= forwardVector * 1.f;
-				}
-				if (glfwGetKey(window, GLFW_KEY_S))
-				{
-					direction += forwardVector * 1.f;
-				}
-				if (glfwGetKey(window, GLFW_KEY_A))
-				{
-					direction += rightVector * 1.f;
-				}
-				if (glfwGetKey(window, GLFW_KEY_D))
-				{
-					direction -= rightVector * 1.f;
-				}
-			}
-			else
 			{
 				if (glfwGetKey(window, GLFW_KEY_UP))
 				{
@@ -766,8 +751,7 @@ int main(int argc, char* argv[])
 					direction -= rightVector * 1.f;
 				}
 			}
-			// Apply force to the rigidbody
-			PlayerBall->rigidBody->ApplyForce(Vector3(direction.x * force, direction.y * force, direction.z * force));
+			playerCharacterController->Move(direction * force);
 		}
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
 		// Mouse Lookaround
@@ -816,7 +800,6 @@ int main(int argc, char* argv[])
 // Set once per scene (not per object)
 		glUniformMatrix4fv(mView_location, 1, GL_FALSE, glm::value_ptr(matView));
 		glUniformMatrix4fv(mProjection_location, 1, GL_FALSE, glm::value_ptr(matProjection));
-
 		//    ____  _             _            __
 		//   / ___|| |_ __ _ _ __| |_    ___  / _|  ___  ___ ___ _ __   ___
 		//   \___ \| __/ _` | '__| __|  / _ \| |_  / __|/ __/ _ \ '_ \ / _ \
@@ -892,55 +875,6 @@ int main(int argc, char* argv[])
 				pVAOManager, mModel_location, mModelInverseTransform_location);
 		}//for ( unsigned int index
 
-		//// Draw the island model
-		//GLint bIsIlandModel_IniformLocation = glGetUniformLocation(shaderID, "bIsTerrainModel");
-		//glUniform1f(bIsIlandModel_IniformLocation, (GLfloat)GL_TRUE);
-
-		//glm::mat4x4 matModel = glm::mat4x4(1.0f);
-
-		//// All the drawing code has been moved to the DrawObject function
-		//DrawObject(pTerrain,
-		//	matModel,
-		//	shaderID, ::g_pTextureManager,
-		//	pVAOManager, mModel_location, mModelInverseTransform_location);
-
-		//glUniform1f(bIsIlandModel_IniformLocation, (GLfloat)GL_FALSE);
-
-		//// Draw flames
-		//{
-		//	GLint bIsFlameObject_UniformLocation = glGetUniformLocation(shaderID, "bIsFlameObject");
-		//	glUniform1f(bIsFlameObject_UniformLocation, (GLfloat)GL_TRUE);
-
-		//	glm::mat4x4 matModel = glm::mat4x4(1.0f);
-
-		//	// All the drawing code has been moved to the DrawObject function
-		//	DrawObject(Torch1Flame,
-		//		matModel,
-		//		shaderID, ::g_pTextureManager,
-		//		pVAOManager, mModel_location, mModelInverseTransform_location);
-		//	Torch1Flame->position = pTorch->position;
-		//	DrawObject(Torch2Flame,
-		//		matModel,
-		//		shaderID, ::g_pTextureManager,
-		//		pVAOManager, mModel_location, mModelInverseTransform_location);
-		//	Torch2Flame->position = pTorch2->position;
-		//	DrawObject(Torch3Flame,
-		//		matModel,
-		//		shaderID, ::g_pTextureManager,
-		//		pVAOManager, mModel_location, mModelInverseTransform_location);
-		//	Torch3Flame->position = pTorch3->position;
-		//	DrawObject(Torch4Flame,
-		//		matModel,
-		//		shaderID, ::g_pTextureManager,
-		//		pVAOManager, mModel_location, mModelInverseTransform_location);
-		//	Torch4Flame->position = pTorch4->position;
-		//	DrawObject(Torch5Flame,
-		//		matModel,
-		//		shaderID, ::g_pTextureManager,
-		//		pVAOManager, mModel_location, mModelInverseTransform_location);
-		//	Torch5Flame->position = pTorch5->position;
-		//	glUniform1f(bIsFlameObject_UniformLocation, (GLfloat)GL_FALSE);
-		//}
 		// Draw the skybox
 		{
 			GLint bIsSkyboxObject_UL = glGetUniformLocation(shaderID, "bIsSkyboxObject");
@@ -972,6 +906,7 @@ int main(int argc, char* argv[])
         //   | |___| | | | (_| | | (_) |  _| \__ \ (_|  __/ | | |  __/
 		//   |_____|_| |_|\__,_|  \___/|_|   |___/\___\___|_| |_|\___|
 		//
+
 		glfwPollEvents();
 
 		ImGui_ImplOpenGL3_NewFrame();

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="physics\physx\CharacterController.h" />
     <ClInclude Include="physics\physx\Conversion.h" />
     <ClInclude Include="physics\physx\PhysicsFactory.h" />
     <ClInclude Include="physics\physx\PhysicsWorld.h" />
@@ -26,6 +27,7 @@
     <ClInclude Include="physics\physx\SoftBody.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="physics\physx\CharacterController.cpp" />
     <ClCompile Include="physics\physx\Conversion.cpp" />
     <ClCompile Include="physics\physx\PhysicsFactory.cpp" />
     <ClCompile Include="physics\physx\PhysicsWorld.cpp" />

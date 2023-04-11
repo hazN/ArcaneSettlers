@@ -80,5 +80,8 @@
     <ClInclude Include="Interface\TriangleMeshShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Interface\iCharacterController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

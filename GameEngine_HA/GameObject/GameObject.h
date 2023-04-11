@@ -6,6 +6,7 @@
 #include "BoneHierarchy.h"
 
 #include <Interface/iRigidBody.h>
+#include <Interface/ICharacterController.h>
 #include "../cMeshObject.h"
 #include "../Character.h"
 using namespace physics;
@@ -25,6 +26,7 @@ public:
     GameObject(iRigidBody* rigidBody, cMeshObject* mesh) { this->rigidBody = rigidBody, this->mesh = mesh, id = nextId++; }
     ~GameObject() = default;
     iRigidBody* rigidBody;
+    iCharacterController* characterController;
     cMeshObject* mesh;
     Character* animCharacter;
 

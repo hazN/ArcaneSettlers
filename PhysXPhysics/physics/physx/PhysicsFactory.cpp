@@ -4,7 +4,7 @@
 
 #include "RigidBody.h"
 #include "SoftBody.h"
-
+#include "CharacterController.h"
 namespace physics
 {
 	PhysicsFactory::PhysicsFactory(void)
@@ -22,6 +22,11 @@ namespace physics
 		PhysicsWorld* AWholeNewWorld = new PhysicsWorld();
 
 		return AWholeNewWorld;
+	}
+
+	iCharacterController* PhysicsFactory::CreateCharacterController(iShape* shape, const Vector3& position, const Quaternion& orientation)
+	{
+		return new CharacterController(shape, position, orientation);
 	}
 
 	iRigidBody* PhysicsFactory::CreateRigidBody(const RigidBodyDesc& desc, iShape* shape)

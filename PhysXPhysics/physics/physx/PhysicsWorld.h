@@ -5,6 +5,7 @@
 #include <Interface/iPhysicsWorld.h>
 #include <Interface/iCollisionBody.h>
 #include <Interface/iRigidBody.h>
+#include <Interface/iCharacterController.h>
 
 #include <glm/vec3.hpp>
 
@@ -51,6 +52,7 @@ namespace physics
 
 		virtual void SetGravity(const Vector3& gravity) override;
 
+		virtual void AddCharacterController(iCharacterController* characterController) override;
 		virtual void AddBody(iCollisionBody* body) override;
 		virtual void RemoveBody(iCollisionBody* body) override;
 		virtual void ResetWorld() override;
@@ -64,6 +66,7 @@ namespace physics
 		static physx::PxScene* mScene;
 		static physx::PxMaterial* mMaterial;
 		static physx::PxCooking* mCooking;
+		static physx::PxControllerManager* mControllerManager;
 	private:
 		physx::PxDefaultAllocator      mDefaultAllocatorCallback;
 		physx::PxDefaultErrorCallback  mDefaultErrorCallback;
@@ -75,6 +78,7 @@ namespace physics
 		physx::PxPvd* mPvd = NULL;
 		//std::map<iRigidBody*,physx::PxRigidActor*> mActors;
 		std::vector<iRigidBody*> mActors;
+		std::vector<iCharacterController*> mCharacterControllers;
 		std::map<physx::PxRigidActor*, physx::PxTransform> mOriginalTransforms;
 
 		iCollisionListener* m_CollisionListener;

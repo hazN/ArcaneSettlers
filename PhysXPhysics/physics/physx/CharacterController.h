@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Interface/iCharacterController.h>
+#include <Interface/iShape.h>
+#include <Interface/Math.h>
 #include <physx/PxPhysicsAPI.h>
 
 using namespace physx;
@@ -10,7 +12,7 @@ namespace physics
     class CharacterController : public iCharacterController
     {
     public:
-        CharacterController(PxControllerManager* manager, iShape* shape, const Vector3& position, const Quaternion& rotation);
+        CharacterController(iShape* shape, const Vector3& position, const Quaternion& rotation);
         virtual ~CharacterController();
 
         virtual void Move(const Vector3& displacement) override;
@@ -23,7 +25,6 @@ namespace physics
         virtual void SetGravity(const Vector3& gravity) override;
 
     private:
-        PxController* m_Controller;
-        PxControllerManager* m_ControllerManager;
+        PxController* mController;
     };
 }

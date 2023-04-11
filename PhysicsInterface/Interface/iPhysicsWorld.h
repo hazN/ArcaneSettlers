@@ -2,7 +2,7 @@
 
 #include "Math.h"
 #include "iCollisionBody.h"
-
+#include "iCharacterController.h"
 namespace physics
 {
 	class iCollisionListener
@@ -23,10 +23,10 @@ namespace physics
 
 		virtual void SetGravity(const Vector3& gravity) = 0;
 
+		virtual void AddCharacterController(iCharacterController* characterController) = 0;
 		virtual void AddBody(iCollisionBody* body) = 0;
 		virtual void RemoveBody(iCollisionBody* body) = 0;
 		virtual void ResetWorld() = 0;
-
 		virtual void TimeStep(float dt) = 0;
 
 		virtual void DebugDraw() { }

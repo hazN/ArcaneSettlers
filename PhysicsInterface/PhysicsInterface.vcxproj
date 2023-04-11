@@ -29,6 +29,7 @@
     <ClInclude Include="Interface\BodyType.h" />
     <ClInclude Include="Interface\BoxShape.h" />
     <ClInclude Include="Interface\CylinderShape.h" />
+    <ClInclude Include="Interface\iCharacterController.h" />
     <ClInclude Include="Interface\iCollisionBody.h" />
     <ClInclude Include="Interface\iPhysicsFactory.h" />
     <ClInclude Include="Interface\iPhysicsWorld.h" />

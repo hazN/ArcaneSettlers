@@ -30,6 +30,9 @@
     <ClInclude Include="physics\physx\SoftBody.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="physics\physx\CharacterController.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="physics\physx\PhysicsFactory.cpp">
@@ -45,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="physics\physx\Conversion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="physics\physx\CharacterController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

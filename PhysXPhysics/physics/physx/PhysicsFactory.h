@@ -14,6 +14,7 @@ namespace physics
 
 		virtual iPhysicsWorld* CreateWorld(void);
 
+		virtual iCharacterController* CreateCharacterController(iShape* shape, const Vector3& position, const Quaternion& orientation);
 		virtual iRigidBody* CreateRigidBody(const RigidBodyDesc& desc, iShape* shape);
 		virtual iSoftBody* CreateSoftBody(const SoftBodyDesc& desc);
 	};

@@ -13,6 +13,7 @@
 #include <physx/geometry/PxHeightField.h>
 #include <physx/geometry/PxHeightFieldDesc.h>
 #include <Interface/TriangleMeshShape.h>
+#include "CharacterController.h"
 
 //#include <pvd/PxPvd.h>
 //#include <extensions/PxSimpleFactory.h>
@@ -23,7 +24,7 @@ namespace physics
 	physx::PxScene* PhysicsWorld::mScene = nullptr;
 	physx::PxMaterial* PhysicsWorld::mMaterial = nullptr;
 	physx::PxCooking* PhysicsWorld::mCooking = nullptr;
-
+	physx::PxControllerManager* PhysicsWorld::mControllerManager = nullptr;
 	PhysicsWorld::PhysicsWorld(void)
 	{
 		mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
@@ -41,6 +42,7 @@ namespace physics
 		sceneDesc.cpuDispatcher = mDispatcher;
 		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 		mScene = mPhysics->createScene(sceneDesc);
+		mControllerManager = PxCreateControllerManager(*mScene);
 
 		physx::PxPvdSceneClient* pvdClient = mScene->getScenePvdClient();
 		if (pvdClient)
@@ -62,6 +64,7 @@ namespace physics
 		mFoundation->release();
 		mPhysics->release();
 		mCooking->release();
+		mControllerManager->release();
 	}
 
 	void PhysicsWorld::TimeStep(float dt)
@@ -72,6 +75,14 @@ namespace physics
 
 	void PhysicsWorld::SetGravity(const Vector3& gravity)
 	{
+	}
+
+	void PhysicsWorld::AddCharacterController(iCharacterController* characterController) 
+	{
+		if (characterController == nullptr)
+			return;
+		CharacterController* character = (CharacterController*)characterController;
+		mCharacterControllers.push_back(character);
 	}
 
 	void PhysicsWorld::AddBody(iCollisionBody* body)
@@ -147,16 +158,6 @@ namespace physics
 			rigidBody->pShape->release();
 		}
 	}
-	//	//else if (body->GetBodyType() == BodyType::SoftBody)
-	//	//{
-	//	//	SoftBody* rigidBody = SoftBody::Cast(body);
-
-	//	//	if (std::find(m_SoftBodies.begin(), m_SoftBodies.end(), rigidBody) == m_SoftBodies.end())
-	//	//	{
-	//	//		m_SoftBodies.push_back(rigidBody);
-	//	//	}
-	//	//}
-	//}
 
 	void PhysicsWorld::RemoveBody(iCollisionBody* body)
 	{
