@@ -26,5 +26,7 @@ namespace physics
 
     private:
         PxController* mController;
+        Vector3* mGravity;
+        Vector3* mVelocity;
     };
 }

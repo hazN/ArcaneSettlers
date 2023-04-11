@@ -35,6 +35,8 @@ namespace physics
 		// Create controller
 		mController = PhysicsWorld::mControllerManager->createController(*desc);
 		SetRotation(rotation);
+		mGravity = new Vector3(0.f, -9.81f, 0.f);
+		mVelocity = new Vector3(0.f, 0.f, 0.f);
 	}
 
 	CharacterController::~CharacterController()
@@ -45,10 +47,20 @@ namespace physics
 	// Move the character with a direction
 	void CharacterController::Move(const Vector3& direction)
 	{
-		PxVec3 dir = PxVec3(direction.x, direction.y, direction.z);
+		mVelocity->x += mGravity->x;
+		mVelocity->y += mGravity->y;
+		mVelocity->z += mGravity->z;
+
+		PxVec3 dir = PxVec3(direction.x, mVelocity->y + direction.y, direction.z);
 		PxControllerFilters filters;
-		mController->move(dir, 0.0f, 1.0f / 60.0f, filters);
+		PxControllerCollisionFlags collisionFlags = mController->move(dir, 0.0f, 1.0f / 60.0f, filters);
+		// Check if character is grounded
+		if (collisionFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+		{
+			mVelocity->y = 0.0f;
+		}
 	}
+
 	// Forcibly set the position
 	void CharacterController::SetPosition(const Vector3& position)
 	{
@@ -83,6 +95,6 @@ namespace physics
 
 	void physics::CharacterController::SetGravity(const Vector3& gravity)
 	{
-		std::cout << "SetGravity not implemented..." << std::endl;
+		*mGravity = gravity;
 	}
 }
