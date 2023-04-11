@@ -571,8 +571,8 @@ int main(int argc, char* argv[])
 	if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
 		"TropicalSunnyDayRight2048.bmp", /* positive X */
 		"TropicalSunnyDayLeft2048.bmp",  /* negative X */
-		"TropicalSunnyDayUp2048.bmp",    /* positive Y */
-		"TropicalSunnyDayDown2048.bmp",  /* negative Y */
+		"TropicalSunnyDayDown2048.bmp",    /* positive Y */
+		"TropicalSunnyDayUp2048.bmp",  /* negative Y */
 		"TropicalSunnyDayBack2048.bmp",  /* positive Z */
 		"TropicalSunnyDayFront2048.bmp", /* negative Z */
 		true, errorString))
@@ -679,7 +679,7 @@ int main(int argc, char* argv[])
 			Vector3 position;
 			playerCharacterController->GetPosition(position);
 			goWarrior->mesh->position.x = position.x;
-			goWarrior->mesh->position.y = position.y;
+			goWarrior->mesh->position.y = position.y - 2.f;
 			goWarrior->mesh->position.z = position.z;
 		}
 		// Play random animation
