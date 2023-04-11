@@ -43,6 +43,7 @@
 #include "AnimationManager.h"
 #include "PhysicsHelper.h"
 #include <Interface/iCharacterController.h>
+#include "quaternion_utils.h"
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -663,8 +664,8 @@ int main(int argc, char* argv[])
 
 	GameObject* goWarrior = new GameObject();
 	goWarrior->mesh = pWarrior;
-	goWarrior->mesh->scaleXYZ = glm::vec3(0.5f);
-	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.05f));
+	goWarrior->mesh->scaleXYZ = glm::vec3(0.01f);
+	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.01f));
 	goWarrior->animCharacter->SetAnimation(10);
 	goVector.push_back(goWarrior);
 
@@ -680,9 +681,7 @@ int main(int argc, char* argv[])
 			goWarrior->mesh->position.x = position.x;
 			goWarrior->mesh->position.y = position.y;
 			goWarrior->mesh->position.z = position.z;
-			
 		}
-
 		// Play random animation
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		if (duration > 2.f)
@@ -724,7 +723,7 @@ int main(int argc, char* argv[])
 			// Force needs to be higher since the forward vector will be weaker with a topdown camera
 			if (theEditMode == PHYSICS_TEST)
 				force = 3.f;
-			else force = 0.015f;
+			else force = 0.005f;
 			glm::vec3 direction(0.f);
 			glm::vec3 forwardVector(g_cameraEye.x, 0.0f, g_cameraEye.z);
 			glm::vec3 rightVector(glm::cross(forwardVector, glm::vec3(0, 1, 0)));
