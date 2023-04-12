@@ -446,7 +446,7 @@ int main(int argc, char* argv[])
 	pTerrain->position = glm::vec3(-128.f, -50.0f, -64.f);
 	pTerrain->isWireframe = false;
 	pTerrain->scaleXYZ = glm::vec3(1.f);
-	pTerrain->textures[0] = "grass.bmp";
+	pTerrain->textures[0] = "grass2.bmp";
 	pTerrain->textureRatios[0] = 1.f;
 	pTerrain->textureRatios[1] = 1.f;
 	pTerrain->textureRatios[2] = 1.f;

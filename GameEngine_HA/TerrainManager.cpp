@@ -20,17 +20,20 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     const int NUM_TREES = maxObjects[0];
     const int NUM_ROCKS = maxObjects[1];
     const int NUM_GOLD = maxObjects[2];
-
+    const glm::vec3 SCALE = glm::vec3(5.f);
     GameObject* goDepot = new GameObject;
     goDepot->id = IDGenerator::GenerateID();
     goDepot->mesh = new cMeshObject();
     goDepot->mesh->meshName = "Depot";
     goDepot->mesh->friendlyName = "Depot";
-    goDepot->mesh->scaleXYZ = glm::vec3(1.f);
+    goDepot->mesh->bUse_RGBA_colour = true;
+    goDepot->mesh->RGBA_colour = glm::normalize(glm::vec4(150.f, 75.f, 0.f, 1.f));
+    goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
     goDepot->mesh->position = glm::vec3(0);
     goDepot->mesh->qRotation = glm::vec3(0);
     meshesToLoadIntoTerrain.push_back(goDepot);
     goMap.emplace(goDepot->id, goDepot);
+    g_pMeshObjects.push_back(goDepot->mesh);
 
     for (size_t i = 0; i < NUM_TREES; i++)
     {
@@ -39,11 +42,14 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         goTree->mesh = new cMeshObject();
         goTree->mesh->meshName = "PineTree";
         goTree->mesh->friendlyName = "PineTree";
-        goTree->mesh->scaleXYZ = glm::vec3(0.1f);
+        goTree->mesh->bUse_RGBA_colour = true;
+        goTree->mesh->RGBA_colour = glm::vec4(0.2f, 0.8f, 0.2f, 1.f);
+        goTree->mesh->scaleXYZ = glm::vec3(SCALE);
         goTree->mesh->position = glm::vec3(0);
         goTree->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goTree);
         goMap.emplace(goTree->id, goTree);
+        g_pMeshObjects.push_back(goTree->mesh);
     }
     for (size_t i = 0; i < NUM_ROCKS; i++)
     {
@@ -52,11 +58,14 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         goRock->mesh = new cMeshObject();
         goRock->mesh->meshName = "Rock";
         goRock->mesh->friendlyName = "Rock";
-        goRock->mesh->scaleXYZ = glm::vec3(0.1f);
+        goRock->mesh->bUse_RGBA_colour = true;
+        goRock->mesh->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+        goRock->mesh->scaleXYZ = glm::vec3(SCALE);
         goRock->mesh->position = glm::vec3(0);
         goRock->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goRock);
         goMap.emplace(goRock->id, goRock);
+        g_pMeshObjects.push_back(goRock->mesh);
     }
     for (size_t i = 0; i < NUM_GOLD; i++)
     {
@@ -65,11 +74,14 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         goGold->mesh = new cMeshObject();
         goGold->mesh->meshName = "Gold";
         goGold->mesh->friendlyName = "Gold";
-        goGold->mesh->scaleXYZ = glm::vec3(0.1f);
+        goGold->mesh->bUse_RGBA_colour = true;
+        goGold->mesh->RGBA_colour = glm::vec4(1.f, 0.8f, 0.f, 1.f);
+        goGold->mesh->scaleXYZ = glm::vec3(SCALE);
         goGold->mesh->position = glm::vec3(0);
         goGold->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goGold);
         goMap.emplace(goGold->id, goGold);
+        g_pMeshObjects.push_back(goGold->mesh);
     }
     createPhysicsObjects(meshesToLoadIntoTerrain);
 }
@@ -111,6 +123,8 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
         if (go->mesh->meshName == "Depot") {
             position = glm::vec3(0, 0, 0);
             normal = glm::vec3(0.0f, 1.0f, 0.0f);
+            getTerrainHeightAndNormal(position, terrainHeight, normal);
+            position.y = terrainHeight + 0.5f;
         }
         else {
             do {
@@ -120,9 +134,9 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
                 position.y = terrainHeight + 0.5f;
             } while (glm::distance(position, glm::vec3(0.0f, 0.0f, 0.0f)) < 10.0f);
         }
-        //glm::quat rotation = glm::quat(glm::vec3(0.f, glm::radians(getRandom(0.f, 360.f)), 0.f));//* glm::quatLookAt(normal, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::quat rotation = glm::normalize(glm::quat(glm::vec3(0.f, glm::radians(getRandom(0.f, 360.f)), 0.f)) * glm::quatLookAt(normal, glm::vec3(0.0f, 1.0f, 0.0f)));
-
+        glm::quat rotation = glm::quatLookAt(-normal, glm::vec3(0.0f, 1.0f, 0.0f));
+        go->mesh->position = position;
+        go->mesh->qRotation = rotation;
         RigidBodyDesc desc;
         desc.isStatic = true;
         desc.mass = 0.f;
@@ -133,21 +147,25 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
         iShape* shape;
         BuildingType buildingType;
         if (go->mesh->meshName == "PineTree") {
-            float halfheight = (drawInfo.extentY) / 2.0f;
+            float halfheight = (drawInfo.extentY);// / 2.0f;
             float scale = drawInfo.extentX / 2.0f;
             shape = new CylinderShape(Vector3(scale, halfheight, scale));
+            shape->SetUserData(go->mesh->id);
             buildingType = TREE;
         }
         else if (go->mesh->meshName == "Rock") {
             shape = new BoxShape(Vector3(drawInfo.extentX / 2.0f, drawInfo.extentY / 2.0f, drawInfo.extentZ / 2.0f));
+            shape->SetUserData(go->mesh->id);
             buildingType = ROCK;
         }
         else if (go->mesh->meshName == "Gold") {
             shape = new BoxShape(Vector3(drawInfo.extentX / 2.0f, drawInfo.extentY / 2.0f, drawInfo.extentZ / 2.0f));
+            shape->SetUserData(go->mesh->id);
             buildingType = GOLD;
         }
         else if (go->mesh->meshName == "Depot") {
             shape = new BoxShape(Vector3(drawInfo.extentX / 2.0f, drawInfo.extentY / 2.0f, drawInfo.extentZ / 2.0f));
+            shape->SetUserData(go->mesh->id);
             buildingType = DEPOT;
         }
         else
