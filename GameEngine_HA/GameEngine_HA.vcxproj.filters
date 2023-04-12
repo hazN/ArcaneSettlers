@@ -55,6 +55,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Artificial Intelligence">
+      <UniqueIdentifier>{4d19df1a-42f8-4f48-9973-7a86d38e60f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cVAOManager\cVAOManager.cpp">
@@ -146,6 +149,15 @@
     </ClCompile>
     <ClCompile Include="PhysicsHelper.cpp">
       <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="DecisionTable.cpp">
+      <Filter>Artificial Intelligence</Filter>
+    </ClCompile>
+    <ClCompile Include="ColonistInventory.cpp">
+      <Filter>Artificial Intelligence</Filter>
+    </ClCompile>
+    <ClCompile Include="Colonist.cpp">
+      <Filter>Artificial Intelligence</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,6 +271,15 @@
     </ClInclude>
     <ClInclude Include="IDGenerator.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DecisionTable.h">
+      <Filter>Artificial Intelligence</Filter>
+    </ClInclude>
+    <ClInclude Include="Colonist.h">
+      <Filter>Artificial Intelligence</Filter>
+    </ClInclude>
+    <ClInclude Include="ColonistInventory.h">
+      <Filter>Artificial Intelligence</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

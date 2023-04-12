@@ -27,3 +27,4 @@ glm::mat4x4 matProjection;
 glm::mat4x4 matView;
 iRayCast* rayCast;
 std::map<int, GameObject*> goMap;
+std::vector<Colonist*> vecColonists;

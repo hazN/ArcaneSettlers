@@ -45,6 +45,7 @@
 #include <Interface/iCharacterController.h>
 #include "quaternion_utils.h"
 #include "IDGenerator.h"
+#include "Colonist.h"
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -655,19 +656,29 @@ int main(int argc, char* argv[])
 	iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
 	world->AddCharacterController(playerCharacterController);
 	playerCharacterController->SetGravity(Vector3(0.f, -9.81f, 0.f));
-	// ANIMATION
-
-
-
+	// Ai
+	//goWarrior->characterController = playerCharacterController;
+	Colonist* colonist1 = new Colonist();
+	//goWarrior->colonist = colonist1;
+	ColonistThreadData* colonistData1 = new ColonistThreadData();
+	colonistData1->pColonist = colonist1;
+	HANDLE hColonistThread1 = CreateThread(NULL, 0, UpdateColonistThread, (void*)colonistData1, 0, 0);
+	colonist1->mGOColonist = goWarrior;
+	colonist1->mCharacterController = playerCharacterController;
+	vecColonists.push_back(colonist1);
 	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	bool isKeyPressed = false;
 	while (!glfwWindowShouldClose(window))
 	{
+		for (Colonist* colonist : vecColonists)
+		{
+			colonist->Update(0.1f);
+		}
 		{
 			Vector3 position;
-			playerCharacterController->GetPosition(position);
+			colonist1->mCharacterController->GetPosition(position);
 			goWarrior->mesh->position.x = position.x;
 			goWarrior->mesh->position.y = position.y - 2.f;
 			goWarrior->mesh->position.z = position.z;

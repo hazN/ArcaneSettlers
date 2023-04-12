@@ -28,13 +28,15 @@ namespace physics
 		desc->slopeLimit = 0.707f;
 		desc->invisibleWallHeight = 0.0f;
 		desc->maxJumpHeight = 0.0f;
-		desc->contactOffset = 0.01f;
+		desc->contactOffset = 0.03f;
 		desc->stepOffset = 0.5f;
 		desc->density = 10;
 		desc->scaleCoeff = 0.9f;
 		desc->material = PhysicsWorld::mMaterial;
 		// Create controller
+		EnterCriticalSection(&PhysicsWorld::physicsCriticalSection);
 		mController = PhysicsWorld::mControllerManager->createController(*desc);
+		LeaveCriticalSection(&PhysicsWorld::physicsCriticalSection);
 		SetRotation(rotation);
 		mGravity = new Vector3(0.f, -9.81f, 0.f);
 		mVelocity = new Vector3(0.f, 0.f, 0.f);
@@ -54,12 +56,23 @@ namespace physics
 
 		PxVec3 dir = PxVec3(direction.x, mVelocity->y + direction.y, direction.z);
 		PxControllerFilters filters;
-		PxControllerCollisionFlags collisionFlags = mController->move(dir, 0.0f, 1.0f / 60.0f, filters);
-		// Check if character is grounded
-		if (collisionFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
-		{
-			mVelocity->y = 0.0f;
+		EnterCriticalSection(&PhysicsWorld::physicsCriticalSection);
+		try {
+			PxControllerCollisionFlags collisionFlags = mController->move(dir, 0.0f, 1.0f / 60.0f, filters);
+			if (collisionFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN) {
+				mVelocity->y = 0.0f;
+			}
 		}
+		catch (const std::exception& e) {
+			std::cerr << "Exception: " << e.what() << std::endl;
+		}
+		LeaveCriticalSection(&PhysicsWorld::physicsCriticalSection);
+		//PxControllerCollisionFlags collisionFlags = mController->move(dir, 0.0f, 1.0f / 60.0f, filters);
+		// Check if character is grounded
+		//if (collisionFlags & physx::PxControllerCollisionFlag::eCOLLISION_DOWN)
+		//{
+		//	mVelocity->y = 0.0f;
+		//}
 	}
 
 	// Forcibly set the position

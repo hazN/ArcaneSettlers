@@ -11,6 +11,7 @@
 
 #include <physx/PxPhysicsAPI.h>
 #include <map>
+#include <Windows.h>
 //#include <physx/foundation/PxFoundation.h>
 //#include <physx/foundation/PxErrorCallback.h>
 //#include <physx/foundation/PxAllocator.h>
@@ -67,6 +68,7 @@ namespace physics
 		static physx::PxMaterial* mMaterial;
 		static physx::PxCooking* mCooking;
 		static physx::PxControllerManager* mControllerManager;
+		static CRITICAL_SECTION physicsCriticalSection;
 	private:
 		physx::PxDefaultAllocator      mDefaultAllocatorCallback;
 		physx::PxDefaultErrorCallback  mDefaultErrorCallback;

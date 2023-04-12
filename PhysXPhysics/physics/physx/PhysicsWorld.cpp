@@ -25,8 +25,10 @@ namespace physics
 	physx::PxMaterial* PhysicsWorld::mMaterial = nullptr;
 	physx::PxCooking* PhysicsWorld::mCooking = nullptr;
 	physx::PxControllerManager* PhysicsWorld::mControllerManager = nullptr;
+	CRITICAL_SECTION PhysicsWorld::physicsCriticalSection;
 	PhysicsWorld::PhysicsWorld(void)
 	{
+		InitializeCriticalSection(&physicsCriticalSection);
 		mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mDefaultAllocatorCallback, mDefaultErrorCallback);
 		if (!mFoundation) throw("PxCreateFoundation failed!");
 		mPvd = PxCreatePvd(*mFoundation);
@@ -69,8 +71,10 @@ namespace physics
 
 	void PhysicsWorld::TimeStep(float dt)
 	{
+		EnterCriticalSection(&physicsCriticalSection);
 		mScene->simulate(1.0f / 60.0f);
 		mScene->fetchResults(true);
+		LeaveCriticalSection(&physicsCriticalSection);
 	}
 
 	void PhysicsWorld::SetGravity(const Vector3& gravity)
@@ -144,6 +148,7 @@ namespace physics
 				userData = triangleMeshShape->GetUserData();
 			}
 			rigidBody->pShape->userData = (void*)userData;
+			EnterCriticalSection(&physicsCriticalSection);
 			if (rigidBody->IsStatic())
 			{
 				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidStatic(transform);
@@ -157,6 +162,7 @@ namespace physics
 				physx::PxRigidBodyExt::updateMassAndInertia(*rigidActor, rigidBody->m_Mass);
 				rigidBody->rigidBody = rigidActor;
 			}
+			LeaveCriticalSection(&physicsCriticalSection);
 			mActors.push_back((iRigidBody*)rigidBody);
 			mScene->addActor(*rigidBody->rigidBody);
 			mOriginalTransforms.emplace(rigidBody->rigidBody, transform);
@@ -166,6 +172,7 @@ namespace physics
 
 	void PhysicsWorld::RemoveBody(iCollisionBody* body)
 	{
+		EnterCriticalSection(&physicsCriticalSection);
 		for (size_t i = 0; i < mActors.size(); i++)
 		{
 			if (mActors[i] == body)
@@ -176,10 +183,13 @@ namespace physics
 				delete body;
 			}
 		}
+		LeaveCriticalSection(&physicsCriticalSection);
+
 	}
 	void PhysicsWorld::ResetWorld()
 	{
 		// Loop through actors
+		EnterCriticalSection(&physicsCriticalSection);
 		for (iRigidBody* body : mActors)
 		{
 			RigidBody* actor = RigidBody::Cast(body);
@@ -194,5 +204,7 @@ namespace physics
 			}
 			actor->rigidBody->setGlobalPose(originalTransform);
 		}
+		LeaveCriticalSection(&physicsCriticalSection);
+
 	}
 };

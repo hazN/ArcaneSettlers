@@ -9,6 +9,7 @@
 #include <Interface/ICharacterController.h>
 #include "../cMeshObject.h"
 #include "../Character.h"
+//#include "../Colonist.h"
 using namespace physics;
 
 struct GameObjectBoneData
@@ -29,7 +30,8 @@ public:
     iCharacterController* characterController;
     cMeshObject* mesh;
     Character* animCharacter;
-
+    //Colonist* colonist;
+    glm::vec3* position;
     int id;
     static int nextId;
     bool Enabled;

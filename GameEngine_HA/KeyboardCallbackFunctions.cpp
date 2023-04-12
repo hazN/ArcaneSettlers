@@ -45,7 +45,7 @@ static int m_MouseDownX;
 static int m_MouseDownY;
 static float m_HorizontalAngle;
 int turn = 0;
-int angle [4] = { 0.f, 0.0001f, 0.001f, 0.01f };
+int angle[4] = { 0.f, 0.0001f, 0.001f, 0.01f };
 void mouse_camera_update(GLFWwindow* window)
 {
 	m_PrevMouseX = m_CurrMouseX;
@@ -64,7 +64,6 @@ void mouse_camera_update(GLFWwindow* window)
 	m_HorizontalAngle -= deltaMouseX * rotateSpeed;
 
 	const float moveSpeed = 5.0f;
-
 
 	::g_cameraTarget.x = sin(m_HorizontalAngle);
 	::g_cameraTarget.z = cos(m_HorizontalAngle);
@@ -85,12 +84,11 @@ glm::vec3 GetRayDirection(double mouseX, double mouseY, const glm::mat4& viewMat
 	// Convert to world space
 	glm::mat4 invViewMatrix = glm::inverse(viewMatrix);
 	glm::vec4 worldCoords = invViewMatrix * eyeCoords;
-	// Normalize the direction 
+	// Normalize the direction
 	glm::vec3 rayDir = glm::normalize(glm::vec3(worldCoords.x, worldCoords.y, worldCoords.z));
 
 	return rayDir;
 }
-
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -106,11 +104,20 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 	{
 		std::cout << "Raycasted " << "object " << hit.userData << ": " << hit.position.x << ", " << hit.position.y << " " << hit.position.z << std::endl;
-		for (std::pair<int, GameObject*> go : goMap)
+		if (hit.userData == 0)
 		{
-			if (glm::length(go.second->mesh->position - hit.position) < 2.f)
+			GameObject* goMove = new GameObject;
+			goMove->position = new glm::vec3(0);
+			*goMove->position = glm::vec3(hit.position.x, hit.position.y, hit.position.z);
+			vecColonists[0]->SetCommand(CommandType::Move, goMove);
+		}
+		else {
+			for (std::pair<int, GameObject*> go : goMap)
 			{
-				std::cout << "Hit " << go.second->id << std::endl;
+				if (glm::length(go.second->mesh->position - hit.position) < 2.f)
+				{
+					std::cout << "Hit " << go.second->id << std::endl;
+				}
 			}
 		}
 	}
@@ -128,7 +135,7 @@ void key_callback(GLFWwindow* window,
 			menuMode = !menuMode;
 			if (menuMode)
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			else 
+			else
 				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 		if (key == GLFW_KEY_S && action == GLFW_PRESS)
