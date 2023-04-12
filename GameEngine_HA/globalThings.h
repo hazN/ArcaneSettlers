@@ -53,4 +53,6 @@ extern glm::mat4x4 matView;
 extern iRayCast* rayCast;
 extern std::map<int, GameObject*> goMap;
 extern std::vector<Colonist*> vecColonists;
+extern iPhysicsFactory* _physicsFactory;
+extern iPhysicsWorld* world;
 #endif

@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimationManager.cpp" />
+    <ClCompile Include="BuildingType.h" />
     <ClCompile Include="C24BitBMPpixel.cpp" />
     <ClCompile Include="cBasicTextureManager.cpp" />
     <ClCompile Include="Character.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="globalThings.cpp" />
+    <ClCompile Include="IDGenerator.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imGuIZMO.quat\imGuIZMOquat.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -180,6 +182,7 @@
     <ClCompile Include="KeyboardCallbackFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PhysicsHelper.cpp" />
+    <ClCompile Include="TerrainManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -222,6 +225,7 @@
     <ClInclude Include="JSONPersitence.h" />
     <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="quaternion_utils.h" />
+    <ClInclude Include="TerrainManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragmentShader01.glsl" />

@@ -10,4 +10,3 @@ private:
     static int mCurrentID;
 };
 
-int IDGenerator::mCurrentID = 0;

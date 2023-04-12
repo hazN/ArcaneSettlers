@@ -14,4 +14,12 @@ assets/models/RPGCharacters/FBX/Only Weapons/Warrior_Sword.fbx
 WarriorSword
 assets/models/colonyTerrain.ply
 Terrain
+assets/models/Buildings/Crate.fbx
+Depot
+assets/models/Buildings/Resource_PineTree.fbx
+PineTree
+assets/models/Buildings/Rock.fbx
+Rock
+assets/models/Buildings/Resource_Gold_1.fbx
+Gold
 EOF

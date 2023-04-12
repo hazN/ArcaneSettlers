@@ -159,6 +159,15 @@
     <ClCompile Include="Colonist.cpp">
       <Filter>Artificial Intelligence</Filter>
     </ClCompile>
+    <ClCompile Include="BuildingType.h">
+      <Filter>Artificial Intelligence</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainManager.cpp">
+      <Filter>Artificial Intelligence</Filter>
+    </ClCompile>
+    <ClCompile Include="IDGenerator.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cVAOManager\sModelDrawInfo.h">
@@ -279,6 +288,9 @@
       <Filter>Artificial Intelligence</Filter>
     </ClInclude>
     <ClInclude Include="ColonistInventory.h">
+      <Filter>Artificial Intelligence</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainManager.h">
       <Filter>Artificial Intelligence</Filter>
     </ClInclude>
   </ItemGroup>

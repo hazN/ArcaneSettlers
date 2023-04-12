@@ -28,3 +28,5 @@ glm::mat4x4 matView;
 iRayCast* rayCast;
 std::map<int, GameObject*> goMap;
 std::vector<Colonist*> vecColonists;
+iPhysicsFactory* _physicsFactory;
+iPhysicsWorld* world;

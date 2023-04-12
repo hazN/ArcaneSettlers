@@ -1,5 +1,5 @@
 #include "Colonist.h"
-
+#include "quaternion_utils.h"
 Colonist::Colonist()
 {
 	mStats = new ColonistStats();
@@ -34,6 +34,9 @@ void Colonist::Update(float deltaTime)
 			// Move the colonist towards the target 
 			glm::vec3 dir = direction * speed * deltaTime;
 			mCharacterController->Move(dir);
+			glm::vec3 lookDir = glm::normalize(glm::vec3(mTarget->position->x, mGOColonist->mesh->position.y + 100.f, mTarget->position->z) - mGOColonist->mesh->position);
+			glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
+			mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.005f);
 		}
 		else
 		{
