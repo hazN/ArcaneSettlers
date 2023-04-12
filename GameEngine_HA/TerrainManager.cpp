@@ -28,7 +28,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     goDepot->mesh->friendlyName = "Depot";
     goDepot->mesh->bUse_RGBA_colour = true;
     goDepot->mesh->RGBA_colour = glm::normalize(glm::vec4(150.f, 75.f, 0.f, 1.f));
-    goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
+    goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 4.f);
     goDepot->mesh->position = glm::vec3(0);
     goDepot->mesh->qRotation = glm::vec3(0);
     meshesToLoadIntoTerrain.push_back(goDepot);
@@ -60,7 +60,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         goRock->mesh->friendlyName = "Rock";
         goRock->mesh->bUse_RGBA_colour = true;
         goRock->mesh->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-        goRock->mesh->scaleXYZ = glm::vec3(SCALE);
+        goRock->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
         goRock->mesh->position = glm::vec3(0);
         goRock->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goRock);
@@ -109,73 +109,71 @@ void TerrainManager::getTerrainHeightAndNormal(const glm::vec3& position, float&
     }
 }
 
-void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) {
-    for (GameObject* go : gameObjects) {
+    void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) {
+        for (GameObject* go : gameObjects) {
 
-        // Get the draw info
-        sModelDrawInfo drawInfo;
-        pVAOManager->FindDrawInfoByModelName(go->mesh->meshName, drawInfo);
+            // Get the draw info
+            sModelDrawInfo drawInfo;
+            pVAOManager->FindDrawInfoByModelName(go->mesh->meshName, drawInfo);
 
-        // Randomize position and rotation
-        glm::vec3 position;
-        glm::vec3 normal;
-        float terrainHeight;
-        if (go->mesh->meshName == "Depot") {
-            position = glm::vec3(0, 0, 0);
-            normal = glm::vec3(0.0f, 1.0f, 0.0f);
-            getTerrainHeightAndNormal(position, terrainHeight, normal);
-            position.y = terrainHeight + 0.5f;
-        }
-        else {
-            do {
-                position.x = goTerrain->mesh->position.x + getRandom(terrainInfo->minX * goTerrain->mesh->scaleXYZ.x, terrainInfo->maxX * goTerrain->mesh->scaleXYZ.x);
-                position.z = goTerrain->mesh->position.z + getRandom(terrainInfo->minZ * goTerrain->mesh->scaleXYZ.z, terrainInfo->maxZ * goTerrain->mesh->scaleXYZ.z);
+            // Randomize position and rotation
+            glm::vec3 position;
+            glm::vec3 normal;
+            float terrainHeight;
+            if (go->mesh->meshName == "Depot") {
+                position = glm::vec3(0, 0, 0);
+                normal = glm::vec3(0.0f, 1.0f, 0.0f);
                 getTerrainHeightAndNormal(position, terrainHeight, normal);
                 position.y = terrainHeight + 0.5f;
-            } while (glm::distance(position, glm::vec3(0.0f, 0.0f, 0.0f)) < 10.0f);
-        }
-        glm::quat rotation = glm::quatLookAt(-normal, glm::vec3(0.0f, 1.0f, 0.0f));
-        go->mesh->position = position;
-        go->mesh->qRotation = rotation;
-        RigidBodyDesc desc;
-        desc.isStatic = true;
-        desc.mass = 0.f;
-        desc.position = position;
-        desc.linearVelocity = glm::vec3(0.f);
-        desc.rotation = rotation;
+            }
+            else {
+                do {
+                    position.x = goTerrain->mesh->position.x + getRandom(terrainInfo->minX * goTerrain->mesh->scaleXYZ.x, terrainInfo->maxX * goTerrain->mesh->scaleXYZ.x);
+                    position.z = goTerrain->mesh->position.z + getRandom(terrainInfo->minZ * goTerrain->mesh->scaleXYZ.z, terrainInfo->maxZ * goTerrain->mesh->scaleXYZ.z);
+                    getTerrainHeightAndNormal(position, terrainHeight, normal);
+                    position.y = terrainHeight + 0.5f;
+                } while (glm::distance(position, glm::vec3(0.0f, 0.0f, 0.0f)) < 10.0f);
+            }
+            glm::quat rotation = glm::quatLookAt(-normal, glm::vec3(0.0f, 1.0f, 0.0f));
+            go->mesh->position = position;
+            go->mesh->qRotation = rotation;
+            RigidBodyDesc desc;
+            desc.isStatic = true;
+            desc.mass = 0.f;
+            desc.position = position;
+            desc.linearVelocity = glm::vec3(0.f);
+            desc.rotation = rotation;
 
-        iShape* shape;
-        BuildingType buildingType;
-        if (go->mesh->meshName == "PineTree") {
-            float halfheight = (drawInfo.extentY);// / 2.0f;
-            float scale = drawInfo.extentX / 2.0f;
-            shape = new CylinderShape(Vector3(scale, halfheight, scale));
-            shape->SetUserData(go->mesh->id);
-            buildingType = TREE;
-        }
-        else if (go->mesh->meshName == "Rock") {
-            shape = new BoxShape(Vector3(drawInfo.extentX / 2.0f, drawInfo.extentY / 2.0f, drawInfo.extentZ / 2.0f));
-            shape->SetUserData(go->mesh->id);
-            buildingType = ROCK;
-        }
-        else if (go->mesh->meshName == "Gold") {
-            shape = new BoxShape(Vector3(drawInfo.extentX / 2.0f, drawInfo.extentY / 2.0f, drawInfo.extentZ / 2.0f));
-            shape->SetUserData(go->mesh->id);
-            buildingType = GOLD;
-        }
-        else if (go->mesh->meshName == "Depot") {
-            shape = new BoxShape(Vector3(drawInfo.extentX / 2.0f, drawInfo.extentY / 2.0f, drawInfo.extentZ / 2.0f));
-            shape->SetUserData(go->mesh->id);
-            buildingType = DEPOT;
-        }
-        else
-        {
-            std::cout << "Unknown building passed into createPhysicsObjects" << std::endl;
-            return;
-        }
+            iShape* shape;
+            BuildingType buildingType;
+            if (go->mesh->meshName == "PineTree") {
+                shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f , drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
+                shape->SetUserData(go->mesh->id);
+                buildingType = TREE;
+            }
+            else if (go->mesh->meshName == "Rock") {
+                shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
+                shape->SetUserData(go->mesh->id);
+                buildingType = ROCK;
+            }
+            else if (go->mesh->meshName == "Gold") {
+                shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
+                shape->SetUserData(go->mesh->id);
+                buildingType = GOLD;
+            }
+            else if (go->mesh->meshName == "Depot") {
+                shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y/ 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
+                shape->SetUserData(go->mesh->id);
+                buildingType = DEPOT;
+            }
+            else
+            {
+                std::cout << "Unknown building passed into createPhysicsObjects" << std::endl;
+                return;
+            }
 
-        // Update the GameObject with the new physics object
-        go->rigidBody = _physicsFactory->CreateRigidBody(desc, shape);
-        world->AddBody(go->rigidBody);
+            // Update the GameObject with the new physics object
+            go->rigidBody = _physicsFactory->CreateRigidBody(desc, shape);
+            world->AddBody(go->rigidBody);
+        }
     }
-}

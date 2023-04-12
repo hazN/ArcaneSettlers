@@ -29,7 +29,7 @@ namespace physics
 		desc->invisibleWallHeight = 0.0f;
 		desc->maxJumpHeight = 0.0f;
 		desc->contactOffset = 0.03f;
-		desc->stepOffset = 0.5f;
+		desc->stepOffset = 0.3f;
 		desc->density = 10;
 		desc->scaleCoeff = 0.9f;
 		desc->material = PhysicsWorld::mMaterial;

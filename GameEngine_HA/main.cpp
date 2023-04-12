@@ -644,7 +644,7 @@ int main(int argc, char* argv[])
 	goWarrior->animCharacter->SetAnimation(10);
 	goVector.push_back(goWarrior);
 	goMap.emplace(goWarrior->id, goWarrior);
-	iShape* cylinderShape = new CylinderShape(Vector3(1.f, 2.f, 1.f));
+	iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
 	cylinderShape->SetUserData(goWarrior->id);
 	glm::vec3 position = glm::vec3(0.f, 1.f, 0.f);
 	glm::quat rotation = glm::quat(glm::vec3(0));

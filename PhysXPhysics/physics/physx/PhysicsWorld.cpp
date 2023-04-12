@@ -81,7 +81,7 @@ namespace physics
 	{
 	}
 
-	void PhysicsWorld::AddCharacterController(iCharacterController* characterController) 
+	void PhysicsWorld::AddCharacterController(iCharacterController* characterController)
 	{
 		if (characterController == nullptr)
 			return;
@@ -153,6 +153,14 @@ namespace physics
 			{
 				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidStatic(transform);
 				rigidBody->rigidBody->attachShape(*rigidBody->pShape);
+				if (rigidBody->GetShape()->GetShapeType() == ShapeType::Cylinder)
+				{
+					PxTransform transform = rigidBody->rigidBody->getGlobalPose();
+					transform.q.w = rigidBody->originalRotation.w;
+					transform.q.x = rigidBody->originalRotation.x;
+					transform.q.y = rigidBody->originalRotation.y;
+					transform.q.z = rigidBody->originalRotation.z;
+				}
 			}
 			else
 			{
@@ -184,7 +192,6 @@ namespace physics
 			}
 		}
 		LeaveCriticalSection(&physicsCriticalSection);
-
 	}
 	void PhysicsWorld::ResetWorld()
 	{
@@ -205,6 +212,5 @@ namespace physics
 			actor->rigidBody->setGlobalPose(originalTransform);
 		}
 		LeaveCriticalSection(&physicsCriticalSection);
-
 	}
 };
