@@ -33,6 +33,7 @@
     <ClInclude Include="Interface\iCollisionBody.h" />
     <ClInclude Include="Interface\iPhysicsFactory.h" />
     <ClInclude Include="Interface\iPhysicsWorld.h" />
+    <ClInclude Include="Interface\iRayCast.h" />
     <ClInclude Include="Interface\iRigidBody.h" />
     <ClInclude Include="Interface\iShape.h" />
     <ClInclude Include="Interface\iSoftBody.h" />

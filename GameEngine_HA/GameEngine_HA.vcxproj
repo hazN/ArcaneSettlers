@@ -198,6 +198,7 @@
     <ClInclude Include="globalOpenGL.h" />
     <ClInclude Include="globalThings.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="IDGenerator.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imGuIZMO.quat\imGuIZMOquat.h" />

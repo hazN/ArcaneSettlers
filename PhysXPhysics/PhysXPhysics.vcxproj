@@ -23,6 +23,7 @@
     <ClInclude Include="physics\physx\Conversion.h" />
     <ClInclude Include="physics\physx\PhysicsFactory.h" />
     <ClInclude Include="physics\physx\PhysicsWorld.h" />
+    <ClInclude Include="physics\physx\RayCast.h" />
     <ClInclude Include="physics\physx\RigidBody.h" />
     <ClInclude Include="physics\physx\SoftBody.h" />
   </ItemGroup>
@@ -31,6 +32,7 @@
     <ClCompile Include="physics\physx\Conversion.cpp" />
     <ClCompile Include="physics\physx\PhysicsFactory.cpp" />
     <ClCompile Include="physics\physx\PhysicsWorld.cpp" />
+    <ClCompile Include="physics\physx\RayCast.cpp" />
     <ClCompile Include="physics\physx\RigidBody.cpp" />
     <ClCompile Include="physics\physx\SoftBody.cpp" />
   </ItemGroup>

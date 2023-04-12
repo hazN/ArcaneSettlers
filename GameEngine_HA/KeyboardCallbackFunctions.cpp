@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "quaternion_utils.h"
+#include <Interface/iRayCast.h>
 // Extern is so the compiler knows what TYPE this thing is
 // The LINKER needs the ACTUAL declaration
 // These are defined in theMainFunction.cpp
@@ -69,18 +70,48 @@ void mouse_camera_update(GLFWwindow* window)
 	::g_cameraTarget.z = cos(m_HorizontalAngle);
 	::g_cameraTarget.y -= deltaMouseY * rotateSpeed;
 }
+
+glm::vec3 GetRayDirection(double mouseX, double mouseY, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, int screenWidth, int screenHeight)
+{
+	// Normalize the mouse coords
+	float nX = (2.0f * mouseX) / screenWidth - 1.0f;
+	float nY = 1.0f - (2.0f * mouseY) / screenHeight;
+	// Convert it to a clip space position then convert it to eye space
+	glm::vec4 clipCoords(nX, nY, -1.0f, 1.0f);
+	glm::mat4 invProjectionMatrix = glm::inverse(projectionMatrix);
+	glm::vec4 eyeCoords = invProjectionMatrix * clipCoords;
+	eyeCoords.z = -1.0f;
+	eyeCoords.w = 0.0f;
+	// Convert to world space
+	glm::mat4 invViewMatrix = glm::inverse(viewMatrix);
+	glm::vec4 worldCoords = invViewMatrix * eyeCoords;
+	// Normalize the direction 
+	glm::vec3 rayDir = glm::normalize(glm::vec3(worldCoords.x, worldCoords.y, worldCoords.z));
+
+	return rayDir;
+}
+
+
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (theEditMode == MOVING_CAMERA)
+	int width, height;
+	double mouseX, mouseY;
+
+	glfwGetFramebufferSize(window, &width, &height);
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+	glm::ivec4 viewport(0, 0, width, height);
+	glm::vec3 rayDirection = GetRayDirection(mouseX, mouseY, matView, matProjection, width, height);
+
+	iRayCast::RayCastHit hit;
+	if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 	{
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		std::cout << "Raycasted " << "object " << hit.userData << ": " << hit.position.x << ", " << hit.position.y << " " << hit.position.z << std::endl;
+		for (std::pair<int, GameObject*> go : goMap)
 		{
-			/*g_engine.setMouseState(true);
-			g_engine.RayTest();*/
-		}
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-		{
-			//g_engine.setMouseState(false);
+			if (glm::length(go.second->mesh->position - hit.position) < 2.f)
+			{
+				std::cout << "Hit " << go.second->id << std::endl;
+			}
 		}
 	}
 }

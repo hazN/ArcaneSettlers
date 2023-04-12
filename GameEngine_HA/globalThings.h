@@ -10,7 +10,9 @@
 #include "cVAOManager/cVAOManager.h"
 #include <Interface/iPhysicsFactory.h>
 #include <Interface/iPhysicsWorld.h>
+#include <Interface/iRayCast.h>
 #include "AnimationManager.h"
+#include <map>
 // extern means the variable isn't actually here...
 // ...it's somewhere else (in a .cpp file somewhere)
 extern GLFWwindow* window;
@@ -45,5 +47,8 @@ extern float animation_speed;
 extern bool button_pressed;
 extern bool pause;
 extern bool reverse;
-
+extern glm::mat4x4 matProjection;
+extern glm::mat4x4 matView;
+extern iRayCast* rayCast;
+extern std::map<int, GameObject*> goMap;
 #endif

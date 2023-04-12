@@ -44,6 +44,7 @@
 #include "PhysicsHelper.h"
 #include <Interface/iCharacterController.h>
 #include "quaternion_utils.h"
+#include "IDGenerator.h"
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -601,6 +602,7 @@ int main(int argc, char* argv[])
 	// Initialize physicsfactory, only non-interface call
 	using namespace physics;
 	iPhysicsFactory* _physicsFactory = new PhysicsFactory;
+	rayCast = _physicsFactory->CreateRayCast();
 	iPhysicsWorld* world = _physicsFactory->CreateWorld();;
 
 	// LOAD TERRAIN
@@ -626,33 +628,27 @@ int main(int argc, char* argv[])
 			indices.push_back(terrainInfo.pIndices[i]);
 		}
 		iShape* terrainShape = new TriangleMeshShape(vertices, indices);
+		terrainShape->SetUserData(IDGenerator::GenerateID());
 		RigidBodyDesc terrainDesc;
 		terrainDesc.isStatic = true;
 		terrainDesc.position = Vector3(-128.0f, -50.0f, -64.0f);
 		world->AddBody(_physicsFactory->CreateRigidBody(terrainDesc, terrainShape));
 	}
+	std::vector<GameObject*> goVector;
 
 	// Create Scene
 	CreateScene(_physicsFactory, world);
-	// Create Player Ball
-	GameObject* PlayerBall = new GameObject();
-	PlayerBall->mesh = pBall;
-	{
-		iShape* ballShape = new SphereShape(1.f);
-
-		RigidBodyDesc desc;
-		desc.isStatic = false;
-		desc.mass = 30.f;
-		desc.position = glm::vec3(0.f, 1.f, 0.f);
-		desc.linearVelocity = glm::vec3(0.f);
-		desc.rotation = glm::quat(glm::vec3(0));
-		PlayerBall->rigidBody = _physicsFactory->CreateRigidBody(desc, ballShape);
-	}
-	world->AddBody(PlayerBall->rigidBody);
-	gameObjects.push_back(PlayerBall);
 	// Create Character controller
-
+	GameObject* goWarrior = new GameObject();
+	goWarrior->id = IDGenerator::GenerateID();
+	goWarrior->mesh = pWarrior;
+	goWarrior->mesh->scaleXYZ = glm::vec3(0.01f);
+	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.01f));
+	goWarrior->animCharacter->SetAnimation(10);
+	goVector.push_back(goWarrior);
+	goMap.emplace(goWarrior->id, goWarrior);
 	iShape* cylinderShape = new CylinderShape(Vector3(1.f, 2.f, 1.f));
+	cylinderShape->SetUserData(goWarrior->id);
 	glm::vec3 position = glm::vec3(0.f, 1.f, 0.f);
 	glm::quat rotation = glm::quat(glm::vec3(0));
 
@@ -660,14 +656,8 @@ int main(int argc, char* argv[])
 	world->AddCharacterController(playerCharacterController);
 	playerCharacterController->SetGravity(Vector3(0.f, -9.81f, 0.f));
 	// ANIMATION
-	std::vector<GameObject*> goVector;
 
-	GameObject* goWarrior = new GameObject();
-	goWarrior->mesh = pWarrior;
-	goWarrior->mesh->scaleXYZ = glm::vec3(0.01f);
-	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.01f));
-	goWarrior->animCharacter->SetAnimation(10);
-	goVector.push_back(goWarrior);
+
 
 	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
@@ -768,8 +758,7 @@ int main(int argc, char* argv[])
 		DrawConcentricDebugLightObjects();
 		float ratio;
 		int width, height;
-		glm::mat4x4 matProjection;
-		glm::mat4x4 matView;
+
 		glfwGetFramebufferSize(window, &width, &height);
 		ratio = width / (float)height;
 

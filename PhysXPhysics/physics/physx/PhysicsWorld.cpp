@@ -91,24 +91,27 @@ namespace physics
 			return;
 		if (body->GetBodyType() == BodyType::RigidBody)
 		{
+			int userData;
 			RigidBody* rigidBody = RigidBody::Cast(body);
 			physx::PxTransform transform(physx::PxVec3(rigidBody->originalPosition.x, rigidBody->originalPosition.y, rigidBody->originalPosition.z), physx::PxQuat(rigidBody->originalRotation.x, rigidBody->originalRotation.y, rigidBody->originalRotation.z, rigidBody->originalRotation.w));
 			if (rigidBody->GetShape()->GetShapeType() == ShapeType::Sphere)
 			{
 				SphereShape* sphereShape = (SphereShape*)rigidBody->GetShape();
 				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(physx::PxSphereGeometry(sphereShape->GetRadius()), *PhysicsWorld::mMaterial);
+				userData = sphereShape->GetUserData();
 			}
 			else if (rigidBody->GetShape()->GetShapeType() == ShapeType::Box)
 			{
 				BoxShape* boxShape = (BoxShape*)rigidBody->GetShape();
 				physx::PxVec3 halfExtents(boxShape->GetHalfExtents().x, boxShape->GetHalfExtents().y, boxShape->GetHalfExtents().z);
 				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(physx::PxBoxGeometry(halfExtents), *PhysicsWorld::mMaterial);
+				userData = boxShape->GetUserData();
 			}
 			else if (rigidBody->GetShape()->GetShapeType() == ShapeType::Cylinder)
 			{
 				CylinderShape* cylinderShape = (CylinderShape*)rigidBody->GetShape();
 				rigidBody->pShape = PhysicsWorld::mPhysics->createShape(physx::PxCapsuleGeometry(cylinderShape->GetHalfExtents().x, cylinderShape->GetHalfExtents().y), *PhysicsWorld::mMaterial);
-
+				userData = cylinderShape->GetUserData();
 			}
 			else if (rigidBody->GetShape()->GetShapeType() == ShapeType::TriangleMesh)
 			{
@@ -138,7 +141,9 @@ namespace physics
 					physx::PxTriangleMeshGeometry triangleMeshGeom(triangleMesh);
 					rigidBody->pShape = PhysicsWorld::mPhysics->createShape(triangleMeshGeom, *PhysicsWorld::mMaterial);
 				}
+				userData = triangleMeshShape->GetUserData();
 			}
+			rigidBody->pShape->userData = (void*)userData;
 			if (rigidBody->IsStatic())
 			{
 				rigidBody->rigidBody = PhysicsWorld::mPhysics->createRigidStatic(transform);

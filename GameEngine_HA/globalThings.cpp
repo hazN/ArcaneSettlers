@@ -23,3 +23,7 @@ float animation_speed = 0.05f;
 bool button_pressed = false;
 bool pause = false;
 bool reverse = false;
+glm::mat4x4 matProjection;
+glm::mat4x4 matView;
+iRayCast* rayCast;
+std::map<int, GameObject*> goMap;

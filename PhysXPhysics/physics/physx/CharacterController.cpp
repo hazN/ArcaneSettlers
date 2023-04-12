@@ -15,6 +15,7 @@ namespace physics
 			capsuleDesc.height = cylinder->GetHalfExtents().y * 2.0f - radius * 2.0f;
 			capsuleDesc.radius = radius;
 			desc = &capsuleDesc;
+			desc->userData = (void*)capsuleDesc.userData;
 		}
 		else
 		{

@@ -3,6 +3,7 @@
 // Interface
 #include <Interface/iPhysicsFactory.h>
 #include <Interface/iRigidBody.h>
+#include <Interface/iRayCast.h>
 
 namespace physics
 {
@@ -17,6 +18,7 @@ namespace physics
 		virtual iCharacterController* CreateCharacterController(iShape* shape, const Vector3& position, const Quaternion& orientation);
 		virtual iRigidBody* CreateRigidBody(const RigidBodyDesc& desc, iShape* shape);
 		virtual iSoftBody* CreateSoftBody(const SoftBodyDesc& desc);
+		virtual iRayCast* CreateRayCast();
 	};
 };
 

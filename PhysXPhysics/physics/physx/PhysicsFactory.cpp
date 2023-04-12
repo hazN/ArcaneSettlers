@@ -5,6 +5,7 @@
 #include "RigidBody.h"
 #include "SoftBody.h"
 #include "CharacterController.h"
+#include "RayCast.h"
 namespace physics
 {
 	PhysicsFactory::PhysicsFactory(void)
@@ -37,5 +38,9 @@ namespace physics
 	iSoftBody* PhysicsFactory::CreateSoftBody(const SoftBodyDesc& desc)
 	{
 		return new SoftBody(desc);
+	}
+	iRayCast* PhysicsFactory::CreateRayCast()
+	{
+		return new RayCast();
 	}
 };

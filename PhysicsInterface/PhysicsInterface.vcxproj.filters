@@ -83,5 +83,8 @@
     <ClInclude Include="Interface\iCharacterController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Interface\iRayCast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

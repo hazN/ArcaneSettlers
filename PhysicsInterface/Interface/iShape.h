@@ -13,6 +13,14 @@ namespace physics
 			return m_ShapeType;
 		}
 
+		void SetUserData(int id) {
+			m_UserData = id;
+		}
+
+		int GetUserData() const {
+			return m_UserData;
+		}
+
 	protected:
 		iShape(ShapeType shapeType)
 			: m_ShapeType(shapeType)
@@ -20,6 +28,7 @@ namespace physics
 
 	private:
 		ShapeType m_ShapeType;
+		int m_UserData; 
 
 		iShape(const iShape&) {}
 		iShape& operator=(const iShape&) {}
