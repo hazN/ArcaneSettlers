@@ -70,6 +70,8 @@ public:
 	void UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt);
 	//void AttachTool(cMeshObject* tool, std::string nodeName);
 	int GetAnimationID(const char* animation);
+	int GetCurrentAnimationID();
+	std::string GetCurrentAnimationName();
 	void SetAnimation(int animationId, float time = 1.f) {
 		m_TransitionTime = time;
 		m_PreviousAnimation = m_CurrentAnimation;

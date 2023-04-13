@@ -123,6 +123,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 					*go->position = go->mesh->position;
 					vecColonists[0]->SetCommand(CommandType::HarvestTree, go);
 				}
+				if (go->buildingType == BuildingType::ROCK || go->buildingType == BuildingType::GOLD)
+				{
+					if (go->position == nullptr)
+						go->position = new glm::vec3();
+					*go->position = go->mesh->position;
+					vecColonists[0]->SetCommand(CommandType::HarvestRock, go);
+				}
 			}
 
 		}

@@ -259,6 +259,16 @@ int Character::GetAnimationID(const char* animation)
 	return -1;
 }
 
+int Character::GetCurrentAnimationID()
+{
+	return m_CurrentAnimation;
+}
+
+std::string Character::GetCurrentAnimationName()
+{
+	return m_Scene->Animations[m_CurrentAnimation]->mName.C_Str();
+}
+
 AnimNode* Character::CreateNodeHierarchy(aiNode* assimpNode, int depth)
 {
 	AnimNode* newNode = new AnimNode();

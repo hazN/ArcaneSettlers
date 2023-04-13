@@ -34,6 +34,7 @@ public:
     ColonistStats getStats();
 //private:
     void HarvestTree();
+    void MineNode();
     float duration;
     float deltaTime = clock();
     GameObject* mGOColonist;

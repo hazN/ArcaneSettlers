@@ -24,7 +24,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     GameObject* goDepot = new GameObject;
     goDepot->id = IDGenerator::GenerateID();
     goDepot->buildingType = DEPOT;
-    goDepot->inventory = new Inventory(999);
+    goDepot->inventory = new Inventory(99999);
     Item food;
     food.icon = "assets/icons/food.png";
     food.id = itemId::food;
@@ -35,7 +35,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     goDepot->mesh->meshName = "Depot";
     goDepot->mesh->friendlyName = "Depot";
     goDepot->mesh->bUse_RGBA_colour = true;
-    goDepot->mesh->RGBA_colour = glm::normalize(glm::vec4(150.f, 75.f, 0.f, 1.f));
+    goDepot->mesh->RGBA_colour = glm::vec4(0.6f, 0.3f, 0.f, 1.f);
     goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
     goDepot->mesh->position = glm::vec3(0);
     goDepot->mesh->qRotation = glm::vec3(0);
@@ -69,14 +69,22 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     }
     for (size_t i = 0; i < NUM_ROCKS; i++)
     {
+        Item rock;
+        rock.icon = "assets/icons/Stone.png";
+        rock.id = itemId::stone;
+        rock.name = "Stone";
+        rock.weight = 2;
         GameObject* goRock = new GameObject;
         goRock->id = IDGenerator::GenerateID();
+        goRock->inventory = new Inventory(40);
+        goRock->inventory->addItem(rock, 20);
+        goRock->buildingType = ROCK;
         goRock->mesh = new cMeshObject();
         goRock->mesh->meshName = "Rock";
         goRock->mesh->friendlyName = "Rock";
         goRock->mesh->bUse_RGBA_colour = true;
         goRock->mesh->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-        goRock->mesh->scaleXYZ = glm::vec3(SCALE * 4.f);
+        goRock->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
         goRock->mesh->position = glm::vec3(0);
         goRock->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goRock);
@@ -85,14 +93,22 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     }
     for (size_t i = 0; i < NUM_GOLD; i++)
     {
+        Item gold;
+        gold.icon = "assets/icons/Minerals.png";
+        gold.id = itemId::ores;
+        gold.name = "Ores";
+        gold.weight = 4;
         GameObject* goGold = new GameObject;
         goGold->id = IDGenerator::GenerateID();
+        goGold->inventory = new Inventory(40);
+        goGold->inventory->addItem(gold, 10);
+        goGold->buildingType = GOLD;
         goGold->mesh = new cMeshObject();
         goGold->mesh->meshName = "Gold";
         goGold->mesh->friendlyName = "Gold";
         goGold->mesh->bUse_RGBA_colour = true;
         goGold->mesh->RGBA_colour = glm::vec4(1.f, 0.8f, 0.f, 1.f);
-        goGold->mesh->scaleXYZ = glm::vec3(SCALE);
+        goGold->mesh->scaleXYZ = glm::vec3(SCALE / 1.2f);
         goGold->mesh->position = glm::vec3(0);
         goGold->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goGold);

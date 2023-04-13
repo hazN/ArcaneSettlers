@@ -26,6 +26,9 @@ void Colonist::Update(float deltaTime) {
 
 	switch (action) {
 	case ActionType::Move: {
+		// Set animation
+		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
+			this->mGOColonist->animCharacter->SetAnimation(10);
 		// Move the colonist towards the target
 		glm::vec3 direction = glm::normalize(*mTarget->position - mGOColonist->mesh->position);
 		float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
@@ -49,6 +52,10 @@ void Colonist::Update(float deltaTime) {
 		}
 		else
 		{
+			if (mCurrentCommand == CommandType::Move)
+			{
+				mCurrentCommand = CommandType::None;
+			}
 			ExecuteCommand();
 		}
 		break;
@@ -56,6 +63,8 @@ void Colonist::Update(float deltaTime) {
 	case ActionType::HarvestTree:
 	case ActionType::HarvestRock:
 	case ActionType::AttackIntruder: {
+		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)
+			this->mGOColonist->animCharacter->SetAnimation(11);
 		// Check if the target is in range
 		if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
 		{
@@ -69,6 +78,10 @@ void Colonist::Update(float deltaTime) {
 		break;
 	}
 	default:
+	{
+		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 1)
+			this->mGOColonist->animCharacter->SetAnimation(1);
+	}
 		break;
 	}
 }
@@ -89,6 +102,9 @@ void Colonist::ExecuteCommand()
 	}
 	break;
 	case ActionType::HarvestRock:
+	{
+		MineNode();
+	}
 		break;
 	case ActionType::AttackIntruder:
 		break;
@@ -130,7 +146,7 @@ void Colonist::HarvestTree()
 			int actualHarvestedWood = mTarget->inventory->removeItem(itemId::wood, (int)glm::floor(woodToHarvest));
 
 			Item wood;
-			wood.icon = "assets/icons/wood.png";
+			wood.icon = "assets/icons/Wood.png";
 			wood.id = itemId::wood;
 			wood.name = "Wood";
 			wood.weight = 2;
@@ -151,6 +167,61 @@ void Colonist::HarvestTree()
 		}
 	}
 }
+
+void Colonist::MineNode() {
+	// Check if the target has stone or ores
+	bool hasStone = mTarget->inventory->getItemCount(itemId::stone) > 0;
+	bool hasOres = mTarget->inventory->getItemCount(itemId::ores) > 0;
+
+	if (hasStone || hasOres) 
+	{
+		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+		if (duration > 0.25f)
+		{
+			// Formula to calculate efficiency, based off Smite's dmg
+			const float X = 100.0f;
+			float efficiencyMultiplier = std::max(1.0f, (float)mStats->mining / 2.0f);
+			float itemsToMine = 1 * efficiencyMultiplier;
+
+			// Create the stone/ore 
+			Item minedItem;
+			itemId minedItemId;
+			if (hasStone) 
+			{
+				minedItemId = itemId::stone;
+				minedItem.icon = "assets/icons/Stone.png";
+				minedItem.name = "Stone";
+				minedItem.weight = 2;
+			}
+			else if (hasOres)
+			{
+				minedItemId = itemId::ores;
+				minedItem.icon = "assets/icons/Minerals.png";
+				minedItem.name = "Ore";
+				minedItem.weight = 4;
+			}
+
+			// May not get back the amount we tried to harvest, ie: mining for 3 stone when the node only has 2 stone left
+			int actualMinedItems = mTarget->inventory->removeItem(minedItemId, (int)glm::floor(itemsToMine));
+			mInventory->addItem(minedItem, actualMinedItems);
+
+			deltaTime = clock();
+		}
+	}
+	else {
+		// Once node is fully mined, reset the command
+		mCurrentCommand = CommandType::None;
+
+		// Run a level up check for mining skill
+		if (mStats->mining < 20) {
+			float levelUpChance = 0.01f * ((20 - mStats->mining) * (20 - mStats->mining));
+			if (rand() < levelUpChance * RAND_MAX) {
+				mStats->mining += 1;
+			}
+		}
+	}
+}
+
 
 DWORD WINAPI UpdateColonistThread(LPVOID pVOIDColonistData)
 {
