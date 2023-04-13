@@ -5,6 +5,9 @@ class GameGUI
 protected:
 
 public:
-	GameGUI() = default;
+	GameGUI();
 	void render();
+	bool colonistInfoWindowOpen;
+	void renderColonistInfoWindow();
+	void renderColonistsWindow();
 };

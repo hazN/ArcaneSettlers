@@ -24,7 +24,7 @@ Colonist::~Colonist()
 
 void Colonist::Update(float deltaTime) {
 	ActionType action = mDecisionTable.getNextAction(*this);
-	
+
 	switch (action) {
 	case ActionType::DropOffLoot:
 	{
@@ -172,19 +172,6 @@ ColonistStats Colonist::getStats()
 
 void Colonist::HarvestTree()
 {
-	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (mTarget->inventory->getItemCount(itemId::wood) <= 0))
-	{
-		mCurrentCommand = CommandType::None;
-		if (mTarget->inventory->getItemCount(itemId::wood) <= 0)
-		{
-			mTarget->mesh->bIsVisible = false;
-			world->RemoveBody(mTarget->rigidBody);
-			goMap.erase(mTarget->id);
-			delete mTarget;
-		}
-		mTarget = nullptr;
-		return;
-	}
 	// Check if tree has wood
 	if (mTarget->inventory->getItemCount(itemId::wood) > 0) {
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
@@ -198,7 +185,7 @@ void Colonist::HarvestTree()
 			int actualHarvestedWood = mTarget->inventory->removeItem(itemId::wood, (int)glm::floor(woodToHarvest));
 
 			Item wood;
-			wood.icon = "assets/icons/Wood.png";
+			wood.icon = "Wood.bmp";
 			wood.id = itemId::wood;
 			wood.name = "Wood";
 			wood.weight = 2;
@@ -214,17 +201,10 @@ void Colonist::HarvestTree()
 			}
 		}
 	}
-}
-
-void Colonist::MineNode() {
-	// Check if the target has stone or ores
-	bool hasStone = mTarget->inventory->getItemCount(itemId::stone) > 0;
-	bool hasOres = mTarget->inventory->getItemCount(itemId::ores) > 0;
-
-	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (!hasStone && !hasOres))
+	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (mTarget->inventory->getItemCount(itemId::wood) <= 0))
 	{
 		mCurrentCommand = CommandType::None;
-		if (!hasStone && !hasOres)
+		if (mTarget->inventory->getItemCount(itemId::wood) <= 0)
 		{
 			mTarget->mesh->bIsVisible = false;
 			world->RemoveBody(mTarget->rigidBody);
@@ -234,6 +214,13 @@ void Colonist::MineNode() {
 		mTarget = nullptr;
 		return;
 	}
+}
+
+void Colonist::MineNode() {
+	// Check if the target has stone or ores
+	bool hasStone = mTarget->inventory->getItemCount(itemId::stone) > 0;
+	bool hasOres = mTarget->inventory->getItemCount(itemId::ores) > 0;
+
 	if (hasStone || hasOres)
 	{
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
@@ -250,14 +237,14 @@ void Colonist::MineNode() {
 			if (hasStone)
 			{
 				minedItemId = itemId::stone;
-				minedItem.icon = "assets/icons/Stone.png";
+				minedItem.icon = "Stone.bmp";
 				minedItem.name = "Stone";
 				minedItem.weight = 2;
 			}
 			else if (hasOres)
 			{
 				minedItemId = itemId::ores;
-				minedItem.icon = "assets/icons/Minerals.png";
+				minedItem.icon = "Minerals.bmp";
 				minedItem.name = "Ore";
 				minedItem.weight = 4;
 			}
@@ -276,6 +263,19 @@ void Colonist::MineNode() {
 				}
 			}
 		}
+	}
+	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (!hasStone && !hasOres))
+	{
+		mCurrentCommand = CommandType::None;
+		if (!hasStone && !hasOres)
+		{
+			mTarget->mesh->bIsVisible = false;
+			world->RemoveBody(mTarget->rigidBody);
+			goMap.erase(mTarget->id);
+			delete mTarget;
+		}
+		mTarget = nullptr;
+		return;
 	}
 }
 

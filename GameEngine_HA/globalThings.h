@@ -55,4 +55,5 @@ extern std::map<int, GameObject*> goMap;
 extern std::vector<Colonist*> vecColonists;
 extern iPhysicsFactory* _physicsFactory;
 extern iPhysicsWorld* world;
+extern int currentColonist;
 #endif

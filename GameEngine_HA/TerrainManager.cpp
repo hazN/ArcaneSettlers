@@ -26,7 +26,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     goDepot->buildingType = DEPOT;
     goDepot->inventory = new Inventory(99999);
     Item food;
-    food.icon = "assets/icons/food.png";
+    food.icon = "Bread.bmp";
     food.id = itemId::food;
     food.name = "Food";
     food.weight = 1;
@@ -48,7 +48,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         GameObject* goTree = new GameObject;
         goTree->id = IDGenerator::GenerateID();
         Item wood;
-        wood.icon = "assets/icons/wood.png";
+        wood.icon = "Wood.bmp";
         wood.id = itemId::wood;
         wood.name = "Wood";
         wood.weight = 2;
@@ -70,7 +70,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     for (size_t i = 0; i < NUM_ROCKS; i++)
     {
         Item rock;
-        rock.icon = "assets/icons/Stone.png";
+        rock.icon = "Stone.bmp";
         rock.id = itemId::stone;
         rock.name = "Stone";
         rock.weight = 2;
@@ -94,7 +94,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     for (size_t i = 0; i < NUM_GOLD; i++)
     {
         Item gold;
-        gold.icon = "assets/icons/Minerals.png";
+        gold.icon = "Minerals.bmp";
         gold.id = itemId::ores;
         gold.name = "Ores";
         gold.weight = 4;

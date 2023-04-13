@@ -94,9 +94,10 @@ glm::vec3 GetRayDirection(double mouseX, double mouseY, const glm::mat4& viewMat
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	// Avoid raycasting when interacting with the gui
-	if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+	//if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+	//	return;
+	if (ImGui::GetIO().WantCaptureMouse)
 		return;
-
 	int width, height;
 	double mouseX, mouseY;
 
@@ -108,7 +109,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	iRayCast::RayCastHit hit;
 	if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 	{
-		std::cout << "Raycasted " << "object " << hit.userData << ": " << hit.position.x << ", " << hit.position.y << " " << hit.position.z << std::endl;
+		//std::cout << "Raycasted " << "object " << hit.userData << ": " << hit.position.x << ", " << hit.position.y << " " << hit.position.z << std::endl;
+		if (vecColonists[0]->currentAction == "Unloading inventory...")
+			return;
 		if (hit.userData == 0)
 		{
 			GameObject* goMove = new GameObject;

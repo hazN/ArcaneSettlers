@@ -30,3 +30,4 @@ std::map<int, GameObject*> goMap;
 std::vector<Colonist*> vecColonists;
 iPhysicsFactory* _physicsFactory;
 iPhysicsWorld* world;
+int currentColonist = -1;
