@@ -35,6 +35,7 @@ public:
 //private:
     void HarvestTree();
     void MineNode();
+    void DropOffLoot();
     float duration;
     float deltaTime = clock();
     GameObject* mGOColonist;

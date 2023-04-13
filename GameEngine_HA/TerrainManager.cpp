@@ -157,6 +157,8 @@ void TerrainManager::getTerrainHeightAndNormal(const glm::vec3& position, float&
                 normal = glm::vec3(0.0f, 1.0f, 0.0f);
                 getTerrainHeightAndNormal(position, terrainHeight, normal);
                 position.y = terrainHeight + 0.5f;
+                go->position = new glm::vec3();
+                *go->position = position;
             }
             else {
                 do {

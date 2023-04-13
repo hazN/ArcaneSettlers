@@ -23,9 +23,10 @@ public:
     bool addItem(Item item);
     bool addItem(Item item, int amount);
     bool removeItem(itemId id);
-    bool removeItem(itemId id, int amount);
+    int removeItem(itemId id, int amount);
     bool isFull();
     int getCurrentWeight();
+    int getMaxWeight();
     std::vector<Item> getAllItems();
     int getItemCount(itemId id);
 

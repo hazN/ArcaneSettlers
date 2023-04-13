@@ -1,5 +1,6 @@
 #include "Colonist.h"
 #include "quaternion_utils.h"
+#include "globalThings.h"
 Colonist::Colonist()
 {
 	mStats = new ColonistStats();
@@ -25,6 +26,37 @@ void Colonist::Update(float deltaTime) {
 	ActionType action = mDecisionTable.getNextAction(*this);
 
 	switch (action) {
+	case ActionType::DropOffLoot:
+	{
+		// Check if the depot is in range
+		if (mTarget == nullptr)
+		{
+			for (std::pair<int, GameObject*> go : goMap)
+			{
+				if (go.second->buildingType == DEPOT)
+				{
+					mTarget = go.second;
+				}
+			}
+			action = ActionType::Move;
+		}
+		else if (mTarget->buildingType != DEPOT)
+		{
+			for (std::pair<int, GameObject*> go : goMap)
+			{
+				if (go.second->buildingType == DEPOT)
+				{
+					mTarget = go.second;
+				}
+			}
+			action = ActionType::Move;
+		}
+		else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
+		{
+			ExecuteCommand();
+			break;
+		}
+	}
 	case ActionType::Move: {
 		// Set animation
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
@@ -62,7 +94,8 @@ void Colonist::Update(float deltaTime) {
 	}
 	case ActionType::HarvestTree:
 	case ActionType::HarvestRock:
-	case ActionType::AttackIntruder: {
+	case ActionType::AttackIntruder:
+	{
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)
 			this->mGOColonist->animCharacter->SetAnimation(11);
 		// Check if the target is in range
@@ -70,19 +103,15 @@ void Colonist::Update(float deltaTime) {
 		{
 			ExecuteCommand();
 		}
-		else
-		{
-			// Otherwise keep moving
-			SetCommand(CommandType::Move, mTarget);
-		}
 		break;
 	}
 	default:
 	{
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 1)
 			this->mGOColonist->animCharacter->SetAnimation(1);
+		mCurrentCommand = CommandType::None;
 	}
-		break;
+	break;
 	}
 }
 
@@ -105,9 +134,13 @@ void Colonist::ExecuteCommand()
 	{
 		MineNode();
 	}
-		break;
+	break;
 	case ActionType::AttackIntruder:
 		break;
+	case ActionType::DropOffLoot:
+	{
+		DropOffLoot();
+	}
 	default:
 		break;
 	}
@@ -133,6 +166,12 @@ ColonistStats Colonist::getStats()
 
 void Colonist::HarvestTree()
 {
+	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (mTarget->inventory->getItemCount(itemId::wood) <= 0))
+	{
+		mCurrentCommand = CommandType::None;
+		mTarget = nullptr;
+		return;
+	}
 	// Check if tree has wood
 	if (mTarget->inventory->getItemCount(itemId::wood) > 0) {
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
@@ -153,16 +192,12 @@ void Colonist::HarvestTree()
 			mInventory->addItem(wood, actualHarvestedWood);
 
 			deltaTime = clock();
-		}
-	}
-	else {
-		// Once tree is fully harvested then reset command
-		mCurrentCommand = CommandType::None;
-		// Run a level up check
-		if (mStats->chopping < 20) {
-			float levelUpChance = 0.01f * ((20 - mStats->chopping) * (20 - mStats->chopping));
-			if (rand() < levelUpChance * RAND_MAX) {
-				mStats->chopping += 1;
+			// Run a level up check
+			if (mStats->chopping < 20) {
+				float levelUpChance = 0.01f * ((20 - mStats->chopping) * (20 - mStats->chopping));
+				if (rand() < levelUpChance * RAND_MAX) {
+					mStats->chopping += 1;
+				}
 			}
 		}
 	}
@@ -172,8 +207,13 @@ void Colonist::MineNode() {
 	// Check if the target has stone or ores
 	bool hasStone = mTarget->inventory->getItemCount(itemId::stone) > 0;
 	bool hasOres = mTarget->inventory->getItemCount(itemId::ores) > 0;
-
-	if (hasStone || hasOres) 
+	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (!hasStone && !hasOres))
+	{
+		mCurrentCommand = CommandType::None;
+		mTarget = nullptr;
+		return;
+	}
+	if (hasStone || hasOres)
 	{
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		if (duration > 0.25f)
@@ -183,10 +223,10 @@ void Colonist::MineNode() {
 			float efficiencyMultiplier = std::max(1.0f, (float)mStats->mining / 2.0f);
 			float itemsToMine = 1 * efficiencyMultiplier;
 
-			// Create the stone/ore 
+			// Create the stone/ore
 			Item minedItem;
 			itemId minedItemId;
-			if (hasStone) 
+			if (hasStone)
 			{
 				minedItemId = itemId::stone;
 				minedItem.icon = "assets/icons/Stone.png";
@@ -206,22 +246,53 @@ void Colonist::MineNode() {
 			mInventory->addItem(minedItem, actualMinedItems);
 
 			deltaTime = clock();
-		}
-	}
-	else {
-		// Once node is fully mined, reset the command
-		mCurrentCommand = CommandType::None;
 
-		// Run a level up check for mining skill
-		if (mStats->mining < 20) {
-			float levelUpChance = 0.01f * ((20 - mStats->mining) * (20 - mStats->mining));
-			if (rand() < levelUpChance * RAND_MAX) {
-				mStats->mining += 1;
+			// Run a level up check for mining skill
+			if (mStats->mining < 20) {
+				float levelUpChance = 0.01f * ((20 - mStats->mining) * (20 - mStats->mining));
+				if (rand() < levelUpChance * RAND_MAX) {
+					mStats->mining += 1;
+				}
 			}
 		}
 	}
 }
 
+void Colonist::DropOffLoot()
+{
+	// Check if the depot is in range
+	if (mTarget == nullptr)
+	{
+		for (std::pair<int, GameObject*> go : goMap)
+		{
+			if (go.second->buildingType == DEPOT)
+			{
+				mTarget = go.second;
+				return;
+			}
+		}
+	}
+	else if (mTarget->buildingType != DEPOT)
+	{
+		for (std::pair<int, GameObject*> go : goMap)
+		{
+			if (go.second->buildingType == DEPOT)
+			{
+				mTarget = go.second;
+				return;
+			}
+		}
+	}
+	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
+	{
+		for (Item item : mInventory->getAllItems())
+		{
+			mInventory->removeItem(item.id);
+			mTarget->inventory->addItem(item);
+		}
+		mCurrentCommand = CommandType::None;
+	}
+}
 
 DWORD WINAPI UpdateColonistThread(LPVOID pVOIDColonistData)
 {

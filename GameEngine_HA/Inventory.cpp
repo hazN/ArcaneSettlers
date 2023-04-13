@@ -71,7 +71,7 @@ bool Inventory::removeItem(itemId id)
     return false;
 }
 
-bool Inventory::removeItem(itemId id, int amount)
+int Inventory::removeItem(itemId id, int amount)
 {
     LockInventory();
 
@@ -92,7 +92,7 @@ bool Inventory::removeItem(itemId id, int amount)
 
     UnlockInventory();
     std::cout << "Removed " << removedCount << " of " << id << " from inventory" << std::endl;
-    return removedCount == amount;
+    return removedCount;
 }
 
 bool Inventory::isFull() 
@@ -109,6 +109,11 @@ int Inventory::getCurrentWeight()
     int result = mWeight;
     UnlockInventory();
     return result;
+}
+
+int Inventory::getMaxWeight()
+{
+    return mMaxWeight;
 }
 
 std::vector<Item> Inventory::getAllItems()
