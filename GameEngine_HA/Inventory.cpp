@@ -1,14 +1,18 @@
 #include "Inventory.h"
 #include <iostream>
 
-Inventory::Inventory() : mWeight(0), mMaxWeight(20) {
+Inventory::Inventory() 
+{
+    mWeight = 0;
+    mMaxWeight = 20;
     InitializeCriticalSection(&mInventoryCriticalSection);
 }
 
 Inventory::Inventory(int maxWeight)
 {
     InitializeCriticalSection(&mInventoryCriticalSection);
-
+    mWeight = 0;
+    mMaxWeight = maxWeight;
 }
 
 Inventory::~Inventory() {

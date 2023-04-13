@@ -31,7 +31,15 @@ void Colonist::Update(float deltaTime) {
 		float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
 		float speed = 1.0f;
 
-		if (glm::length(*mTarget->position - mGOColonist->mesh->position) >= 0.2f) 
+		if (mTarget->buildingType != NULL)
+		{
+			if (distance <= 2.6)
+			{
+				ExecuteCommand();
+				break;
+			}
+		}
+		if (distance >= 0.2f)
 		{
 			glm::vec3 dir = direction * speed * deltaTime;
 			mCharacterController->Move(dir);
@@ -49,11 +57,11 @@ void Colonist::Update(float deltaTime) {
 	case ActionType::HarvestRock:
 	case ActionType::AttackIntruder: {
 		// Check if the target is in range
-		if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 0.2f) 
+		if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
 		{
-			ExecuteCommand(); 
+			ExecuteCommand();
 		}
-		else 
+		else
 		{
 			// Otherwise keep moving
 			SetCommand(CommandType::Move, mTarget);
@@ -64,7 +72,6 @@ void Colonist::Update(float deltaTime) {
 		break;
 	}
 }
-
 
 void Colonist::SetCommand(CommandType command, GameObject* target)
 {
@@ -115,13 +122,13 @@ void Colonist::HarvestTree()
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		if (duration > 0.25f)
 		{
-			// Formula to calculate efficiency, based off Smite's dmg 
+			// Formula to calculate efficiency, based off Smite's dmg
 			const float X = 100.0f;
 			float efficiencyMultiplier = std::max(1.0f, (float)mStats->chopping / 2.0f);
 			float woodToHarvest = 1 * efficiencyMultiplier;
 			// May not get back the amount we tried to harvest, ie: chopping for 3 when tree only has 2 wood left
 			int actualHarvestedWood = mTarget->inventory->removeItem(itemId::wood, (int)glm::floor(woodToHarvest));
-			
+
 			Item wood;
 			wood.icon = "assets/icons/wood.png";
 			wood.id = itemId::wood;

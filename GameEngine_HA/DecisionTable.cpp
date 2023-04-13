@@ -5,7 +5,7 @@ DecisionTable::DecisionTable() {
     // isHungry | Command | isIntruderInRange | isInventoryFull | isTargetInRange
     decisionTable = {
         { {true, CommandType::None, false, false, false}, ActionType::Eat },
-        { {false, CommandType::Move, false, false, false}, ActionType::Move },
+        { {false, CommandType::Move, std::nullopt, std::nullopt, std::nullopt}, ActionType::Move },
         { {false, CommandType::HarvestTree, false, false, false}, ActionType::Move },
         { {false, CommandType::HarvestTree, false, false, true}, ActionType::HarvestTree },
         { {false, CommandType::HarvestRock, false, false, false}, ActionType::Move },
@@ -30,10 +30,14 @@ ActionType DecisionTable::getNextAction(Colonist& colonist) {
     currentCondition.isInventoryFull = colonist.mInventory->isFull();
     if (colonist.mTarget == nullptr)
         currentCondition.isTargetInRange = false;
-    else currentCondition.isTargetInRange = (glm::length(*colonist.mTarget->position - colonist.mGOColonist->mesh->position) <= 0.2f);
+    else 
+    {
+        float distance = glm::length(*colonist.mTarget->position - colonist.mGOColonist->mesh->position);
+        currentCondition.isTargetInRange = (distance <= 3.5f);
+    }
 
     for (const Rule& rule : decisionTable) {
-        if (rule.condition == currentCondition) {
+            if (rule.condition == currentCondition) {
             return rule.action;
         }
     }

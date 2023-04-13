@@ -52,7 +52,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         wood.id = itemId::wood;
         wood.name = "Wood";
         wood.weight = 2;
-        goTree->inventory = new Inventory(10);
+        goTree->inventory = new Inventory(20);
         goTree->inventory->addItem(wood, 10);
         goTree->buildingType = TREE;
         goTree->mesh = new cMeshObject();
