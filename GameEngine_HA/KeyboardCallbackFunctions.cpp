@@ -8,6 +8,7 @@
 
 #include "quaternion_utils.h"
 #include <Interface/iRayCast.h>
+#include "imgui/imgui.h"
 // Extern is so the compiler knows what TYPE this thing is
 // The LINKER needs the ACTUAL declaration
 // These are defined in theMainFunction.cpp
@@ -92,6 +93,10 @@ glm::vec3 GetRayDirection(double mouseX, double mouseY, const glm::mat4& viewMat
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+	// Avoid raycasting when interacting with the gui
+	if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
+		return;
+
 	int width, height;
 	double mouseX, mouseY;
 

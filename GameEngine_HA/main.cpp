@@ -26,6 +26,7 @@
 #include "cLightHelper.h"
 #include "cVAOManager/c3DModelFileLoader.h"
 #include "GUI.h"
+#include "GameGUI.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -560,7 +561,25 @@ int main(int argc, char* argv[])
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
-
+	// ICONS
+	{
+		::g_pTextureManager->SetBasePath("assets/icons");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Bread.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("cleric.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Coin.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Crystal.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Minerals.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("monk.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Paper.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("ranger.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("rogue.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Skull.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Stone.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("warrior.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("wizard.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Wood.bmp");
+		::g_pTextureManager->SetBasePath("assets/textures");
+	}
 	std::string errorString = "";
 	if (::g_pTextureManager->CreateCubeTextureFromBMPFiles("TropicalSunnyDay",
 		"TropicalSunnyDayRight2048.bmp", /* positive X */
@@ -582,6 +601,7 @@ int main(int argc, char* argv[])
 	// GUI
 	ImGui::StyleColorsDark();
 	GUI EditGUI;
+	GameGUI gameGUI;
 
 	float deltaTime = std::clock();
 	float duration = 0;
@@ -655,6 +675,9 @@ int main(int argc, char* argv[])
 	// Ai
 	//goWarrior->characterController = playerCharacterController;
 	Colonist* colonist1 = new Colonist();
+	colonist1->currentAction = "Idle...";
+	colonist1->icon = "warrior.bmp";
+	colonist1->name = "Alex";
 	//goWarrior->colonist = colonist1;
 	ColonistThreadData* colonistData1 = new ColonistThreadData();
 	colonistData1->pColonist = colonist1;
@@ -931,6 +954,7 @@ int main(int argc, char* argv[])
 					draw->AddRectFilled(ImVec2(width / 5, height - 25.f), ImVec2((width / 3) + (hp*10), height + 25.f), IM_COL32(0, 255, 0, 255), 0.0f, 0.0f);
 					ImGui::End();*/
 		}
+		gameGUI.render();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);

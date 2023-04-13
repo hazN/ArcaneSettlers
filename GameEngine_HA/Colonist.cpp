@@ -24,10 +24,11 @@ Colonist::~Colonist()
 
 void Colonist::Update(float deltaTime) {
 	ActionType action = mDecisionTable.getNextAction(*this);
-
+	
 	switch (action) {
 	case ActionType::DropOffLoot:
 	{
+		currentAction = "Dropping off Loot...";
 		// Check if the depot is in range
 		if (mTarget == nullptr)
 		{
@@ -58,6 +59,7 @@ void Colonist::Update(float deltaTime) {
 		}
 	}
 	case ActionType::Move: {
+		currentAction = "Moving...";
 		// Set animation
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
 			this->mGOColonist->animCharacter->SetAnimation(10);
@@ -127,11 +129,13 @@ void Colonist::ExecuteCommand()
 	switch (action) {
 	case ActionType::HarvestTree:
 	{
+		currentAction = "Chopping wood...";
 		HarvestTree();
 	}
 	break;
 	case ActionType::HarvestRock:
 	{
+		currentAction = "Mining node...";
 		MineNode();
 	}
 	break;
@@ -139,9 +143,11 @@ void Colonist::ExecuteCommand()
 		break;
 	case ActionType::DropOffLoot:
 	{
+		currentAction = "Dropping off loot...";
 		DropOffLoot();
 	}
 	default:
+		currentAction = "Idle...";
 		break;
 	}
 }
@@ -300,10 +306,12 @@ void Colonist::DropOffLoot()
 	}
 	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
 	{
+		currentAction = "Unloading inventory...";
 		for (Item item : mInventory->getAllItems())
 		{
 			mInventory->removeItem(item.id);
 			mTarget->inventory->addItem(item);
+			Sleep(250);
 		}
 		mCurrentCommand = CommandType::None;
 	}

@@ -159,6 +159,7 @@
     <ClCompile Include="cLightManager.cpp" />
     <ClCompile Include="cMeshObject.cpp" />
     <ClCompile Include="Colonist.cpp" />
+    <ClCompile Include="GameGUI.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="cShader.cpp" />
     <ClCompile Include="cShaderManager.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="cLightManager.h" />
     <ClInclude Include="cMeshObject.h" />
     <ClInclude Include="Colonist.h" />
+    <ClInclude Include="GameGUI.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="cShaderManager.h" />
     <ClInclude Include="CTextureFromBMP.h" />

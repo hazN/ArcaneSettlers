@@ -168,6 +168,9 @@
     <ClCompile Include="IDGenerator.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameGUI.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cVAOManager\sModelDrawInfo.h">
@@ -292,6 +295,9 @@
     </ClInclude>
     <ClInclude Include="TerrainManager.h">
       <Filter>Artificial Intelligence</Filter>
+    </ClInclude>
+    <ClInclude Include="GameGUI.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

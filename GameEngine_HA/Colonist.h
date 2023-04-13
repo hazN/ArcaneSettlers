@@ -32,6 +32,9 @@ public:
     bool isHungry();
     bool getIsIntruderInRange();
     ColonistStats getStats();
+    std::string icon;
+    std::string currentAction;
+    std::string name;
 //private:
     void HarvestTree();
     void MineNode();
