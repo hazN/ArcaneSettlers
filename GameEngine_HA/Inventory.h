@@ -14,16 +14,20 @@ struct Item {
     int weight;
 };
 
-class ColonistInventory {
+class Inventory {
 public:
-    ColonistInventory();
-    ~ColonistInventory();
+    Inventory();
+    Inventory(int maxWeight);
+    ~Inventory();
 
-    bool addItem(Item& item);
-    bool removeItem(std::string& itemName);
+    bool addItem(Item item);
+    bool addItem(Item item, int amount);
+    bool removeItem(itemId id);
+    bool removeItem(itemId id, int amount);
     bool isFull();
     int getCurrentWeight();
     std::vector<Item> getAllItems();
+    int getItemCount(itemId id);
 
 private:
     std::vector<Item> mItems;

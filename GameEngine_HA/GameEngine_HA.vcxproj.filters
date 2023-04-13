@@ -153,7 +153,7 @@
     <ClCompile Include="DecisionTable.cpp">
       <Filter>Artificial Intelligence</Filter>
     </ClCompile>
-    <ClCompile Include="ColonistInventory.cpp">
+    <ClCompile Include="Inventory.cpp">
       <Filter>Artificial Intelligence</Filter>
     </ClCompile>
     <ClCompile Include="Colonist.cpp">
@@ -287,7 +287,7 @@
     <ClInclude Include="Colonist.h">
       <Filter>Artificial Intelligence</Filter>
     </ClInclude>
-    <ClInclude Include="ColonistInventory.h">
+    <ClInclude Include="Inventory.h">
       <Filter>Artificial Intelligence</Filter>
     </ClInclude>
     <ClInclude Include="TerrainManager.h">

@@ -9,6 +9,8 @@
 #include <Interface/ICharacterController.h>
 #include "../cMeshObject.h"
 #include "../Character.h"
+#include "../BuildingType.h"
+#include "../Inventory.h"
 //#include "../Colonist.h"
 using namespace physics;
 
@@ -31,6 +33,8 @@ public:
     cMeshObject* mesh;
     Character* animCharacter;
     //Colonist* colonist;
+    Inventory* inventory;
+    BuildingType buildingType;
     glm::vec3* position;
     int id;
     static int nextId;

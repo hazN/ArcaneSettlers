@@ -112,13 +112,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			vecColonists[0]->SetCommand(CommandType::Move, goMove);
 		}
 		else {
-			for (std::pair<int, GameObject*> go : goMap)
-			{
-				if (glm::length(go.second->mesh->position - hit.position) < 2.f)
+			// check if its in the goMap
+			goMap.at(hit.userData);
+			if (!(goMap.find(hit.userData) == goMap.end())) {
+				GameObject* go = goMap[hit.userData];
+				if (go->buildingType == BuildingType::TREE)
 				{
-					std::cout << "Hit " << go.second->id << std::endl;
+					if (go->position == nullptr)
+						go->position = new glm::vec3();
+					*go->position = go->mesh->position;
+					vecColonists[0]->SetCommand(CommandType::HarvestTree, go);
 				}
 			}
+
 		}
 	}
 }

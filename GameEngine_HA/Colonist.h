@@ -1,11 +1,13 @@
 #pragma once
 
 #include "DecisionTable.h"
-#include "ColonistInventory.h"
+#include "Inventory.h"
 #include <vector>
 #include <Windows.h>
 #include "GameObject/GameObject.h"
 #include <Interface/iCharacterController.h>
+#include "Inventory.h"
+#include <time.h>
 struct ColonistStats {
     // MAX 100
     int hp = 100;
@@ -31,10 +33,13 @@ public:
     bool getIsIntruderInRange();
     ColonistStats getStats();
 //private:
+    void HarvestTree();
+    float duration;
+    float deltaTime = clock();
     GameObject* mGOColonist;
     iCharacterController* mCharacterController;
     ColonistStats* mStats;
-    ColonistInventory* mInventory;
+    Inventory* mInventory;
     CommandType mCurrentCommand;
     GameObject* mTarget;
     DecisionTable mDecisionTable;

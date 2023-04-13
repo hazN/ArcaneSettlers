@@ -23,7 +23,7 @@ private:
         CommandType playerCommand;
         bool isIntruderInRange;
         bool isInventoryFull;
-
+        bool isTargetInRange;
         bool operator==(const Condition& other) const {
             return isHungry == other.isHungry &&
                 playerCommand == other.playerCommand &&

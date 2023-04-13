@@ -20,15 +20,23 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     const int NUM_TREES = maxObjects[0];
     const int NUM_ROCKS = maxObjects[1];
     const int NUM_GOLD = maxObjects[2];
-    const glm::vec3 SCALE = glm::vec3(5.f);
+    const glm::vec3 SCALE = glm::vec3(10.f);
     GameObject* goDepot = new GameObject;
     goDepot->id = IDGenerator::GenerateID();
+    goDepot->buildingType = DEPOT;
+    goDepot->inventory = new Inventory(999);
+    Item food;
+    food.icon = "assets/icons/food.png";
+    food.id = itemId::food;
+    food.name = "Food";
+    food.weight = 1;
+    goDepot->inventory->addItem(food, 10);
     goDepot->mesh = new cMeshObject();
     goDepot->mesh->meshName = "Depot";
     goDepot->mesh->friendlyName = "Depot";
     goDepot->mesh->bUse_RGBA_colour = true;
     goDepot->mesh->RGBA_colour = glm::normalize(glm::vec4(150.f, 75.f, 0.f, 1.f));
-    goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 4.f);
+    goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
     goDepot->mesh->position = glm::vec3(0);
     goDepot->mesh->qRotation = glm::vec3(0);
     meshesToLoadIntoTerrain.push_back(goDepot);
@@ -39,6 +47,14 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     {
         GameObject* goTree = new GameObject;
         goTree->id = IDGenerator::GenerateID();
+        Item wood;
+        wood.icon = "assets/icons/wood.png";
+        wood.id = itemId::wood;
+        wood.name = "Wood";
+        wood.weight = 2;
+        goTree->inventory = new Inventory(10);
+        goTree->inventory->addItem(wood, 10);
+        goTree->buildingType = TREE;
         goTree->mesh = new cMeshObject();
         goTree->mesh->meshName = "PineTree";
         goTree->mesh->friendlyName = "PineTree";
@@ -60,7 +76,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
         goRock->mesh->friendlyName = "Rock";
         goRock->mesh->bUse_RGBA_colour = true;
         goRock->mesh->RGBA_colour = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-        goRock->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
+        goRock->mesh->scaleXYZ = glm::vec3(SCALE * 4.f);
         goRock->mesh->position = glm::vec3(0);
         goRock->mesh->qRotation = glm::vec3(0);
         meshesToLoadIntoTerrain.push_back(goRock);
@@ -148,22 +164,22 @@ void TerrainManager::getTerrainHeightAndNormal(const glm::vec3& position, float&
             BuildingType buildingType;
             if (go->mesh->meshName == "PineTree") {
                 shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f , drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-                shape->SetUserData(go->mesh->id);
+                shape->SetUserData(go->id);
                 buildingType = TREE;
             }
             else if (go->mesh->meshName == "Rock") {
                 shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-                shape->SetUserData(go->mesh->id);
+                shape->SetUserData(go->id);
                 buildingType = ROCK;
             }
             else if (go->mesh->meshName == "Gold") {
                 shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-                shape->SetUserData(go->mesh->id);
+                shape->SetUserData(go->id);
                 buildingType = GOLD;
             }
             else if (go->mesh->meshName == "Depot") {
                 shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y/ 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-                shape->SetUserData(go->mesh->id);
+                shape->SetUserData(go->id);
                 buildingType = DEPOT;
             }
             else
