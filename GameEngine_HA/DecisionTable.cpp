@@ -34,7 +34,7 @@ ActionType DecisionTable::getNextAction(Colonist& colonist) {
 		currentCondition.isTargetInRange = false;
 	else
 	{
-		float distance = glm::length(colonist.mTarget->mesh->position - colonist.mGOColonist->mesh->position);
+		float distance = glm::length(*colonist.mTarget->position - colonist.mGOColonist->mesh->position);
 		currentCondition.isTargetInRange = (distance <= 3.5f);
 	}
 

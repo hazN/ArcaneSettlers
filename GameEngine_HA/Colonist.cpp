@@ -169,13 +169,20 @@ void Colonist::HarvestTree()
 	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (mTarget->inventory->getItemCount(itemId::wood) <= 0))
 	{
 		mCurrentCommand = CommandType::None;
+		if (mTarget->inventory->getItemCount(itemId::wood) <= 0)
+		{
+			mTarget->mesh->bIsVisible = false;
+			world->RemoveBody(mTarget->rigidBody);
+			goMap.erase(mTarget->id);
+			delete mTarget;
+		}
 		mTarget = nullptr;
 		return;
 	}
 	// Check if tree has wood
 	if (mTarget->inventory->getItemCount(itemId::wood) > 0) {
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
-		if (duration > 0.25f)
+		if (duration > 0.5f)
 		{
 			// Formula to calculate efficiency, based off Smite's dmg
 			const float X = 100.0f;
@@ -194,7 +201,7 @@ void Colonist::HarvestTree()
 			deltaTime = clock();
 			// Run a level up check
 			if (mStats->chopping < 20) {
-				float levelUpChance = 0.01f * ((20 - mStats->chopping) * (20 - mStats->chopping));
+				float levelUpChance = 0.001f * ((20 - mStats->chopping) * (20 - mStats->chopping));
 				if (rand() < levelUpChance * RAND_MAX) {
 					mStats->chopping += 1;
 				}
@@ -207,16 +214,24 @@ void Colonist::MineNode() {
 	// Check if the target has stone or ores
 	bool hasStone = mTarget->inventory->getItemCount(itemId::stone) > 0;
 	bool hasOres = mTarget->inventory->getItemCount(itemId::ores) > 0;
+
 	if (mInventory->getCurrentWeight() >= mInventory->getMaxWeight() || (!hasStone && !hasOres))
 	{
 		mCurrentCommand = CommandType::None;
+		if (!hasStone && !hasOres)
+		{
+			mTarget->mesh->bIsVisible = false;
+			world->RemoveBody(mTarget->rigidBody);
+			goMap.erase(mTarget->id);
+			delete mTarget;
+		}
 		mTarget = nullptr;
 		return;
 	}
 	if (hasStone || hasOres)
 	{
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
-		if (duration > 0.25f)
+		if (duration > 0.5f)
 		{
 			// Formula to calculate efficiency, based off Smite's dmg
 			const float X = 100.0f;
@@ -249,7 +264,7 @@ void Colonist::MineNode() {
 
 			// Run a level up check for mining skill
 			if (mStats->mining < 20) {
-				float levelUpChance = 0.01f * ((20 - mStats->mining) * (20 - mStats->mining));
+				float levelUpChance = 0.001f * ((20 - mStats->mining) * (20 - mStats->mining));
 				if (rand() < levelUpChance * RAND_MAX) {
 					mStats->mining += 1;
 				}
