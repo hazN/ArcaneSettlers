@@ -64,7 +64,7 @@ void GameGUI::renderBuildingMenu()
 		{
 			if (canCraft)
 			{
-				
+				selectedBuilding = recipe.first;
 			}
 		}
 
