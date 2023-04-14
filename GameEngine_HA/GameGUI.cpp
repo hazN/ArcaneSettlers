@@ -8,6 +8,31 @@
 #include "cBasicTextureManager.h"
 extern cBasicTextureManager* g_pTextureManager;
 
+void GameGUI::renderDepotInfoWindow()
+{
+    if (!depotInfoWindowOpen) {
+        return;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(400, 400));
+    ImGui::Begin("Depot Info", &depotInfoWindowOpen, ImGuiWindowFlags_None);
+
+    ImGui::Text("Depot Inventory");
+
+    ImGui::BeginChild("DepotInventory", ImVec2(ImGui::GetWindowContentRegionWidth(), 300), true);
+    std::vector<Item> items = gDepot->inventory->getAllItems();
+    int itemCount = 0;
+    for (const Item item : items) {
+        ImGui::Image((void*)(intptr_t)g_pTextureManager->getTextureIDFromName(item.icon), ImVec2(32, 32));
+        itemCount++;
+        if (itemCount % 8 != 0) {
+            ImGui::SameLine();
+        }
+    }
+    ImGui::EndChild();
+
+    ImGui::End();
+}
 
 void GameGUI::renderColonistInfoWindow()
 {
@@ -27,7 +52,7 @@ void GameGUI::renderColonistInfoWindow()
     ImGui::Image((void*)(intptr_t)g_pTextureManager->getTextureIDFromName(colonist->icon), ImVec2(64, 64));
     std::string weight = "";
     weight = std::to_string(colonist->mInventory->getCurrentWeight()) + "/" + std::to_string(colonist->mInventory->getMaxWeight());
-    ImGui::Text("Health: %d\nHunger: %d\nMining: %d\nChopping: %d\nCombat: %d\nWeight: %s", colonist->mStats->hp, colonist->mStats->hunger,
+    ImGui::Text("Health: %d\nHunger: %f\nMining: %d\nChopping: %d\nCombat: %d\nWeight: %s", colonist->mStats->hp, colonist->mStats->hunger,
         colonist->mStats->mining, colonist->mStats->chopping, colonist->mStats->combat, weight.c_str());
 
     // Sub-window for inventory
@@ -67,11 +92,11 @@ void GameGUI::renderColonistsWindow()
 
     ImGui::End();
 }
-
+bool GameGUI::colonistInfoWindowOpen = false;
+bool GameGUI::depotInfoWindowOpen = false;
 GameGUI::GameGUI()
 {
     currentColonist = -1;
-    colonistInfoWindowOpen = false;
 }
 
 void GameGUI::render()
@@ -79,6 +104,10 @@ void GameGUI::render()
 	renderColonistsWindow();
     if (colonistInfoWindowOpen) {
         renderColonistInfoWindow();
+    }
+    if (depotInfoWindowOpen)
+    {
+        renderDepotInfoWindow();
     }
 }
 

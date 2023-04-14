@@ -11,7 +11,7 @@
 struct ColonistStats {
     // MAX 100
     int hp = 100;
-    int hunger = 100;
+    float hunger = 100.f;
     // Skills from lvl 1-20
     int mining = 1;
     int chopping = 1;
@@ -39,6 +39,7 @@ public:
     void HarvestTree();
     void MineNode();
     void DropOffLoot();
+    void Eat();
     float duration;
     float deltaTime = clock();
     GameObject* mGOColonist;

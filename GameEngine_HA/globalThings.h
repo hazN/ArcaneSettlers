@@ -56,4 +56,5 @@ extern std::vector<Colonist*> vecColonists;
 extern iPhysicsFactory* _physicsFactory;
 extern iPhysicsWorld* world;
 extern int currentColonist;
+extern GameObject* gDepot;
 #endif

@@ -31,3 +31,4 @@ std::vector<Colonist*> vecColonists;
 iPhysicsFactory* _physicsFactory;
 iPhysicsWorld* world;
 int currentColonist = -1;
+GameObject* gDepot;

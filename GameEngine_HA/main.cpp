@@ -561,6 +561,7 @@ int main(int argc, char* argv[])
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("Medieval_Texture.bmp");
 	// ICONS
 	{
 		::g_pTextureManager->SetBasePath("assets/icons");
@@ -725,17 +726,6 @@ int main(int argc, char* argv[])
 				go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
 			}
 		}
-		for (GameObject* go : randomBalls)
-		{
-			if (go->rigidBody)
-			{
-				go->mesh->position = go->rigidBody->GetGLMPosition();
-				physics::Quaternion rot;
-				go->rigidBody->GetRotation(rot);
-				go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
-			}
-		}
-
 		// Doing this here to get a faster reponse time
 		// Keypresses
 		{
@@ -1008,11 +998,11 @@ void DrawConcentricDebugLightObjects(void)
 		return;
 	}
 
-	pDebugSphere_1->bIsVisible = true;
-	pDebugSphere_2->bIsVisible = true;
-	pDebugSphere_3->bIsVisible = true;
-	pDebugSphere_4->bIsVisible = true;
-	pDebugSphere_5->bIsVisible = true;
+	pDebugSphere_1->bIsVisible = false;
+	pDebugSphere_2->bIsVisible = false;
+	pDebugSphere_3->bIsVisible = false;
+	pDebugSphere_4->bIsVisible = false;
+	pDebugSphere_5->bIsVisible = false;
 
 	cLightHelper theLightHelper;
 

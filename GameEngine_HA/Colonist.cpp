@@ -1,6 +1,7 @@
 #include "Colonist.h"
 #include "quaternion_utils.h"
 #include "globalThings.h"
+#include <iostream>
 Colonist::Colonist()
 {
 	mStats = new ColonistStats();
@@ -23,9 +24,47 @@ Colonist::~Colonist()
 }
 
 void Colonist::Update(float deltaTime) {
+	
+	// Hunger decrease
+	if (rand() < 0.01f * RAND_MAX) {
+		mStats->hunger -= 0.000139f;
+	}
+
 	ActionType action = mDecisionTable.getNextAction(*this);
 
 	switch (action) {
+	case ActionType::Eat:
+	{
+		currentAction = "Going to eat...";
+		// Check if the depot is in range
+		if (mTarget == nullptr)
+		{
+			for (std::pair<int, GameObject*> go : goMap)
+			{
+				if (go.second->buildingType == DEPOT)
+				{
+					mTarget = go.second;
+				}
+			}
+			action = ActionType::Move;
+		}
+		else if (mTarget->buildingType != DEPOT)
+		{
+			for (std::pair<int, GameObject*> go : goMap)
+			{
+				if (go.second->buildingType == DEPOT)
+				{
+					mTarget = go.second;
+				}
+			}
+			action = ActionType::Move;
+		}
+		else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.8f)
+		{
+			ExecuteCommand();
+			break;
+		}
+	}
 	case ActionType::DropOffLoot:
 	{
 		currentAction = "Dropping off Loot...";
@@ -52,7 +91,7 @@ void Colonist::Update(float deltaTime) {
 			}
 			action = ActionType::Move;
 		}
-		else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
+		else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.8f)
 		{
 			ExecuteCommand();
 			break;
@@ -145,6 +184,12 @@ void Colonist::ExecuteCommand()
 	{
 		currentAction = "Dropping off loot...";
 		DropOffLoot();
+	}
+	case ActionType::Eat:
+	{
+		currentAction = "Eating...";
+		Eat();
+		break;
 	}
 	default:
 		currentAction = "Idle...";
@@ -304,7 +349,7 @@ void Colonist::DropOffLoot()
 			}
 		}
 	}
-	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
+	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.8f)
 	{
 		currentAction = "Unloading inventory...";
 		for (Item item : mInventory->getAllItems())
@@ -314,6 +359,18 @@ void Colonist::DropOffLoot()
 			Sleep(250);
 		}
 		mCurrentCommand = CommandType::None;
+	}
+}
+
+void Colonist::Eat()
+{
+	if (mTarget->inventory->getItemCount(itemId::food) > 0) {
+		mTarget->inventory->removeItem(itemId::food, 1);
+		mStats->hunger = 100;
+		mCurrentCommand = CommandType::None;
+	}
+	else {
+		std::cout << "One of your colonists is hungry and there is no food!" << std::endl;
 	}
 }
 

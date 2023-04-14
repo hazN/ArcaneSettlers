@@ -22,6 +22,7 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     const int NUM_GOLD = maxObjects[2];
     const glm::vec3 SCALE = glm::vec3(10.f);
     GameObject* goDepot = new GameObject;
+    gDepot = goDepot;
     goDepot->id = IDGenerator::GenerateID();
     goDepot->buildingType = DEPOT;
     goDepot->inventory = new Inventory(99999);
@@ -34,11 +35,16 @@ void TerrainManager::placeObjectsOnTerrain(const int maxObjects[3])
     goDepot->mesh = new cMeshObject();
     goDepot->mesh->meshName = "Depot";
     goDepot->mesh->friendlyName = "Depot";
-    goDepot->mesh->bUse_RGBA_colour = true;
+    goDepot->mesh->bUse_RGBA_colour = false;
     goDepot->mesh->RGBA_colour = glm::vec4(0.6f, 0.3f, 0.f, 1.f);
-    goDepot->mesh->scaleXYZ = glm::vec3(SCALE * 2.f);
+    goDepot->mesh->scaleXYZ = glm::vec3(SCALE / 12.f);
     goDepot->mesh->position = glm::vec3(0);
     goDepot->mesh->qRotation = glm::vec3(0);
+    goDepot->mesh->textures[0] = "Medieval_Texture.bmp";
+    goDepot->mesh->textureRatios[0] = 1.f;
+    goDepot->mesh->textureRatios[1] = 1.f;
+    goDepot->mesh->textureRatios[2] = 1.f;
+    goDepot->mesh->textureRatios[3] = 1.f;
     meshesToLoadIntoTerrain.push_back(goDepot);
     goMap.emplace(goDepot->id, goDepot);
     g_pMeshObjects.push_back(goDepot->mesh);
@@ -171,6 +177,10 @@ void TerrainManager::getTerrainHeightAndNormal(const glm::vec3& position, float&
             glm::quat rotation = glm::quatLookAt(-normal, glm::vec3(0.0f, 1.0f, 0.0f));
             go->mesh->position = position;
             go->mesh->qRotation = rotation;
+            if (go->mesh->meshName == "Depot")
+            {
+                go->mesh->qRotation *= glm::quat(glm::vec3(glm::radians(90.f), 0.f, 0.f));
+            }
             RigidBodyDesc desc;
             desc.isStatic = true;
             desc.mass = 0.f;

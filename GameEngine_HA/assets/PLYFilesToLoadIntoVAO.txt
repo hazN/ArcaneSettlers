@@ -14,7 +14,7 @@ assets/models/RPGCharacters/FBX/Only Weapons/Warrior_Sword.fbx
 WarriorSword
 assets/models/colonyTerrain.ply
 Terrain
-assets/models/Buildings/Crate.fbx
+assets/models/Synty/SF_Bld_Stall_01.ply
 Depot
 assets/models/Buildings/Resource_PineTree.fbx
 PineTree
@@ -22,4 +22,14 @@ assets/models/Buildings/Rock.fbx
 Rock
 assets/models/Buildings/Resource_Gold_1.fbx
 Gold
+assets/models/Buildings/Houses_FirstAge_1_Level1.fbx
+Workstation
+assets/models/Synty/SF_Prop_Undead_Forge_01.fbx
+Forge
+assets/models/Synty/SF_Prop_Anvil_01.fbx
+Anvil
+assets/models/Synty/SF_Prop_TrainingDummy_01.fbx
+Training Dummy
+assets/models/Buildings/Crate.fbx
+Crate
 EOF

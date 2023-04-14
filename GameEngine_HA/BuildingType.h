@@ -6,4 +6,8 @@ enum BuildingType
 	TREE,
 	ROCK,
 	GOLD,
+	WORKSHOP,
+	FORGE,
+	ANVIL,
+	DUMMY,
 };

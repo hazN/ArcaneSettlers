@@ -58,6 +58,12 @@
     <Filter Include="Artificial Intelligence">
       <UniqueIdentifier>{4d19df1a-42f8-4f48-9973-7a86d38e60f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameLogic">
+      <UniqueIdentifier>{877b8d60-2768-4ecc-8de7-2500ba95952f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameLogic\Building">
+      <UniqueIdentifier>{f9545e11-a135-4266-a781-d66e70b52d13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cVAOManager\cVAOManager.cpp">
@@ -153,16 +159,7 @@
     <ClCompile Include="DecisionTable.cpp">
       <Filter>Artificial Intelligence</Filter>
     </ClCompile>
-    <ClCompile Include="Inventory.cpp">
-      <Filter>Artificial Intelligence</Filter>
-    </ClCompile>
     <ClCompile Include="Colonist.cpp">
-      <Filter>Artificial Intelligence</Filter>
-    </ClCompile>
-    <ClCompile Include="BuildingType.h">
-      <Filter>Artificial Intelligence</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainManager.cpp">
       <Filter>Artificial Intelligence</Filter>
     </ClCompile>
     <ClCompile Include="IDGenerator.cpp">
@@ -170,6 +167,21 @@
     </ClCompile>
     <ClCompile Include="GameGUI.cpp">
       <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainManager.cpp">
+      <Filter>GameLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>GameLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="BuildingType.h">
+      <Filter>GameLogic\Building</Filter>
+    </ClCompile>
+    <ClCompile Include="Building.cpp">
+      <Filter>GameLogic\Building</Filter>
+    </ClCompile>
+    <ClCompile Include="BuildingManager.cpp">
+      <Filter>GameLogic\Building</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -290,14 +302,20 @@
     <ClInclude Include="Colonist.h">
       <Filter>Artificial Intelligence</Filter>
     </ClInclude>
-    <ClInclude Include="Inventory.h">
-      <Filter>Artificial Intelligence</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainManager.h">
-      <Filter>Artificial Intelligence</Filter>
-    </ClInclude>
     <ClInclude Include="GameGUI.h">
       <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainManager.h">
+      <Filter>GameLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>GameLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="Building.h">
+      <Filter>GameLogic\Building</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildingManager.h">
+      <Filter>GameLogic\Building</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

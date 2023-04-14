@@ -9,6 +9,7 @@
 #include "quaternion_utils.h"
 #include <Interface/iRayCast.h>
 #include "imgui/imgui.h"
+#include "GameGUI.h"
 // Extern is so the compiler knows what TYPE this thing is
 // The LINKER needs the ACTUAL declaration
 // These are defined in theMainFunction.cpp
@@ -109,6 +110,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	iRayCast::RayCastHit hit;
 	if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 	{
+		if (hit.userData == gDepot->id)
+		{
+			GameGUI::depotInfoWindowOpen = true;
+			return;
+		}
 		//std::cout << "Raycasted " << "object " << hit.userData << ": " << hit.position.x << ", " << hit.position.y << " " << hit.position.z << std::endl;
 		if (vecColonists[0]->currentAction == "Unloading inventory...")
 			return;

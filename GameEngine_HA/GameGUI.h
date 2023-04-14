@@ -7,7 +7,9 @@ protected:
 public:
 	GameGUI();
 	void render();
-	bool colonistInfoWindowOpen;
+	static bool colonistInfoWindowOpen;
+	static bool depotInfoWindowOpen;
 	void renderColonistInfoWindow();
 	void renderColonistsWindow();
+	void renderDepotInfoWindow();
 };

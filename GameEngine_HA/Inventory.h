@@ -8,6 +8,20 @@ enum itemId {
 };
 
 struct Item {
+    Item()
+    {
+        this->id = wood;
+        this->name = "Unset item...";
+        this->icon = "";
+        this->weight = 0;
+    }
+    Item(itemId id, std::string name, std::string icon, int weight)
+    {
+        this->id = id;
+        this->name = name;
+        this->icon = icon;
+        this->weight = weight;
+    }
     itemId id;
     std::string name;
     std::string icon;
