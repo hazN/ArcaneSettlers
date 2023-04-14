@@ -1,4 +1,5 @@
 #include "BuildingManager.h"
+#include "globalThings.h"
 
 void BuildingManager::addBuilding(Building building)
 {
@@ -44,6 +45,19 @@ bool BuildingManager::craftBuilding(Building building, std::vector<Item> items)
 	return true;
 }
 
+bool BuildingManager::canCraft(BuildingType building)
+{
+	// Loop through map as there may be different types of items required
+	for (std::pair<itemId, int> item : buildingRecipes[building])
+	{
+		// Check if depot has enough of each item
+		if (gDepot->inventory->getItemCount(item.first) < item.second)
+		{
+			return false;
+		}
+	}
+	return true;
+}
 std::vector<Building> BuildingManager::getBuildings()
 {
 	return mBuildings;

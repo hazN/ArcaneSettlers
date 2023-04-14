@@ -579,6 +579,10 @@ int main(int argc, char* argv[])
 		::g_pTextureManager->Create2DTextureFromBMPFile("warrior.bmp");
 		::g_pTextureManager->Create2DTextureFromBMPFile("wizard.bmp");
 		::g_pTextureManager->Create2DTextureFromBMPFile("Wood.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Workstation.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Forge.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Anvil.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("TrainingDummy.bmp");
 		::g_pTextureManager->SetBasePath("assets/textures");
 	}
 	std::string errorString = "";
@@ -655,7 +659,31 @@ int main(int argc, char* argv[])
 		terrainManager->placeObjectsOnTerrain(maxObjects);
 	}
 	std::vector<GameObject*> goVector;
+	// CRAFTING RECIPES
+	{
+		std::map<itemId, int> workstationRecipe;
+		workstationRecipe.emplace(wood, 10);
 
+		buildingRecipes.emplace(WORKSHOP, workstationRecipe);
+
+		std::map<itemId, int> forgeRecipe;
+		forgeRecipe.emplace(wood, 5);
+		forgeRecipe.emplace(stone, 20);
+
+		buildingRecipes.emplace(FORGE, forgeRecipe);
+
+
+		std::map<itemId, int> anvilRecipe;
+		anvilRecipe.emplace(stone, 10);
+		anvilRecipe.emplace(ores, 10);
+
+		buildingRecipes.emplace(ANVIL, anvilRecipe);
+
+		std::map<itemId, int> trainingDummy;
+		trainingDummy.emplace(wood, 5);
+
+		buildingRecipes.emplace(DUMMY, trainingDummy);
+	}
 	// Create Character controller
 	GameObject* goWarrior = new GameObject();
 	goWarrior->id = IDGenerator::GenerateID();

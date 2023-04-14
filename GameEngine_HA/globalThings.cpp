@@ -32,3 +32,6 @@ iPhysicsFactory* _physicsFactory;
 iPhysicsWorld* world;
 int currentColonist = -1;
 GameObject* gDepot;
+std::map<BuildingType, std::map<itemId, int>> buildingRecipes;
+BuildingManager* buildingManager;
+BuildingType selectedBuilding;

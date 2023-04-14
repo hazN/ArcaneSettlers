@@ -14,6 +14,7 @@
 #include "AnimationManager.h"
 #include <map>
 #include "Colonist.h"
+#include "BuildingManager.h"
 // extern means the variable isn't actually here...
 // ...it's somewhere else (in a .cpp file somewhere)
 extern GLFWwindow* window;
@@ -57,4 +58,7 @@ extern iPhysicsFactory* _physicsFactory;
 extern iPhysicsWorld* world;
 extern int currentColonist;
 extern GameObject* gDepot;
+extern std::map<BuildingType, std::map<itemId, int>> buildingRecipes;
+extern BuildingManager* buildingManager;
+extern BuildingType selectedBuilding;
 #endif
