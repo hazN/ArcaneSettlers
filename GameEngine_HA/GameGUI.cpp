@@ -64,7 +64,11 @@ void GameGUI::renderBuildingMenu()
 		{
 			if (canCraft)
 			{
-				selectedBuilding = recipe.first;
+				// Allow to unselect by clicking on it again
+				if (selectedBuilding == recipe.first)
+				{
+					selectedBuilding = NONE;
+				} else selectedBuilding = recipe.first;
 			}
 		}
 

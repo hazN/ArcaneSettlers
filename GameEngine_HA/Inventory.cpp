@@ -32,26 +32,40 @@ bool Inventory::addItem(Item item)
     return true;
 }
 
-bool Inventory::addItem(Item item, int amount) 
+int Inventory::addItem(Item item, int amount)
 {
     LockInventory();
 
+    int itemsAdded = 0;
     float totalWeight = item.weight * amount;
-    if (mWeight + totalWeight > mMaxWeight) 
+
+    // Check if all can be added
+    if (mWeight + totalWeight <= mMaxWeight)
     {
-        UnlockInventory();
-        return false;
+        for (int i = 0; i < amount; i++)
+        {
+            mItems.push_back(item);
+            itemsAdded++;
+            std::cout << "Added " << item.name << " to inventory" << std::endl;
+        }
+        mWeight += totalWeight;
+    }
+    // Otherwise add as much as possible
+    else
+    {
+        int maxItemsToAdd = (int)((mMaxWeight - mWeight) / item.weight);
+
+        for (int i = 0; i < maxItemsToAdd; i++)
+        {
+            mItems.push_back(item);
+            itemsAdded++;
+            std::cout << "Added " << item.name << " to inventory" << std::endl;
+        }
+        mWeight += maxItemsToAdd * item.weight;
     }
 
-    for (int i = 0; i < amount; i++) 
-    {
-        mItems.push_back(item);
-        std::cout << "Added " << item.name << " to inventory" << std::endl;
-    }
-
-    mWeight += totalWeight;
     UnlockInventory();
-    return true;
+    return itemsAdded;
 }
 
 bool Inventory::removeItem(itemId id)

@@ -24,11 +24,11 @@ assets/models/Buildings/Resource_Gold_1.fbx
 Gold
 assets/models/Buildings/Houses_FirstAge_1_Level1.fbx
 Workstation
-assets/models/Synty/SF_Prop_Undead_Forge_01.fbx
+assets/models/Synty/SF_Prop_Undead_Forge_01.ply
 Forge
-assets/models/Synty/SF_Prop_Anvil_01.fbx
+assets/models/Synty/SF_Prop_Anvil_01.ply
 Anvil
-assets/models/Synty/SF_Prop_TrainingDummy_01.fbx
+assets/models/Synty/SF_Prop_TrainingDummy_01.ply
 Training Dummy
 assets/models/Buildings/Crate.fbx
 Crate

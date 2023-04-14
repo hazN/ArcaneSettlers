@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "BuildingType.h"
+#include <Interface/iRayCast.h>
 
 class TerrainManager {
 public:
@@ -14,6 +15,7 @@ public:
 	std::vector<std::vector<int>> mGrid;
 
 	static void getTerrainHeightAndNormal(const glm::vec3& position, float& outHeight, glm::vec3& outNormal);
+	void createBuilding(BuildingType type, iRayCast::RayCastHit hit);
 private:
 	GameObject* goTerrain;
 	sModelDrawInfo* terrainInfo;

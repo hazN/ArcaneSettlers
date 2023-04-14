@@ -54,9 +54,9 @@ glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
 std::vector<GameObject*> gameObjects;
 std::vector<GameObject*> randomBalls;
 extern int ballIndex;
+TerrainManager* terrainManager;
 cBasicTextureManager* g_pTextureManager = NULL;
 
-void CreateRandomSphere(iPhysicsFactory* _physicsFactory, iPhysicsWorld* world, glm::vec3 minBounds, glm::vec3 maxBounds, glm::vec2 radius, glm::vec2 mass);
 // Call back signatures here
 void renderTransparentBuildingMesh();
 void mouse_camera_update(GLFWwindow* window);
@@ -565,6 +565,7 @@ int main(int argc, char* argv[])
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Medieval_Texture.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("woodTexture.bmp");
 	// ICONS
 	{
 		::g_pTextureManager->SetBasePath("assets/icons");
@@ -625,7 +626,6 @@ int main(int argc, char* argv[])
 	_physicsFactory = new PhysicsFactory;
 	rayCast = _physicsFactory->CreateRayCast();
 	world = _physicsFactory->CreateWorld();;
-	TerrainManager* terrainManager;
 	renderBuildingMesh = new cMeshObject();
 	renderBuildingMesh->meshName = "Crate";
 	renderBuildingMesh->friendlyName = "BuildingPreRender";
@@ -635,6 +635,7 @@ int main(int argc, char* argv[])
 	renderBuildingMesh->scaleXYZ = glm::vec3(1.f);
 	g_pMeshObjects.push_back(renderBuildingMesh);
 	// LOAD TERRAIN
+	buildingManager = new BuildingManager();
 	{
 		sModelDrawInfo terrainInfo;
 		pVAOManager->FindDrawInfoByModelName("Terrain", terrainInfo);
@@ -1141,7 +1142,7 @@ void renderTransparentBuildingMesh()
 		renderBuildingMesh->meshName = getBuildingMesh(selectedBuilding);
 		renderBuildingMesh->position = hit.position;
 		renderBuildingMesh->qRotation = glm::quatLookAt(-normal, glm::vec3(0.0f, 1.0f, 0.0f));
-		if (selectedBuilding == DUMMY)
+		if (selectedBuilding == DUMMY || selectedBuilding == FORGE || selectedBuilding == ANVIL)
 		{
 			renderBuildingMesh->qRotation *= glm::quat(glm::vec3(glm::radians(90.f), 0.f, 0.f));
 		}

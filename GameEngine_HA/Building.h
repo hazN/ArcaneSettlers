@@ -7,9 +7,10 @@
 class Building
 {
 public:
-    Building(std::string name, std::string icon, BuildingType type);
-    Building(std::string name, std::string icon, BuildingType type, int health);
+    Building(int id, std::string name, std::string icon, BuildingType type);
+    Building(int id, std::string name, std::string icon, BuildingType type, int health);
 
+    int mId;
     std::string mName;
     std::string mIcon;
     int mHealth;

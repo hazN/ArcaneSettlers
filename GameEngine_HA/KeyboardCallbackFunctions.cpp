@@ -10,12 +10,14 @@
 #include <Interface/iRayCast.h>
 #include "imgui/imgui.h"
 #include "GameGUI.h"
+#include "TerrainManager.h"
 // Extern is so the compiler knows what TYPE this thing is
 // The LINKER needs the ACTUAL declaration
 // These are defined in theMainFunction.cpp
 extern glm::vec3 g_cameraEye;// = glm::vec3(0.0, 0.0, -25.0f);
 extern glm::vec3 g_cameraTarget;// = glm::vec3(0.0f, 0.0f, 0.0f);
 static glm::mat4 camMat = glm::mat4(1.0f);
+extern TerrainManager* terrainManager;
 int ballIndex = 0;
 
 bool bEnableDebugLightingObjects = true;
@@ -110,6 +112,12 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	iRayCast::RayCastHit hit;
 	if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 	{
+		if (selectedBuilding != NONE)
+		{
+			terrainManager->createBuilding(selectedBuilding, hit);
+			selectedBuilding = NONE;
+			return;
+		}
 		if (hit.userData == gDepot->id)
 		{
 			GameGUI::depotInfoWindowOpen = true;

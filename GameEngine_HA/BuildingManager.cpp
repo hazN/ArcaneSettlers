@@ -1,6 +1,15 @@
 #include "BuildingManager.h"
 #include "globalThings.h"
 
+BuildingManager::BuildingManager()
+{
+	
+}
+
+BuildingManager::~BuildingManager()
+{
+}
+
 void BuildingManager::addBuilding(Building building)
 {
 	mBuildings.push_back(building);

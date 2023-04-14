@@ -35,7 +35,26 @@ ActionType DecisionTable::getNextAction(Colonist& colonist) {
 	else
 	{
 		float distance = glm::length(*colonist.mTarget->position - colonist.mGOColonist->mesh->position);
-		currentCondition.isTargetInRange = (distance <= 3.5f);
+		float reqDistance;
+		switch (colonist.mCurrentCommand)
+		{
+		case CommandType::HarvestRock:
+		{
+			if (colonist.mTarget != nullptr)
+			{
+				if (colonist.mTarget->buildingType == GOLD)
+				{
+					reqDistance = 5.0f;
+				}
+				else reqDistance = 3.5f;
+			}
+		}
+			break;
+		default:
+			reqDistance = 3.5f;
+			break;
+		}
+		currentCondition.isTargetInRange = (distance <= reqDistance);
 	}
 
 	for (const Rule& rule : decisionTable)

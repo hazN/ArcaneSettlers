@@ -7,6 +7,8 @@
 class BuildingManager
 {
 public:
+    BuildingManager();
+    ~BuildingManager();
     void addBuilding(Building building);
     bool craftBuilding(Building building, std::vector<Item> items);
     bool canCraft(BuildingType building);

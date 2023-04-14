@@ -35,7 +35,7 @@ public:
     ~Inventory();
 
     bool addItem(Item item);
-    bool addItem(Item item, int amount);
+    int addItem(Item item, int amount);
     bool removeItem(itemId id);
     int removeItem(itemId id, int amount);
     bool isFull();

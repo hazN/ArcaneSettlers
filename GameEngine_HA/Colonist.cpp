@@ -24,7 +24,6 @@ Colonist::~Colonist()
 }
 
 void Colonist::Update(float deltaTime) {
-	
 	// Hunger decrease
 	if (rand() < 0.01f * RAND_MAX) {
 		mStats->hunger -= 0.000139f;
@@ -91,7 +90,7 @@ void Colonist::Update(float deltaTime) {
 			}
 			action = ActionType::Move;
 		}
-		else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.8f)
+		else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 4.f)
 		{
 			ExecuteCommand();
 			break;
@@ -109,7 +108,7 @@ void Colonist::Update(float deltaTime) {
 
 		if (mTarget->buildingType != NULL)
 		{
-			if (distance <= 2.6)
+			if (distance <= 2.6 || (mTarget->mesh->meshName == "Gold" && distance <= 5.f))
 			{
 				ExecuteCommand();
 				break;
@@ -139,11 +138,7 @@ void Colonist::Update(float deltaTime) {
 	{
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)
 			this->mGOColonist->animCharacter->SetAnimation(11);
-		// Check if the target is in range
-		if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.5f)
-		{
-			ExecuteCommand();
-		}
+		ExecuteCommand();
 		break;
 	}
 	default:
@@ -278,24 +273,23 @@ void Colonist::MineNode() {
 
 			// Create the stone/ore
 			Item minedItem;
-			itemId minedItemId;
 			if (hasStone)
 			{
-				minedItemId = itemId::stone;
+				minedItem.id = stone;
 				minedItem.icon = "Stone.bmp";
 				minedItem.name = "Stone";
 				minedItem.weight = 2;
 			}
 			else if (hasOres)
 			{
-				minedItemId = itemId::ores;
+				minedItem.id = ores;
 				minedItem.icon = "Minerals.bmp";
 				minedItem.name = "Ore";
 				minedItem.weight = 4;
 			}
 
 			// May not get back the amount we tried to harvest, ie: mining for 3 stone when the node only has 2 stone left
-			int actualMinedItems = mTarget->inventory->removeItem(minedItemId, (int)glm::floor(itemsToMine));
+			int actualMinedItems = mTarget->inventory->removeItem(minedItem.id, (int)glm::floor(itemsToMine));
 			mInventory->addItem(minedItem, actualMinedItems);
 
 			deltaTime = clock();
@@ -349,7 +343,7 @@ void Colonist::DropOffLoot()
 			}
 		}
 	}
-	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 3.8f)
+	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 4.f)
 	{
 		currentAction = "Unloading inventory...";
 		for (Item item : mInventory->getAllItems())
