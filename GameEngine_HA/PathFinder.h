@@ -63,7 +63,7 @@ struct FlowFieldThreadData
     PathFinder* pathFinder;
     glm::vec2 destination;
     std::vector<std::vector<glm::vec2>> flowField;
-    bool isFinished;
+    HANDLE hEvent;
 };
 
 DWORD WINAPI CalculateFlowFieldThread(LPVOID pFlowFieldThreadData);

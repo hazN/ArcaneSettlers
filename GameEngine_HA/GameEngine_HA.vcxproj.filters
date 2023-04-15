@@ -64,6 +64,9 @@
     <Filter Include="GameLogic\Building">
       <UniqueIdentifier>{f9545e11-a135-4266-a781-d66e70b52d13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Artificial Intelligence\Colonist">
+      <UniqueIdentifier>{bc1791f3-a0d0-408c-a6cc-57c3d1afe0ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cVAOManager\cVAOManager.cpp">
@@ -156,12 +159,6 @@
     <ClCompile Include="PhysicsHelper.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="DecisionTable.cpp">
-      <Filter>Artificial Intelligence</Filter>
-    </ClCompile>
-    <ClCompile Include="Colonist.cpp">
-      <Filter>Artificial Intelligence</Filter>
-    </ClCompile>
     <ClCompile Include="IDGenerator.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
@@ -185,6 +182,15 @@
     </ClCompile>
     <ClCompile Include="PathFinder.cpp">
       <Filter>Artificial Intelligence</Filter>
+    </ClCompile>
+    <ClCompile Include="Colonist.cpp">
+      <Filter>Artificial Intelligence\Colonist</Filter>
+    </ClCompile>
+    <ClCompile Include="ColonistManager.cpp">
+      <Filter>Artificial Intelligence\Colonist</Filter>
+    </ClCompile>
+    <ClCompile Include="DecisionTable.cpp">
+      <Filter>Artificial Intelligence\Colonist</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,12 +305,6 @@
     <ClInclude Include="IDGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DecisionTable.h">
-      <Filter>Artificial Intelligence</Filter>
-    </ClInclude>
-    <ClInclude Include="Colonist.h">
-      <Filter>Artificial Intelligence</Filter>
-    </ClInclude>
     <ClInclude Include="GameGUI.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -322,6 +322,15 @@
     </ClInclude>
     <ClInclude Include="PathFinder.h">
       <Filter>Artificial Intelligence</Filter>
+    </ClInclude>
+    <ClInclude Include="DecisionTable.h">
+      <Filter>Artificial Intelligence\Colonist</Filter>
+    </ClInclude>
+    <ClInclude Include="Colonist.h">
+      <Filter>Artificial Intelligence\Colonist</Filter>
+    </ClInclude>
+    <ClInclude Include="ColonistManager.h">
+      <Filter>Artificial Intelligence\Colonist</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -48,6 +48,7 @@
 #include "IDGenerator.h"
 #include "Colonist.h"
 #include "TerrainManager.h"
+#include "ColonistManager.h"
 
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -55,6 +56,7 @@ std::vector<GameObject*> gameObjects;
 std::vector<GameObject*> randomBalls;
 extern int ballIndex;
 TerrainManager* terrainManager;
+ColonistManager* colonistManager;
 cBasicTextureManager* g_pTextureManager = NULL;
 
 // Call back signatures here
@@ -465,31 +467,31 @@ int main(int argc, char* argv[])
 	pTerrainWireFrame->scaleXYZ = glm::vec3(1.f);
 	g_pMeshObjects.push_back(pTerrainWireFrame);
 
-	cMeshObject* pWarrior = new cMeshObject();
-	pWarrior->meshName = "Warrior";
-	pWarrior->friendlyName = "Warrior";
-	pWarrior->position = glm::vec3(0.f, 20.f, 0.f);
-	pWarrior->bUse_RGBA_colour = false;
-	pWarrior->scaleXYZ = glm::vec3(1.f);
-	pWarrior->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
-	pWarrior->textures[0] = "Warrior_Texture.bmp";
-	pWarrior->textureRatios[0] = 1.f;
-	pWarrior->textureRatios[1] = 1.f;
-	pWarrior->textureRatios[2] = 1.f;
-	pWarrior->textureRatios[3] = 1.f;
-	cMeshObject* pWarriorSword = new cMeshObject();
-	pWarriorSword->meshName = "WarriorSword";
-	pWarriorSword->friendlyName = "WarriorSword";
-	//pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
-	pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
-	pWarriorSword->bUse_RGBA_colour = false;
-	pWarriorSword->scaleXYZ = glm::vec3(0.05f);
-	pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
-	pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
-	pWarriorSword->textureRatios[0] = 1.f;
-	pWarriorSword->textureRatios[1] = 1.f;
-	pWarriorSword->textureRatios[2] = 1.f;
-	pWarriorSword->textureRatios[3] = 1.f;
+	//cMeshObject* pWarrior = new cMeshObject();
+	//pWarrior->meshName = "Warrior";
+	//pWarrior->friendlyName = "Warrior";
+	//pWarrior->position = glm::vec3(0.f, 20.f, 0.f);
+	//pWarrior->bUse_RGBA_colour = false;
+	//pWarrior->scaleXYZ = glm::vec3(1.f);
+	//pWarrior->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
+	//pWarrior->textures[0] = "Warrior_Texture.bmp";
+	//pWarrior->textureRatios[0] = 1.f;
+	//pWarrior->textureRatios[1] = 1.f;
+	//pWarrior->textureRatios[2] = 1.f;
+	//pWarrior->textureRatios[3] = 1.f;
+	//cMeshObject* pWarriorSword = new cMeshObject();
+	//pWarriorSword->meshName = "WarriorSword";
+	//pWarriorSword->friendlyName = "WarriorSword";
+	////pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
+	//pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
+	//pWarriorSword->bUse_RGBA_colour = false;
+	//pWarriorSword->scaleXYZ = glm::vec3(0.05f);
+	//pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
+	//pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
+	//pWarriorSword->textureRatios[0] = 1.f;
+	//pWarriorSword->textureRatios[1] = 1.f;
+	//pWarriorSword->textureRatios[2] = 1.f;
+	//pWarriorSword->textureRatios[3] = 1.f;
 	//g_pMeshObjects.push_back(pWarriorSword);
 	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
@@ -670,7 +672,6 @@ int main(int argc, char* argv[])
 		const int maxObjects[3] = {150,80,20};
 		terrainManager->placeObjectsOnTerrain(maxObjects);
 	}
-	std::vector<GameObject*> goVector;
 	// CRAFTING RECIPES
 	{
 		std::map<itemId, int> workstationRecipe;
@@ -696,36 +697,45 @@ int main(int argc, char* argv[])
 
 		buildingRecipes.emplace(DUMMY, trainingDummy);
 	}
-	// Create Character controller
-	GameObject* goWarrior = new GameObject();
-	goWarrior->id = IDGenerator::GenerateID();
-	goWarrior->mesh = pWarrior;
-	goWarrior->mesh->scaleXYZ = glm::vec3(0.01f);
-	goWarrior->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goWarrior, glm::vec3(0.01f));
-	goWarrior->animCharacter->SetAnimation(10);
-	goVector.push_back(goWarrior);
-	goMap.emplace(goWarrior->id, goWarrior);
-	iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
-	cylinderShape->SetUserData(goWarrior->id);
-	glm::vec3 position = glm::vec3(5.f, 1.f, 5.f);
-	glm::quat rotation = glm::quat(glm::vec3(0));
 
-	iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
-	world->AddCharacterController(playerCharacterController);
-	playerCharacterController->SetGravity(Vector3(0.f, -9.81f, 0.f));
-	// Ai
-	//goWarrior->characterController = playerCharacterController;
-	Colonist* colonist1 = new Colonist();
-	colonist1->currentAction = "Idle...";
-	colonist1->icon = "warrior.bmp";
-	colonist1->name = "Alex";
-	//goWarrior->colonist = colonist1;
-	ColonistThreadData* colonistData1 = new ColonistThreadData();
-	colonistData1->pColonist = colonist1;
-	HANDLE hColonistThread1 = CreateThread(NULL, 0, UpdateColonistThread, (void*)colonistData1, 0, 0);
-	colonist1->mGOColonist = goWarrior;
-	colonist1->mCharacterController = playerCharacterController;
-	vecColonists.push_back(colonist1);
+	const int NUMCOLONISTS = 2;
+	colonistManager = new ColonistManager();
+	std::vector<GameObject*> goVector;
+	for (int i = 0; i < NUMCOLONISTS; i++) {
+		// Create colonist mesh
+		cMeshObject* pColonistMesh = new cMeshObject();
+		pColonistMesh->meshName = "Warrior";
+		pColonistMesh->friendlyName = "Colonist" + std::to_string(i);
+		pColonistMesh->position = glm::vec3(0.f, 20.f, 0.f);
+		pColonistMesh->bUse_RGBA_colour = false;
+		pColonistMesh->scaleXYZ = glm::vec3(1.f);
+		pColonistMesh->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
+		pColonistMesh->textures[0] = "Warrior_Texture.bmp";
+		pColonistMesh->textureRatios[0] = 1.f;
+		pColonistMesh->textureRatios[1] = 1.f;
+		pColonistMesh->textureRatios[2] = 1.f;
+		pColonistMesh->textureRatios[3] = 1.f;
+		// Create GameObject
+		GameObject* goColonist = new GameObject();
+		goColonist->id = IDGenerator::GenerateID();
+		goColonist->mesh = pColonistMesh;
+		goColonist->mesh->scaleXYZ = glm::vec3(0.01f);
+		goColonist->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goColonist, glm::vec3(0.01f));
+		goColonist->animCharacter->SetAnimation(10);
+		// Create Character controller
+		iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
+		cylinderShape->SetUserData(goColonist->id);
+		glm::vec3 position = glm::vec3(i + 2.f, 1.f, i - 2.f);
+		glm::quat rotation = glm::quat(glm::vec3(0));
+		iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
+		world->AddCharacterController(playerCharacterController);
+		playerCharacterController->SetGravity(Vector3(0.f, -9.81f, 0.f));
+		goColonist->characterController = playerCharacterController;
+		goVector.push_back(goColonist);
+		goMap.emplace(goColonist->id, goColonist);
+		// Add to Colonist Manager
+		colonistManager->AddColonist(goColonist);
+	}
 	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
@@ -735,14 +745,7 @@ int main(int argc, char* argv[])
 		renderTransparentBuildingMesh();
 		for (Colonist* colonist : vecColonists)
 		{
-			colonist->Update(0.1f);
-		}
-		{
-			Vector3 position;
-			colonist1->mCharacterController->GetPosition(position);
-			goWarrior->mesh->position.x = position.x;
-			goWarrior->mesh->position.y = position.y - 2.f;
-			goWarrior->mesh->position.z = position.z;
+			colonistManager->Update();
 		}
 		// Play random animation
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
@@ -766,51 +769,6 @@ int main(int argc, char* argv[])
 				go->rigidBody->GetRotation(rot);
 				go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
 			}
-		}
-		// Doing this here to get a faster reponse time
-		// Keypresses
-		{
-			float force;
-			// Force needs to be higher since the forward vector will be weaker with a topdown camera
-			if (theEditMode == PHYSICS_TEST)
-				force = 3.f;
-			else force = 0.005f;
-			glm::vec3 direction(0.f);
-			glm::vec3 forwardVector(g_cameraEye.x, 0.0f, g_cameraEye.z);
-			glm::vec3 rightVector(glm::cross(forwardVector, glm::vec3(0, 1, 0)));
-			// Reset world/objects to original position
-			if (glfwGetKey(window, GLFW_KEY_KP_0) && duration > 0.3f)
-			{
-				deltaTime = std::clock();
-				// Delete all the random generated balls
-				for (GameObject* go : randomBalls)
-				{
-					delete go->mesh;
-					world->RemoveBody(go->rigidBody);
-					go->mesh = nullptr;
-					go->rigidBody = nullptr;
-				}
-				world->ResetWorld();
-			}
-			{
-				if (glfwGetKey(window, GLFW_KEY_UP))
-				{
-					direction -= forwardVector * 1.f;
-				}
-				if (glfwGetKey(window, GLFW_KEY_DOWN))
-				{
-					direction += forwardVector * 1.f;
-				}
-				if (glfwGetKey(window, GLFW_KEY_LEFT))
-				{
-					direction += rightVector * 1.f;
-				}
-				if (glfwGetKey(window, GLFW_KEY_RIGHT))
-				{
-					direction -= rightVector * 1.f;
-				}
-			}
-			playerCharacterController->Move(direction * force);
 		}
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
 		// Mouse Lookaround

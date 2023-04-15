@@ -96,6 +96,15 @@ void Colonist::Update(float deltaTime) {
 			ExecuteCommand();
 			break;
 		}
+		else
+		{
+			if (mFlowfield.empty())
+			{
+
+			}
+			Move();
+		}
+		break;
 	}
 	case ActionType::Move: {
 		currentAction = "Moving...";
@@ -113,6 +122,11 @@ void Colonist::Update(float deltaTime) {
 			{
 				ExecuteCommand();
 				break;
+			}
+			else
+			{
+				// Move the colonist 
+				Move();
 			}
 		}
 		else if (distance < 0.2f)

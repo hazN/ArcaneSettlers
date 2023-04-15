@@ -47,7 +47,7 @@ DWORD WINAPI CalculateFlowFieldThread(LPVOID pFlowFieldThreadData)
 {
     FlowFieldThreadData* flowFieldData = (FlowFieldThreadData*)pFlowFieldThreadData;
     flowFieldData->flowField = flowFieldData->pathFinder->calculateFlowfield(flowFieldData->destination);
-    flowFieldData->isFinished = true;
+    SetEvent(flowFieldData->hEvent);
     return 0;
 }
 

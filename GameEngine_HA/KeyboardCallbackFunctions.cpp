@@ -11,6 +11,7 @@
 #include "imgui/imgui.h"
 #include "GameGUI.h"
 #include "TerrainManager.h"
+#include "ColonistManager.h"
 // Extern is so the compiler knows what TYPE this thing is
 // The LINKER needs the ACTUAL declaration
 // These are defined in theMainFunction.cpp
@@ -18,6 +19,7 @@ extern glm::vec3 g_cameraEye;// = glm::vec3(0.0, 0.0, -25.0f);
 extern glm::vec3 g_cameraTarget;// = glm::vec3(0.0f, 0.0f, 0.0f);
 static glm::mat4 camMat = glm::mat4(1.0f);
 extern TerrainManager* terrainManager;
+extern ColonistManager* colonistManager;
 int ballIndex = 0;
 
 bool bEnableDebugLightingObjects = true;
@@ -128,23 +130,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			return;
 		if (hit.userData == 0)
 		{
-			GameObject* goMove = new GameObject;
-			goMove->position = new glm::vec3(0);
-			*goMove->position = glm::vec3(hit.position.x, hit.position.y, hit.position.z);
-
-			glm::vec2 target = TerrainManager::worldToGridCoords(hit.position);
-			target = glm::round(target);
-
-			// Create a flowfield thread data
-			FlowFieldThreadData flowFieldData;
-			flowFieldData.isFinished = false;
-			// Call the async flow field function
-			gPathFinder->calculateFlowfieldAsync(target, &flowFieldData);
-			// Wait for it to finish
-			while (!flowFieldData.isFinished) {}
-			// Give the colonist the action
-			vecColonists[0]->mFlowfield = flowFieldData.flowField;
-			vecColonists[0]->SetCommand(CommandType::Move, goMove);
+			GameObject* goMove = new GameObject();
+			goMove->position = new glm::vec3(hit.position.x, hit.position.y, hit.position.z);
+			colonistManager->AssignCommand({ 0, 1 }, CommandType::Move, goMove);
 		}
 		else {
 			// check if its in the goMap
@@ -156,14 +144,14 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 					if (go->position == nullptr)
 						go->position = new glm::vec3();
 					*go->position = go->mesh->position;
-					vecColonists[0]->SetCommand(CommandType::HarvestTree, go);
+					colonistManager->AssignCommand({ 0, 1 }, CommandType::HarvestTree, go);
 				}
 				if (go->buildingType == BuildingType::ROCK || go->buildingType == BuildingType::GOLD)
 				{
 					if (go->position == nullptr)
 						go->position = new glm::vec3();
 					*go->position = go->mesh->position;
-					vecColonists[0]->SetCommand(CommandType::HarvestRock, go);
+					colonistManager->AssignCommand({ 0, 1 }, CommandType::HarvestRock, go);
 				}
 			}
 
