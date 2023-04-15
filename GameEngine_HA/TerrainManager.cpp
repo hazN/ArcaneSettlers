@@ -231,12 +231,14 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
 			// Convert coords from world space to grid 
 			glm::vec2 gridCoords = worldToGridCoords(position);
 			// Get the size of the object, aka the area of cells it covers, 2x2, 4x6, etc.
-			glm::vec2 gridSize = glm::vec2( (int)(std::round((drawInfo.extentX * go->mesh->scaleXYZ.x + 0.1f) / mPathFinder->getCellSize())),
-				(int)(std::round((drawInfo.extentZ * go->mesh->scaleXYZ.z + 0.1f) / mPathFinder->getCellSize())));
+			glm::vec2 gridSize = glm::vec2((int)(std::round((drawInfo.extentX * go->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
+				(int)(std::round((drawInfo.extentZ * go->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
+			// Buffer around it to avoid getting stuck
+			int buffer = 1;
 			// Loop through the cells that need to have the building set 
-			for (int y = gridCoords.y - gridSize.y / 2; y < gridCoords.y + gridSize.y / 2; ++y)
+			for (int y = gridCoords.y - gridSize.y / 2 - buffer; y < gridCoords.y + gridSize.y / 2 + buffer; ++y)
 			{
-				for (int x = gridCoords.x - gridSize.x / 2; x < gridCoords.x + gridSize.x / 2; ++x)
+				for (int x = gridCoords.x - gridSize.x / 2 - buffer; x < gridCoords.x + gridSize.x / 2 + buffer; ++x)
 				{
 					if (x >= 0 && x < mPathFinder->getWidth() && y >= 0 && y < mPathFinder->getHeight())
 					{

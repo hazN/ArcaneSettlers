@@ -134,8 +134,16 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 			glm::vec2 target = TerrainManager::worldToGridCoords(hit.position);
 			target = glm::round(target);
-			vecColonists[0]->mFlowfield = gPathFinder->calculateFlowfield(target);
 
+			// Create a flowfield thread data
+			FlowFieldThreadData flowFieldData;
+			flowFieldData.isFinished = false;
+			// Call the async flow field function
+			gPathFinder->calculateFlowfieldAsync(target, &flowFieldData);
+			// Wait for it to finish
+			while (!flowFieldData.isFinished) {}
+			// Give the colonist the action
+			vecColonists[0]->mFlowfield = flowFieldData.flowField;
 			vecColonists[0]->SetCommand(CommandType::Move, goMove);
 		}
 		else {

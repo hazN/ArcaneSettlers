@@ -214,7 +214,6 @@ void Colonist::Move()
 	{
 		return;
 	}
-	// return; 
 
 	// Get current position and convert to grid coord
 	glm::vec3 currentPos = mGOColonist->mesh->position;
