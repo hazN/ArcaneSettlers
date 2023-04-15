@@ -667,7 +667,6 @@ int main(int argc, char* argv[])
 		GameObject* goTerrain = new GameObject();
 		goTerrain->mesh = pTerrain;
 		terrainManager = new TerrainManager(goTerrain, &terrainInfo);
-		terrainManager->mPathFinder = new PathFinder(500, 500);
 		const int maxObjects[3] = {150,80,20};
 		terrainManager->placeObjectsOnTerrain(maxObjects);
 	}
@@ -708,7 +707,7 @@ int main(int argc, char* argv[])
 	goMap.emplace(goWarrior->id, goWarrior);
 	iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
 	cylinderShape->SetUserData(goWarrior->id);
-	glm::vec3 position = glm::vec3(0.f, 1.f, 0.f);
+	glm::vec3 position = glm::vec3(5.f, 1.f, 5.f);
 	glm::quat rotation = glm::quat(glm::vec3(0));
 
 	iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
@@ -1139,6 +1138,8 @@ void renderTransparentBuildingMesh()
 	{
 		glm::vec3 normal;
 		float terrainHeight;
+
+
 		TerrainManager::getTerrainHeightAndNormal(hit.position, terrainHeight, normal);
 		renderBuildingMesh->meshName = getBuildingMesh(selectedBuilding);
 		renderBuildingMesh->position = hit.position;

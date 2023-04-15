@@ -2,6 +2,7 @@
 #include "quaternion_utils.h"
 #include "globalThings.h"
 #include <iostream>
+#include "TerrainManager.h"
 Colonist::Colonist()
 {
 	mStats = new ColonistStats();
@@ -101,11 +102,11 @@ void Colonist::Update(float deltaTime) {
 		// Set animation
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
 			this->mGOColonist->animCharacter->SetAnimation(10);
-		// Move the colonist towards the target
-		glm::vec3 direction = glm::normalize(*mTarget->position - mGOColonist->mesh->position);
-		float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
-		float speed = 1.0f;
 
+
+		float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
+
+		// Check if its reached its target
 		if (mTarget->buildingType != NULL)
 		{
 			if (distance <= 2.6 || (mTarget->mesh->meshName == "Gold" && distance <= 5.f))
@@ -114,21 +115,18 @@ void Colonist::Update(float deltaTime) {
 				break;
 			}
 		}
-		if (distance >= 0.2f)
-		{
-			glm::vec3 dir = direction * speed * deltaTime;
-			mCharacterController->Move(dir);
-			glm::vec3 lookDir = glm::normalize(glm::vec3(mTarget->position->x, mGOColonist->mesh->position.y + 100.f, mTarget->position->z) - mGOColonist->mesh->position);
-			glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
-			mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.005f);
-		}
-		else
+		else if (distance < 0.2f)
 		{
 			if (mCurrentCommand == CommandType::Move)
 			{
 				mCurrentCommand = CommandType::None;
 			}
 			ExecuteCommand();
+		}
+		else 
+		{
+			// Move the colonist 
+			Move();
 		}
 		break;
 	}
@@ -208,6 +206,42 @@ bool Colonist::getIsIntruderInRange()
 ColonistStats Colonist::getStats()
 {
 	return *mStats;
+}
+
+void Colonist::Move()
+{
+	if (mFlowfield.empty())
+	{
+		return;
+	}
+	// return; 
+
+	// Get current position and convert to grid coord
+	glm::vec3 currentPos = mGOColonist->mesh->position;
+	glm::vec2 currentGridPos = TerrainManager::worldToGridCoords(currentPos);
+	currentGridPos = glm::round(currentGridPos);
+
+	// Get the direction from the flowfield
+	glm::vec2 flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
+	glm::vec3 moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
+
+	// Move the colonist
+	float speed = 1.0f;
+	float deltaTime = 0.1f;
+	glm::vec3 dir = moveDirection * speed * deltaTime;
+	mCharacterController->Move(dir);
+	glm::vec3 lookDir = glm::normalize(moveDirection);
+	glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
+	//mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.005f);
+
+	float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
+	if (distance < 1.1f)
+	{
+		if (mCurrentCommand == CommandType::Move)
+		{
+			mCurrentCommand = CommandType::None;
+		}
+	}
 }
 
 void Colonist::HarvestTree()

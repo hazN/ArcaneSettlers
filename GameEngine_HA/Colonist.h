@@ -8,6 +8,7 @@
 #include <Interface/iCharacterController.h>
 #include "Inventory.h"
 #include <time.h>
+#include "PathFinder.h"
 struct ColonistStats {
     // MAX 100
     int hp = 100;
@@ -36,6 +37,7 @@ public:
     std::string currentAction;
     std::string name;
 //private:
+    void Move();
     void HarvestTree();
     void MineNode();
     void DropOffLoot();
@@ -49,6 +51,7 @@ public:
     CommandType mCurrentCommand;
     GameObject* mTarget;
     DecisionTable mDecisionTable;
+    std::vector<std::vector<glm::vec2>> mFlowfield;
 };
 
 struct ColonistThreadData {

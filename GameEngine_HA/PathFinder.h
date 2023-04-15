@@ -8,6 +8,7 @@ struct Node
     int id;
     BuildingType buildingType;
     glm::vec2 position;
+    glm::vec2 direction;
     float height; 
     int goId;
     Node()
@@ -34,9 +35,11 @@ public:
     PathFinder(int width, int height);
     void createGrid();
     void addBuilding(int x, int y, BuildingType buildingType, float height, int goId);
+    std::vector<std::vector<glm::vec2>> calculateFlowfield(glm::vec2 target);
     float getCellSize();
     int getWidth();
     int getHeight();
+    std::vector<std::vector<Node>>& getGrid();
 private:
     int mWidth;
     int mHeight;

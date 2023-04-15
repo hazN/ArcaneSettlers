@@ -35,3 +35,4 @@ GameObject* gDepot;
 std::map<BuildingType, std::map<itemId, int>> buildingRecipes;
 BuildingManager* buildingManager;
 BuildingType selectedBuilding;
+PathFinder* gPathFinder;

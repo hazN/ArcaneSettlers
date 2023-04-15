@@ -61,4 +61,5 @@ extern GameObject* gDepot;
 extern std::map<BuildingType, std::map<itemId, int>> buildingRecipes;
 extern BuildingManager* buildingManager;
 extern BuildingType selectedBuilding;
+extern PathFinder* gPathFinder;
 #endif

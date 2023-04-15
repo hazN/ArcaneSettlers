@@ -4,10 +4,15 @@
 #include <iostream>
 #include "IDGenerator.h"
 
+GameObject* TerrainManager::goTerrain = nullptr;
+sModelDrawInfo* TerrainManager::terrainInfo = nullptr;
+
 TerrainManager::TerrainManager(GameObject* goTerrain, sModelDrawInfo* terrainInfo)
 {
 	this->goTerrain = goTerrain;
 	this->terrainInfo = terrainInfo;
+	gPathFinder = new PathFinder(500,500);
+	mPathFinder = gPathFinder;
 }
 
 TerrainManager::~TerrainManager()
@@ -152,8 +157,8 @@ glm::vec2 TerrainManager::worldToGridCoords(glm::vec3 worldCoords)
 	glm::vec3 terrainOrigin = glm::vec3( goTerrain->mesh->position.x + terrainInfo->minX * goTerrain->mesh->scaleXYZ.x,
 		0, goTerrain->mesh->position.z + terrainInfo->minZ * goTerrain->mesh->scaleXYZ.z );
 
-	int gridX = (int)((worldCoords.x - terrainOrigin.x) / mPathFinder->getCellSize());
-	int gridY = (int)((worldCoords.z - terrainOrigin.z) / mPathFinder->getCellSize());
+	int gridX = (int)((worldCoords.x - terrainOrigin.x) / gPathFinder->getCellSize());
+	int gridY = (int)((worldCoords.z - terrainOrigin.z) / gPathFinder->getCellSize());
 
 	return glm::vec2(gridX, gridY);
 }
@@ -226,8 +231,8 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
 			// Convert coords from world space to grid 
 			glm::vec2 gridCoords = worldToGridCoords(position);
 			// Get the size of the object, aka the area of cells it covers, 2x2, 4x6, etc.
-			glm::vec2 gridSize = glm::ivec2( (int)(std::round((drawInfo.extentX * go->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
-				(int)(std::round((drawInfo.extentZ * go->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
+			glm::vec2 gridSize = glm::vec2( (int)(std::round((drawInfo.extentX * go->mesh->scaleXYZ.x + 0.1f) / mPathFinder->getCellSize())),
+				(int)(std::round((drawInfo.extentZ * go->mesh->scaleXYZ.z + 0.1f) / mPathFinder->getCellSize())));
 			// Loop through the cells that need to have the building set 
 			for (int y = gridCoords.y - gridSize.y / 2; y < gridCoords.y + gridSize.y / 2; ++y)
 			{

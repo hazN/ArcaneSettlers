@@ -131,6 +131,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			GameObject* goMove = new GameObject;
 			goMove->position = new glm::vec3(0);
 			*goMove->position = glm::vec3(hit.position.x, hit.position.y, hit.position.z);
+
+			glm::vec2 target = TerrainManager::worldToGridCoords(hit.position);
+			target = glm::round(target);
+			vecColonists[0]->mFlowfield = gPathFinder->calculateFlowfield(target);
+
 			vecColonists[0]->SetCommand(CommandType::Move, goMove);
 		}
 		else {
