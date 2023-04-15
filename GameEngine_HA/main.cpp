@@ -667,6 +667,7 @@ int main(int argc, char* argv[])
 		GameObject* goTerrain = new GameObject();
 		goTerrain->mesh = pTerrain;
 		terrainManager = new TerrainManager(goTerrain, &terrainInfo);
+		terrainManager->mPathFinder = new PathFinder(500, 500);
 		const int maxObjects[3] = {150,80,20};
 		terrainManager->placeObjectsOnTerrain(maxObjects);
 	}

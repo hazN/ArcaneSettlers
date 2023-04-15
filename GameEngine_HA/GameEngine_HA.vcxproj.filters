@@ -183,6 +183,9 @@
     <ClCompile Include="BuildingManager.cpp">
       <Filter>GameLogic\Building</Filter>
     </ClCompile>
+    <ClCompile Include="PathFinder.cpp">
+      <Filter>Artificial Intelligence</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cVAOManager\sModelDrawInfo.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="BuildingManager.h">
       <Filter>GameLogic\Building</Filter>
+    </ClInclude>
+    <ClInclude Include="PathFinder.h">
+      <Filter>Artificial Intelligence</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

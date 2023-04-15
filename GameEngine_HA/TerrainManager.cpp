@@ -147,6 +147,17 @@ void TerrainManager::getTerrainHeightAndNormal(const glm::vec3& position, float&
 	}
 }
 
+glm::vec2 TerrainManager::worldToGridCoords(glm::vec3 worldCoords)
+{
+	glm::vec3 terrainOrigin = glm::vec3( goTerrain->mesh->position.x + terrainInfo->minX * goTerrain->mesh->scaleXYZ.x,
+		0, goTerrain->mesh->position.z + terrainInfo->minZ * goTerrain->mesh->scaleXYZ.z );
+
+	int gridX = (int)((worldCoords.x - terrainOrigin.x) / mPathFinder->getCellSize());
+	int gridY = (int)((worldCoords.z - terrainOrigin.z) / mPathFinder->getCellSize());
+
+	return glm::vec2(gridX, gridY);
+}
+
 void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) {
 	for (GameObject* go : gameObjects) {
 		// Get the draw info
@@ -190,29 +201,44 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
 		iShape* shape;
 		BuildingType buildingType;
 		if (go->mesh->meshName == "PineTree") {
-			shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-			shape->SetUserData(go->id);
 			buildingType = TREE;
 		}
 		else if (go->mesh->meshName == "Rock") {
-			shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-			shape->SetUserData(go->id);
 			buildingType = ROCK;
 		}
 		else if (go->mesh->meshName == "Gold") {
-			shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-			shape->SetUserData(go->id);
 			buildingType = GOLD;
 		}
 		else if (go->mesh->meshName == "Depot") {
-			shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
-			shape->SetUserData(go->id);
 			buildingType = DEPOT;
 		}
 		else
 		{
 			std::cout << "Unknown building passed into createPhysicsObjects" << std::endl;
 			return;
+		}
+		// Create box shape(no capsules/cylinders due to rotation issues)
+		shape = new BoxShape(Vector3(drawInfo.extentX * go->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * go->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * go->mesh->scaleXYZ.z / 2.f));
+		shape->SetUserData(go->id);
+		
+		// Grid stuff, organize later
+		{
+			// Convert coords from world space to grid 
+			glm::vec2 gridCoords = worldToGridCoords(position);
+			// Get the size of the object, aka the area of cells it covers, 2x2, 4x6, etc.
+			glm::vec2 gridSize = glm::ivec2( (int)(std::round((drawInfo.extentX * go->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
+				(int)(std::round((drawInfo.extentZ * go->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
+			// Loop through the cells that need to have the building set 
+			for (int y = gridCoords.y - gridSize.y / 2; y < gridCoords.y + gridSize.y / 2; ++y)
+			{
+				for (int x = gridCoords.x - gridSize.x / 2; x < gridCoords.x + gridSize.x / 2; ++x)
+				{
+					if (x >= 0 && x < mPathFinder->getWidth() && y >= 0 && y < mPathFinder->getHeight())
+					{
+						mPathFinder->addBuilding(x, y, buildingType, position.y + drawInfo.extentY * go->mesh->scaleXYZ.y / 2, go->id);
+					}
+				}
+			}
 		}
 
 		// Update the GameObject with the new physics object
@@ -277,6 +303,12 @@ void TerrainManager::createBuilding(BuildingType type, iRayCast::RayCastHit hit)
 	iShape* shape;
 	shape = new BoxShape(Vector3(drawInfo.extentX * goBuilding->mesh->scaleXYZ.x / 2.f, drawInfo.extentY * goBuilding->mesh->scaleXYZ.y / 2.f, drawInfo.extentZ * goBuilding->mesh->scaleXYZ.z / 2.f));
 	shape->SetUserData(goBuilding->id);
+
+	// Grid stuff, organize later
+	{
+
+	}
+
 	goBuilding->rigidBody = _physicsFactory->CreateRigidBody(desc, shape);
 	world->AddBody(goBuilding->rigidBody);
 }

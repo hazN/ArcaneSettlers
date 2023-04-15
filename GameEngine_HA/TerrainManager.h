@@ -5,6 +5,7 @@
 #include <vector>
 #include "BuildingType.h"
 #include <Interface/iRayCast.h>
+#include "PathFinder.h"
 
 class TerrainManager {
 public:
@@ -15,7 +16,9 @@ public:
 	std::vector<std::vector<int>> mGrid;
 
 	static void getTerrainHeightAndNormal(const glm::vec3& position, float& outHeight, glm::vec3& outNormal);
+	glm::vec2 worldToGridCoords(glm::vec3 worldCoords);
 	void createBuilding(BuildingType type, iRayCast::RayCastHit hit);
+	PathFinder* mPathFinder;
 private:
 	GameObject* goTerrain;
 	sModelDrawInfo* terrainInfo;
