@@ -1,5 +1,7 @@
 #include "DecisionTable.h"
 #include "Colonist.h"
+#include "cVAOManager/sModelDrawInfo.h"
+#include "globalThings.h"
 
 DecisionTable::DecisionTable() {
 	// isHungry | Command | isIntruderInRange | isInventoryFull | isTargetInRange
@@ -25,45 +27,43 @@ DecisionTable::~DecisionTable()
 }
 
 ActionType DecisionTable::getNextAction(Colonist& colonist) {
-	Condition currentCondition;
-	currentCondition.isHungry = colonist.isHungry();
-	currentCondition.playerCommand = colonist.mCurrentCommand;
-	currentCondition.isIntruderInRange = colonist.getIsIntruderInRange();
-	currentCondition.isInventoryFull = colonist.mInventory->isFull();
-	if (colonist.mTarget == nullptr)
-		currentCondition.isTargetInRange = false;
-	else
-	{
-		float distance = glm::length(*colonist.mTarget->position - colonist.mGOColonist->mesh->position);
-		float reqDistance;
-		switch (colonist.mCurrentCommand)
-		{
-		case CommandType::HarvestRock:
-		{
-			if (colonist.mTarget != nullptr)
-			{
-				if (colonist.mTarget->buildingType == GOLD)
-				{
-					reqDistance = 5.0f;
-				}
-				else reqDistance = 3.5f;
-			}
-		}
-			break;
-		default:
-			reqDistance = 3.5f;
-			break;
-		}
-		currentCondition.isTargetInRange = (distance <= reqDistance);
-	}
+    Condition currentCondition;
+    currentCondition.isHungry = colonist.isHungry();
+    currentCondition.playerCommand = colonist.mCurrentCommand;
+    currentCondition.isIntruderInRange = colonist.getIsIntruderInRange();
+    currentCondition.isInventoryFull = colonist.mInventory->isFull();
+    if (colonist.mTarget == nullptr) {
+        currentCondition.isTargetInRange = false;
+    }
+    else 
+    {
+        float maxExtent = 0.f;
+        if (colonist.mTarget->mesh != nullptr) 
+        {
+            // Get the target drawinfo 
+            sModelDrawInfo drawInfo;
+            pVAOManager->FindDrawInfoByModelName(colonist.mTarget->mesh->meshName, drawInfo);
+            // Get the max extent of the mesh
+            maxExtent = glm::max(drawInfo.extentX, glm::max(drawInfo.extentY, drawInfo.extentZ));
+            maxExtent *= colonist.mTarget->mesh->scaleXYZ.x;
+            if (colonist.mTarget->buildingType == DEPOT)
+                maxExtent += 3.f;
+            else if (colonist.mTarget->buildingType == TREE)
+                maxExtent -= 2.f;
+        }
+        // Get the distance between the colonist and the target 
+        glm::vec3 colonistPos = colonist.mGOColonist->mesh->position;
+        glm::vec3 targetPos = *colonist.mTarget->position;
+        float distance = glm::distance(colonistPos, targetPos);
 
-	for (const Rule& rule : decisionTable)
-	{
-		if (rule.condition == currentCondition)
-		{
-			return rule.action;
-		}
-	}
+        currentCondition.isTargetInRange = (distance <= (maxExtent));
+    }
 
-	return ActionType::Idle;
+    for (const Rule& rule : decisionTable) {
+        if (rule.condition == currentCondition) {
+            return rule.action;
+        }
+    }
+
+    return ActionType::Idle;
 }

@@ -32,4 +32,6 @@ assets/models/Synty/SF_Prop_TrainingDummy_01.ply
 Training Dummy
 assets/models/Buildings/Crate.fbx
 Crate
+assets/models/torus.ply
+Torus
 EOF

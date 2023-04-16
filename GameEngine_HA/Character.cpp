@@ -204,9 +204,7 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh, const std::vector<aiMe
 			m_BoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
 		}
 	}
-
 }
-
 
 void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt)
 {
@@ -234,7 +232,6 @@ void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector
 		//printf("Time: %.4f %d/%d\n", m_CurrentTimeInSeconds, keyFrameTime, (int)m_DurationInTicks);
 
 		UpdateBoneHierarchy(m_RootNode, identity, keyFrameTime);
-
 
 		transforms.resize(m_BoneInfoVec.size());
 		globals.resize(m_BoneInfoVec.size());
@@ -439,7 +436,7 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 		}
 	}
 }
-//void Character::AttachTool(cMeshObject* tool, std::string nodeName) 
+//void Character::AttachTool(cMeshObject* tool, std::string nodeName)
 //{
 //	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(nodeName);
 //

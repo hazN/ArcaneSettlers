@@ -6,22 +6,22 @@
 ColonistManager::ColonistManager()
 {
 	InitializeCriticalSection(&targetsCriticalSection);
-    // Create flowfield for the depot
-    FlowFieldThreadData flowFieldData;
-    flowFieldData.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    // Call the async flow field function
-    glm::vec2 targetPos = TerrainManager::worldToGridCoords(*gDepot->position);
-    gPathFinder->calculateFlowfieldAsync(targetPos, &flowFieldData);
-    // Wait for it to finish
-    WaitForSingleObject(flowFieldData.hEvent, INFINITE);
-    // Give the colonist the action
-    CloseHandle(flowFieldData.hEvent);
+	// Create flowfield for the depot
+	FlowFieldThreadData flowFieldData;
+	flowFieldData.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	// Call the async flow field function
+	glm::vec2 targetPos = TerrainManager::worldToGridCoords(*gDepot->position);
+	gPathFinder->calculateFlowfieldAsync(targetPos, &flowFieldData);
+	// Wait for it to finish
+	WaitForSingleObject(flowFieldData.hEvent, INFINITE);
+	// Give the colonist the action
+	CloseHandle(flowFieldData.hEvent);
 
-    targetFlowfield* newTargetFlowfield = new targetFlowfield;
-    newTargetFlowfield->target = new GameObject();
-    newTargetFlowfield->target->position = new glm::vec3(*gDepot->position);
-    newTargetFlowfield->flowfield = flowFieldData.flowField;
-    targets.push_back(newTargetFlowfield);
+	targetFlowfield* newTargetFlowfield = new targetFlowfield;
+	newTargetFlowfield->target = new GameObject();
+	newTargetFlowfield->target->position = new glm::vec3(*gDepot->position);
+	newTargetFlowfield->flowfield = flowFieldData.flowField;
+	targets.push_back(newTargetFlowfield);
 }
 
 ColonistManager::~ColonistManager()
@@ -31,12 +31,32 @@ ColonistManager::~ColonistManager()
 
 void ColonistManager::AddColonist(GameObject* goColonist)
 {
+	// Name arrays, names taken from https://www.fantasynamegenerators.com
+	std::string firstNames[] = { "Lhoris", "Nym", "Vaeril", "Halueve", "Gaeleath", "Kailu", "Folre", "Arryn", "Ailre",
+								"Arryn", "Micaiah", "Elauthin", "Tarathiel", "Tanathil", "Aenwyn", "Elnaril", "Navarre",
+								"Amrynn", "Dain", "Inchel", "Lierin", "Imizael", "Saida", "Arbane", "Eroan", "Tanathil",
+								"Nym", "Ashryn", "Erendriel", "Elpharae", "Kymil", "Imizael", "Adresin", "Kilyn", "Artin",
+								"Elisen", "Anhaern", "Wirenth", "Aubron", "Ailre", "Larrel", "Myriil", "Aenwyn", "Elandorr",
+								"Falael", "Meriel", "Nithenoel", "Aerendyl", "Eroan", "Calarel" };
+	std::string lastNames[] = { "Fuseforge", "Dustfeather", "Spiderbranch", "Morningrider", "Bladekiller",
+							"Nightsword", "Moonpelt", "Warstrike", "Blackblossom", "Havenvale",
+							"Silverblossom", "Snakemane", "Covenpelt", "Dayrage", "Reddream",
+							"Bloodheart", "Duskeyes", "Deathforge", "Regaldream", "Titanward",
+							"Wiseflower", "Steelgrip", "Fallentide", "Cinderchaser", "Evenstride",
+							"Seabeard", "Clantree", "Sternvalor", "Mistdraft", "Slatebone" };
+
+	// Create a new Colonist instance
 	Colonist* colonist = new Colonist();
 	colonist->mGOColonist = goColonist;
 	colonist->currentAction = "Idle...";
 	colonist->icon = "warrior.bmp";
-	colonist->name = "Alex";
 	colonist->mCharacterController = goColonist->characterController;
+
+	// Pick a random name
+	int firstNameIndex = rand() % (sizeof(firstNames) / sizeof(*firstNames));
+	int lastNameIndex = rand() % (sizeof(lastNames) / sizeof(*lastNames));
+	colonist->name = firstNames[firstNameIndex] + " " + lastNames[lastNameIndex];
+
 	ColonistThreadData* colonistData = new ColonistThreadData();
 	colonistData->pColonist = colonist;
 	HANDLE hColonistThread = CreateThread(NULL, 0, UpdateColonistThread, (void*)colonistData, 0, 0);
@@ -45,62 +65,61 @@ void ColonistManager::AddColonist(GameObject* goColonist)
 
 void ColonistManager::AssignCommand(std::vector<int> ids, CommandType command, GameObject* goTarget)
 {
-    if (!goTarget)
-        return;
+	if (!goTarget)
+		return;
 
-    GetFlowFieldThreadData* threadData = new GetFlowFieldThreadData;
-    threadData->manager = this;
-    threadData->ids = ids;
-    threadData->command = command;
-    threadData->goTarget = goTarget;
+	GetFlowFieldThreadData* threadData = new GetFlowFieldThreadData;
+	threadData->manager = this;
+	threadData->ids = ids;
+	threadData->command = command;
+	threadData->goTarget = goTarget;
 
-    HANDLE hThread = CreateThread(NULL, 0, GetFlowFieldThread, (void*)threadData, 0, 0);
+	HANDLE hThread = CreateThread(NULL, 0, GetFlowFieldThread, (void*)threadData, 0, 0);
 }
 
 std::vector<std::vector<glm::vec2>> ColonistManager::GetFlowField(glm::vec3 target)
 {
-    EnterCriticalSection(&targetsCriticalSection);
+	EnterCriticalSection(&targetsCriticalSection);
 
-    targetFlowfield* foundTargetFlowfield = nullptr;
+	targetFlowfield* foundTargetFlowfield = nullptr;
 
-    for (targetFlowfield* thisTarget : targets)
-    {
-        if (*(thisTarget->target->position) == target) 
-        {
-            foundTargetFlowfield = thisTarget;
-            break;
-        }
-    }
+	for (targetFlowfield* thisTarget : targets)
+	{
+		if (*(thisTarget->target->position) == target)
+		{
+			foundTargetFlowfield = thisTarget;
+			break;
+		}
+	}
 
-    if (foundTargetFlowfield)
-    {
-        LeaveCriticalSection(&targetsCriticalSection);
-        return foundTargetFlowfield->flowfield;
-    }
+	if (foundTargetFlowfield)
+	{
+		LeaveCriticalSection(&targetsCriticalSection);
+		return foundTargetFlowfield->flowfield;
+	}
 
-    glm::vec2 targetPos = TerrainManager::worldToGridCoords(target);
+	glm::vec2 targetPos = TerrainManager::worldToGridCoords(target);
 
-    // Create a flowfield thread data
-    FlowFieldThreadData flowFieldData;
-    flowFieldData.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    // Call the async flow field function
-    gPathFinder->calculateFlowfieldAsync(targetPos, &flowFieldData);
-    // Wait for it to finish
-    WaitForSingleObject(flowFieldData.hEvent, INFINITE);
-    // Give the colonist the action
-    CloseHandle(flowFieldData.hEvent);
+	// Create a flowfield thread data
+	FlowFieldThreadData flowFieldData;
+	flowFieldData.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	// Call the async flow field function
+	gPathFinder->calculateFlowfieldAsync(targetPos, &flowFieldData);
+	// Wait for it to finish
+	WaitForSingleObject(flowFieldData.hEvent, INFINITE);
+	// Give the colonist the action
+	CloseHandle(flowFieldData.hEvent);
 
-    targetFlowfield* newTargetFlowfield = new targetFlowfield;
-    newTargetFlowfield->target = new GameObject();
-    newTargetFlowfield->target->position = new glm::vec3(target);
-    newTargetFlowfield->flowfield = flowFieldData.flowField;
-    targets.push_back(newTargetFlowfield);
+	targetFlowfield* newTargetFlowfield = new targetFlowfield;
+	newTargetFlowfield->target = new GameObject();
+	newTargetFlowfield->target->position = new glm::vec3(target);
+	newTargetFlowfield->flowfield = flowFieldData.flowField;
+	targets.push_back(newTargetFlowfield);
 
-    LeaveCriticalSection(&targetsCriticalSection);
+	LeaveCriticalSection(&targetsCriticalSection);
 
-    return flowFieldData.flowField;
+	return flowFieldData.flowField;
 }
-
 
 void ColonistManager::Update()
 {
@@ -111,17 +130,17 @@ void ColonistManager::Update()
 		colonist->mGOColonist->mesh->position.x = position.x;
 		colonist->mGOColonist->mesh->position.y = position.y - 2.f;
 		colonist->mGOColonist->mesh->position.z = position.z;
-        if (colonist->mTarget == gDepot)
-        {
-            // Pass it the gDepot flowfield
-            for (targetFlowfield* thisTarget : targets)
-            {
-                if (*(thisTarget->target->position) == *gDepot->position) 
-                {
-                    colonist->mFlowfield = thisTarget->flowfield;
-                }
-            }
-        }
+		if (colonist->mTarget == gDepot)
+		{
+			// Pass it the gDepot flowfield
+			for (targetFlowfield* thisTarget : targets)
+			{
+				if (*(thisTarget->target->position) == *gDepot->position)
+				{
+					colonist->mFlowfield = thisTarget->flowfield;
+				}
+			}
+		}
 	}
 }
 
@@ -134,7 +153,6 @@ void ColonistManager::OnFlowFieldReady(std::vector<int> ids, CommandType command
 		vecColonists[id]->SetCommand(command, goTarget);
 	}
 }
-
 
 DWORD WINAPI GetFlowFieldThread(LPVOID pThreadData)
 {

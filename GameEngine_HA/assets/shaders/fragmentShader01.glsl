@@ -1,33 +1,42 @@
 //Fragment shader
 #version 420
-
-// Original things from the vertex shader
-//in vec3 colour;			// varying
-//in vec3 fNormal;		// From the vertex shader
-//in vec3 fVertWorldLocation;	
-
-in vec4 fColour;		// colour;			
+in vec4 fColour;		
 in vec4 fNormal;
-in vec4 fVertWorldLocation;	// using only matModel
+in vec4 fVertWorldLocation;	
 in vec4 fUVx2;
 in vec4 fTangent;
 in vec4 fBinormal;
 
 
 // This replaces gl_FragColor
-out vec4 pixelOutputColour;
+out vec4 pixelOutputColour;		
+out vec4 FBO_vertexWorldPos;	
+
+
+float rotSpeed = 0.05;
 
 uniform vec4 RGBA_Colour;		// aka "diffuse" RGB + Alpha (w)
 uniform bool bUseRGBA_Colour;
 
 // This is for the flame alpha transparency object
 uniform bool bIsFlameObject;
-
-// This is for the discard transparency 'bullet holes' example on the ship
-// Assumes texture07 is the black and white discard texture
+uniform float time;
 uniform bool bUseDiscardTexture;
 
+// If this is true, then we will use a different texture than the "regular" list of textures
+uniform sampler2D samplerFBO_COLOR_TEXTURE_01;		// Color texture from the FBO
+uniform sampler2D samplerFBO_VertexWorldPosition;		// Color texture from the FBO
+uniform vec2 FBO_size_width_height;					// x = width, y = height
+uniform vec2 screen_width_height;					// x = width, y = height
 
+// This is for a basic depth of field 
+// * x is the centre of the object that's 'in focus' by depth from the eye
+// * y is how 'deep' that focus are is. 
+uniform vec2 inFocusPlanes;
+// This is a number between 0 and 1 (0 to 100 percent)
+// 	0 meaning no blur, and 100 percent being 'the most' blur 
+//	(depending on how strong our kernel is)
+uniform float amountOfBlur;
 
 
 //uniform vec4 diffuseColour;		// RGB + Alpha (w)
@@ -62,10 +71,7 @@ uniform vec4 texRatio_4_7;		// 0 to 1
 uniform samplerCube skyboxTexture;
 // When true, applies the skybox texture
 uniform bool bIsSkyboxObject;
-uniform bool bIsWaterObject;
-uniform bool bIsCrystalObject;
-// HACK: colour the island
-uniform bool bIsIlandModel;
+uniform bool bIsSelected;
 
 
 struct sLight
@@ -86,50 +92,31 @@ const int POINT_LIGHT_TYPE = 0;
 const int SPOT_LIGHT_TYPE = 1;
 const int DIRECTIONAL_LIGHT_TYPE = 2;
 
-const int NUMBEROFLIGHTS = 20;
+const int NUMBEROFLIGHTS = 10;
 uniform sLight theLights[NUMBEROFLIGHTS];  	// 
 
 vec4 calculateLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
                             vec3 vertexWorldPos, vec4 vertexSpecular );
+							
 
+float screen_width = screen_width_height.x;
+float screen_height = screen_width_height.y;
+float d;
+float lookup(vec2 p, float dx, float dy);
 void main()
 {
-	
+
 	if (bIsSkyboxObject)
 	{
 		vec3 cubeMapColour = texture( skyboxTexture, fNormal.xyz ).rgb;
 		pixelOutputColour.rgb = cubeMapColour.rgb;
 		pixelOutputColour.a = 1.0f;
-		return;
-	}
-
-	if ( bIsIlandModel )
-	{
-	
-		if ( fVertWorldLocation.y < -25.0f )
-		{	// Water
-			pixelOutputColour.rgb = vec3(0.0f, 0.0f, 1.0f);
-		}
-		else if ( fVertWorldLocation.y < -15.0f )
-		{	// Sand ( 89.8% red, 66.67% green and 43.92% )
-			pixelOutputColour.rgb = vec3(0.898f, 0.6667f, 0.4392f);
-		}
-		else if ( fVertWorldLocation.y < 30.0f )
-		{	// Grass
-			pixelOutputColour.rgb = vec3(0.0f, 1.0f, 0.0f);
-		}
-		else
-		{	// Snow
-			pixelOutputColour.rgb = vec3(1.0f, 1.0f, 1.0f);
-		}
-		pixelOutputColour.a = 1.0f;
-	
-	
+		FBO_vertexWorldPos.xyzw = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 		return;
 	}
 
 	vec3 materialColour = fColour.rgb;
-//	finalColour.r = 1.0f;
+	//	finalColour.r = 1.0f;
 
 	float alphaTransparency = RGBA_Colour.w;
 
@@ -145,6 +132,8 @@ void main()
 		float RGBcolourSum = pixelOutputColour.r + pixelOutputColour.g + pixelOutputColour.b;
 		pixelOutputColour.a = max( ((RGBcolourSum - 0.1f) / 3.0f), 0.0f);
 	
+		// Output the vertex location, too
+		FBO_vertexWorldPos.xyz = fVertWorldLocation.xyz;
 	
 		// Exit early so bypasses lighting
 		return;
@@ -165,10 +154,6 @@ void main()
 		}
 	}
 	
-	
-
-	
-
 	if ( bUseRGBA_Colour )
 	{
 		materialColour = RGBA_Colour.rgb;
@@ -197,6 +182,10 @@ void main()
 		// Set the output colour and exit early
 		// (Don't apply the lighting to this)
 		pixelOutputColour = vec4(materialColour.rgb, alphaTransparency);
+			
+		// Output the vertex location, too
+		FBO_vertexWorldPos.xyz = fVertWorldLocation.xyz;
+
 		return;
 	}
 
@@ -210,26 +199,10 @@ void main()
 	float amountOfAmbientLight = 0.15f;
 	pixelOutputColour.rgb += (materialColour.rgb * amountOfAmbientLight);
 	
-	if (bIsWaterObject)
-	{
-	vec3 eyeVector = normalize(eyeLocation.xyz - fVertWorldLocation.xyz);
-	vec3 STU_Vector = refract(eyeVector, fNormal.xyz, 1.0f/1.333f);
-	vec3 waterColour = texture (texture0, fUVx2.st).rgb;
-	vec3 cubeMapColour = texture( skyboxTexture, STU_Vector.xyz ).rgb;
-	pixelOutputColour.rgb *= 0.00001f;
-	pixelOutputColour.rgb += cubeMapColour.rgb * 0.8;
-	pixelOutputColour.rgb += waterColour.rgb * 0.2;
-	}
-	if(bIsCrystalObject)
-	{
-	vec3 eyeVector = normalize(eyeLocation.xyz - fVertWorldLocation.xyz);
-	vec3 STU_Vector = reflect(eyeVector, fNormal.xyz);
-	vec3 crystalColour = texture (texture0, fUVx2.st).rgb;
-	vec3 cubeMapColour = texture( skyboxTexture, STU_Vector.xyz ).rgb;
-	pixelOutputColour.rgb *= 0.00001f;
-	pixelOutputColour.rgb += cubeMapColour.rgb * 0.6;
-	pixelOutputColour.rgb += crystalColour.rgb * 0.4;
-	}
+	// Output the vertex location, too
+	FBO_vertexWorldPos.xyz = fVertWorldLocation.xyz;
+	FBO_vertexWorldPos *= 0.001f;
+	FBO_vertexWorldPos.rgb = vec3(1.0f, 1.0f, 1.0f);
 }
 
 
@@ -385,4 +358,117 @@ vec4 calculateLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal,
 	finalObjectColour.a = 1.0f;
 	
 	return finalObjectColour;
+}
+//https://www.shadertoy.com/view/Xscyzn
+vec4 mainImage( vec4 fragColor, vec2 fragCoord )
+{
+    float effectRadius = .5;
+    float effectAngle = 2. * 3.14;
+    
+    vec2 center = screen_width_height.xy / 2;
+    center = center == vec2(0., 0.) ? vec2(.5, .5) : center;
+    
+    vec2 uv = fragCoord.xy / screen_width_height.xy - center;
+    
+    float len = length(uv * vec2(screen_width_height.x / screen_width_height.y, 1.));
+    float angle = atan(uv.y, uv.x) + effectAngle * smoothstep(effectRadius, 0., len);
+    float radius = length(uv);
+
+    vec4 frag = texture(samplerFBO_COLOR_TEXTURE_01, vec2(radius * cos(angle), radius * sin(angle)) + center);
+	return frag;
+}
+
+
+// Variable gaussian blur
+// This will take a value from 0 to 20 
+// * 0 = no blur
+// * 21 = kernel with an equivalent of a 41 x 41 2D kernel (Yikes!)
+vec3 calculateGaussianBlur( int kernelSize1D )
+{
+		// http://demofox.org/gauss.html
+		// Note: We aren't using the full 2D kernel and it's symetrical so 
+		//	we can use the row of numbers at the very bottom
+		// 
+		// Filter with Sigma = 3 and Support = 0.99
+		// Gives a 21x21 Gaussian kernel:
+		// 
+		// 0	1	2	3	4	5	6	7	8	9	10
+		// 0.1324,	0.1253,	0.1063,	0.0807,	0.0549,	0.0334,	0.0183,	0.0089,	0.0039,	0.0015,	0.0005
+		
+		const int MAX_KERNEL_1D_SIZE = 20;
+		int numberOfGaussianElementsToUse = clamp( kernelSize1D, 0, MAX_KERNEL_1D_SIZE );
+		
+		float blurWeightArray[] = { 
+			0.1324f, 		// 0
+			0.1253f, 		// 1
+			0.1063f, 		// 2
+			0.0807f, 		// 3
+			0.0549f,		// 4
+			0.0334f, 		// 5
+			0.0183f, 		// 6
+			0.0089f, 		// 7
+			0.0039f, 		// 8
+			0.0015f,		// 9
+			0.0005f };		// 10
+			
+		// How this works:
+		// 1. We load the sampled values into an array of pixels
+		// 2. Depending on the number of kernels, we apply the weights (in the switch-case)
+		
+		vec3 pixelSampleValues[MAX_KERNEL_1D_SIZE];
+
+		// Special case: no blur, so just sample the pixel and return
+		if ( numberOfGaussianElementsToUse == 0 )
+		{
+			// Don't blur
+			vec3 pixelColour = texture( samplerFBO_COLOR_TEXTURE_01, 
+										vec2( gl_FragCoord.x / screen_width, 			
+											  gl_FragCoord.y / screen_height ) ).rgb;
+
+			return pixelColour;
+		}
+
+		// Apply some blur...
+		
+		// Sample the actual pixel
+		pixelSampleValues[0] = texture( samplerFBO_COLOR_TEXTURE_01, 
+										vec2( gl_FragCoord.x / screen_width, 			
+											  gl_FragCoord.y / screen_height ) ).rgb;
+			
+		// Now load the pixel array depending on how large the kernel is
+		// Note we are starting at 1, not zero, because zero is the pixel location we are at
+		for ( int index = 1; index < numberOfGaussianElementsToUse; index++ )
+		{
+			// Right 
+			vec3 pixelColourRight = texture( samplerFBO_COLOR_TEXTURE_01, 
+										vec2( (gl_FragCoord.x + index) / screen_width, 			
+											  gl_FragCoord.y         / screen_height ) ).rgb;
+			
+			// Left 
+			vec3 pixelColourLeft = texture( samplerFBO_COLOR_TEXTURE_01, 
+										vec2( (gl_FragCoord.x - index) / screen_width, 			
+											  gl_FragCoord.y         / screen_height ) ).rgb;
+		
+			// Up 
+			vec3 pixelColourUp = texture( samplerFBO_COLOR_TEXTURE_01, 
+										vec2( gl_FragCoord.x         / screen_width, 			
+											  (gl_FragCoord.y + index) / screen_height ) ).rgb;
+		
+			// Down 
+			vec3 pixelColourDown = texture( samplerFBO_COLOR_TEXTURE_01, 
+										vec2( gl_FragCoord.x         / screen_width, 			
+											  (gl_FragCoord.y - index) / screen_height ) ).rgb;
+							
+			// Store the sum of these values in the array
+			pixelSampleValues[index] = pixelColourRight + pixelColourLeft + pixelColourUp + pixelColourDown;
+															  
+		}
+}
+float lookup(vec2 p, float dx, float dy)
+{
+    vec2 uv = (p.xy + vec2(dx * d, dy * d)) / screen_width_height.xy;
+    vec4 c = texture(samplerFBO_COLOR_TEXTURE_01, uv.xy);
+	
+	// return as luma
+    return 0.2126*c.r + 0.7152*c.g + 0.0722*c.b;
 }

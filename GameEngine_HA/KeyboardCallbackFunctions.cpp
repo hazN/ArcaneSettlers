@@ -120,6 +120,15 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		iRayCast::RayCastHit hit;
 		if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 		{
+			if (selectedBuilding != NONE)
+			{
+				terrainManager->createBuilding(selectedBuilding, hit);
+				selectedBuilding = NONE;
+				for (size_t i = 0; i < selectedColonists.size(); i++)
+					vecColonists[i]->mGOColonist->isSelected = false;
+				selectedColonists.clear();
+				return;
+			}
 			selectionStart = hit.position;
 			for (size_t i = 0; i < vecColonists.size(); i++)
 			{
@@ -127,14 +136,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 				float distance = glm::length(glm::vec3(hit.position.x, colonist->mGOColonist->mesh->position.y, hit.position.z) - colonist->mGOColonist->mesh->position);
 				if (distance <= 1.f)
 				{
-					colonist->mGOColonist->isSelected = true;
-					for (size_t j = 0; j < vecColonists.size(); j++)
+					for (size_t i = 0; i < vecColonists.size(); i++)
 					{
-						if (vecColonists[i] != vecColonists[j])
-						{
-							vecColonists[j]->mGOColonist->isSelected = false;
-						}
+						vecColonists[i]->mGOColonist->isSelected = false;
 					}
+					colonist->mGOColonist->isSelected = true;
 					selectedColonists.clear();
 					selectedColonists.push_back(i);
 					return;
@@ -204,15 +210,15 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 					selectedColonists.push_back(i);
 					anySelected = true;
 				}
-				else
-				{
-					colonist->mGOColonist->isSelected = false;
-				}
 			}
 		}
 	}
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
 	{
+		for (size_t i = 0; i < vecColonists.size(); i++)
+		{
+			vecColonists[i]->mGOColonist->isSelected = false;
+		}
 		selectedColonists.clear();
 	}
 }

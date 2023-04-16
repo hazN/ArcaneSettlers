@@ -7,14 +7,14 @@
 class BuildingManager
 {
 public:
-    BuildingManager();
-    ~BuildingManager();
-    void addBuilding(Building building);
-    bool craftBuilding(Building building, std::vector<Item> items);
-    bool canCraft(BuildingType building);
-    std::vector<Building> getBuildings();
-    int getModifierForType(BuildingType type) const;
+	BuildingManager();
+	~BuildingManager();
+	void addBuilding(Building building);
+	bool craftBuilding(Building building, std::vector<Item> items);
+	bool canCraft(BuildingType building);
+	std::vector<Building> getBuildings();
+	int getModifierForType(BuildingType type) const;
 
 private:
-    std::vector<Building> mBuildings;
+	std::vector<Building> mBuildings;
 };

@@ -230,7 +230,7 @@ void Colonist::Move()
 		{
 			float distance = glm::length(*mTarget->position - vecColonists[i]->mGOColonist->mesh->position);
 			float distance2 = glm::length(this->mGOColonist->mesh->position - vecColonists[i]->mGOColonist->mesh->position);
-			
+
 			if (distance <= 1.3f && distance2 <= 2.f)
 			{
 				// Set animation
@@ -249,7 +249,7 @@ void Colonist::Move()
 	glm::vec3 currentPos = mGOColonist->mesh->position;
 	glm::vec2 currentGridPos = TerrainManager::worldToGridCoords(currentPos);
 	currentGridPos = glm::round(currentGridPos);
-	
+
 	// Get the direction from the flowfield
 	glm::vec2 flowDirection = flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
 
@@ -409,7 +409,7 @@ void Colonist::DropOffLoot()
 			}
 		}
 	}
-	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 4.f)
+	else if (glm::length(*mTarget->position - mGOColonist->mesh->position) <= 10.f)
 	{
 		currentAction = "Unloading inventory...";
 		for (Item item : mInventory->getAllItems())

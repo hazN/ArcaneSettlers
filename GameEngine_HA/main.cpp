@@ -665,11 +665,11 @@ int main(int argc, char* argv[])
 		terrainDesc.isStatic = true;
 		terrainDesc.position = Vector3(-128.0f, -50.0f, -64.0f);
 		world->AddBody(_physicsFactory->CreateRigidBody(terrainDesc, terrainShape));
-		// LOAD IN TERRAIN OBJECTS 
+		// LOAD IN TERRAIN OBJECTS
 		GameObject* goTerrain = new GameObject();
 		goTerrain->mesh = pTerrain;
 		terrainManager = new TerrainManager(goTerrain, &terrainInfo);
-		const int maxObjects[3] = {150,80,20};
+		const int maxObjects[3] = { 150,80,20 };
 		terrainManager->placeObjectsOnTerrain(maxObjects);
 	}
 	// CRAFTING RECIPES
@@ -684,7 +684,6 @@ int main(int argc, char* argv[])
 		forgeRecipe.emplace(stone, 20);
 
 		buildingRecipes.emplace(FORGE, forgeRecipe);
-
 
 		std::map<itemId, int> anvilRecipe;
 		anvilRecipe.emplace(stone, 10);
@@ -715,6 +714,19 @@ int main(int argc, char* argv[])
 		pColonistMesh->textureRatios[1] = 1.f;
 		pColonistMesh->textureRatios[2] = 1.f;
 		pColonistMesh->textureRatios[3] = 1.f;
+		// Add selection torus
+		{
+			cMeshObject* pTorus = new cMeshObject();
+			pTorus->meshName = "Torus";
+			pTorus->friendlyName = "Torus" + std::to_string(i);
+			pTorus->position = glm::vec3(0.f, 20.f, 0.f);
+			pTorus->bUse_RGBA_colour = true;
+			pTorus->RGBA_colour = glm::vec4(0.f, 1.f, 1.f, 0.5f);
+			pTorus->scaleXYZ = glm::vec3(1.f);
+			//pTorus->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
+			pTorus->bIsVisible = false;
+			pColonistMesh->vecChildMeshes.push_back(pTorus);
+		}
 		// Create GameObject
 		GameObject* goColonist = new GameObject();
 		goColonist->id = IDGenerator::GenerateID();
@@ -872,11 +884,27 @@ int main(int argc, char* argv[])
 				// All the drawing code has been moved to the DrawObject function
 				if (go->mesh == nullptr)
 					continue;
+
+		
 				DrawObject(go->mesh,
 					matModel,
 					shaderID, ::g_pTextureManager,
 					pVAOManager, mModel_location, mModelInverseTransform_location);
 				glUniform1f(bHasBones, (GLfloat)GL_FALSE);
+				if (go->isSelected)
+				{
+					for (cMeshObject* mesh : go->mesh->vecChildMeshes)
+					{
+						mesh->position = go->mesh->position;
+						mesh->position -= 0.1f;
+						mesh->qRotation = go->mesh->qRotation;
+						glm::mat4x4 mModel = glm::mat4x4(1.0f);
+						DrawObject(mesh,
+							mModel,
+							shaderID, ::g_pTextureManager,
+							pVAOManager, mModel_location, mModelInverseTransform_location);
+					}
+				}
 			}
 		}
 		for (std::vector< cMeshObject* >::iterator itCurrentMesh = g_pMeshObjects.begin();
@@ -1107,7 +1135,6 @@ void renderTransparentBuildingMesh()
 	{
 		glm::vec3 normal;
 		float terrainHeight;
-
 
 		TerrainManager::getTerrainHeightAndNormal(hit.position, terrainHeight, normal);
 		renderBuildingMesh->meshName = getBuildingMesh(selectedBuilding);

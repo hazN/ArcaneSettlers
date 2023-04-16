@@ -126,7 +126,7 @@ void GameGUI::renderColonistInfoWindow()
 	ImGui::SetNextWindowSize(ImVec2(180, 0));
 	ImGui::Begin("Colonist Info", &colonistInfoWindowOpen, ImGuiWindowFlags_None);
 
-	ImGui::SetWindowFontScale(1.5f);
+	ImGui::SetWindowFontScale(1.25f);
 	ImGui::Text("%s", colonist->name.c_str());
 	ImGui::SetWindowFontScale(1.0f);
 
@@ -158,7 +158,7 @@ void GameGUI::renderColonistsWindow()
 	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 250, 0));
 	ImGui::SetNextWindowSize(ImVec2(250, ImGui::GetIO().DisplaySize.y));
 	ImGui::Begin("Colonists", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-	ImGui::SetWindowFontScale(1.8f);
+	ImGui::SetWindowFontScale(1.5f);
 	for (size_t i = 0; i < vecColonists.size(); ++i)
 	{
 		std::string buttonId = "ColonistButton##" + std::to_string(i);
@@ -168,7 +168,7 @@ void GameGUI::renderColonistsWindow()
 			colonistInfoWindowOpen = true;
 		}
 		ImGui::SameLine();
-		ImGui::Text("%s\nHP: %d", vecColonists[i]->currentAction.c_str(), vecColonists[i]->mStats->hp);
+		ImGui::Text("%s\n%s\nHP: %d", vecColonists[i]->name.c_str(), vecColonists[i]->currentAction.c_str(), vecColonists[i]->mStats->hp);
 	}
 
 	ImGui::End();
