@@ -42,6 +42,22 @@ void PathFinder::addBuilding(int x, int y, BuildingType buildingType, float heig
 	mGrid[y][x].goId = goId;
     LeaveCriticalSection(&mGridCriticalSection);
 }
+void PathFinder::removeBuilding(int goId)
+{
+    EnterCriticalSection(&mGridCriticalSection);
+    for (int y = 0; y < mHeight; y++)
+    {
+        for (int x = 0; x < mWidth; x++)
+        {
+            if (mGrid[y][x].goId == goId)
+            {
+                mGrid[y][x].buildingType = BuildingType::NONE;
+                mGrid[y][x].goId = -1;
+            }
+        }
+    }
+    LeaveCriticalSection(&mGridCriticalSection);
+}
 
 DWORD WINAPI CalculateFlowFieldThread(LPVOID pFlowFieldThreadData)
 {

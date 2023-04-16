@@ -39,7 +39,7 @@ public:
     int id;
     static int nextId;
     bool Enabled;
-
+    bool isSelected;
     // Animation
     bool hasBones;
     std::vector<glm::mat4> BoneModelMatrices;

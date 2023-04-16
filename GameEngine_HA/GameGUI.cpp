@@ -118,7 +118,7 @@ void GameGUI::renderDepotInfoWindow()
 void GameGUI::renderColonistInfoWindow()
 {
 	// Make sure a colonist is selected
-	if (currentColonist < 0 || currentColonist >= goMap.size())
+	if (currentColonist < 0 || currentColonist >= vecColonists.size())
 		return;
 
 	Colonist* colonist = vecColonists[currentColonist];
@@ -161,7 +161,9 @@ void GameGUI::renderColonistsWindow()
 	ImGui::SetWindowFontScale(1.8f);
 	for (size_t i = 0; i < vecColonists.size(); ++i)
 	{
-		if (ImGui::ImageButton((void*)(intptr_t)g_pTextureManager->getTextureIDFromName(vecColonists[i]->icon), ImVec2(48, 48))) {
+		std::string buttonId = "ColonistButton##" + std::to_string(i);
+
+		if (ImGui::ImageButton(buttonId.c_str(), (void*)(intptr_t)g_pTextureManager->getTextureIDFromName(vecColonists[i]->icon), ImVec2(48, 48))) {
 			currentColonist = i;
 			colonistInfoWindowOpen = true;
 		}

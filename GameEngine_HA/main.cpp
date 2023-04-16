@@ -698,7 +698,7 @@ int main(int argc, char* argv[])
 		buildingRecipes.emplace(DUMMY, trainingDummy);
 	}
 
-	const int NUMCOLONISTS = 2;
+	const int NUMCOLONISTS = 3;
 	colonistManager = new ColonistManager();
 	std::vector<GameObject*> goVector;
 	for (int i = 0; i < NUMCOLONISTS; i++) {
@@ -755,7 +755,18 @@ int main(int argc, char* argv[])
 			//goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
 		}
 		// Update animation manager(all animations)
-		animationManager->UpdateAll(0.1f);
+		{
+			double currTime = glfwGetTime();
+			float elapsedTimeInSeconds = (float)(currTime - g_PrevTime);
+			g_PrevTime = currTime;
+
+			if (elapsedTimeInSeconds > 0.1f)
+				elapsedTimeInSeconds = 0.1f;
+			if (elapsedTimeInSeconds <= 0.f)
+				elapsedTimeInSeconds = 0.001f;
+
+			animationManager->UpdateAll(elapsedTimeInSeconds);
+		}
 		world->TimeStep(1.f);
 
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;

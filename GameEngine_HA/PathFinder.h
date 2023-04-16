@@ -44,6 +44,7 @@ public:
     ~PathFinder();
     void createGrid();
     void addBuilding(int x, int y, BuildingType buildingType, float height, int goId);
+    void removeBuilding(int goId);
     void calculateFlowfieldAsync(glm::vec2 destination, FlowFieldThreadData* flowFieldData);
     std::vector<std::vector<glm::vec2>> calculateFlowfield(glm::vec2 target);
     float getCellSize();

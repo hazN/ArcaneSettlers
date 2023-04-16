@@ -9,9 +9,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="cVAOManager">
-      <UniqueIdentifier>{b57a9dec-1157-45de-9e28-19faf765e536}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lights">
       <UniqueIdentifier>{864bc46c-7a76-49f9-8385-743e9484e3c0}</UniqueIdentifier>
     </Filter>
@@ -66,6 +63,9 @@
     </Filter>
     <Filter Include="Artificial Intelligence\Colonist">
       <UniqueIdentifier>{bc1791f3-a0d0-408c-a6cc-57c3d1afe0ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cVAOManager">
+      <UniqueIdentifier>{b57a9dec-1157-45de-9e28-19faf765e536}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -100,7 +100,6 @@ void Colonist::Update(float deltaTime) {
 		{
 			if (mFlowfield.empty())
 			{
-
 			}
 			Move();
 		}
@@ -108,10 +107,6 @@ void Colonist::Update(float deltaTime) {
 	}
 	case ActionType::Move: {
 		currentAction = "Moving...";
-		// Set animation
-		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
-			this->mGOColonist->animCharacter->SetAnimation(10);
-
 
 		float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
 
@@ -125,7 +120,7 @@ void Colonist::Update(float deltaTime) {
 			}
 			else
 			{
-				// Move the colonist 
+				// Move the colonist
 				Move();
 			}
 		}
@@ -137,9 +132,9 @@ void Colonist::Update(float deltaTime) {
 			}
 			ExecuteCommand();
 		}
-		else 
+		else
 		{
-			// Move the colonist 
+			// Move the colonist
 			Move();
 		}
 		break;
@@ -228,24 +223,46 @@ void Colonist::Move()
 	{
 		return;
 	}
+	// Check if target is occupied
+	for (size_t i = 0; i < vecColonists.size(); i++)
+	{
+		if (vecColonists[i] != this)
+		{
+			float distance = glm::length(*mTarget->position - vecColonists[i]->mGOColonist->mesh->position);
+			float distance2 = glm::length(this->mGOColonist->mesh->position - vecColonists[i]->mGOColonist->mesh->position);
+			
+			if (distance <= 1.3f && distance2 <= 2.f)
+			{
+				// Set animation
+				if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 1)
+					this->mGOColonist->animCharacter->SetAnimation(1);
+				return;
+			}
+		}
+	}
+
+	// Set animation
+	if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
+		this->mGOColonist->animCharacter->SetAnimation(10);
 
 	// Get current position and convert to grid coord
 	glm::vec3 currentPos = mGOColonist->mesh->position;
 	glm::vec2 currentGridPos = TerrainManager::worldToGridCoords(currentPos);
 	currentGridPos = glm::round(currentGridPos);
-
+	
 	// Get the direction from the flowfield
-	glm::vec2 flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
-	glm::vec3 moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
+	glm::vec2 flowDirection = flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
+
+	glm::vec3 moveDirection = moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
 
 	// Move the colonist
 	float speed = 1.0f;
 	float deltaTime = 0.1f;
 	glm::vec3 dir = moveDirection * speed * deltaTime;
 	mCharacterController->Move(dir);
-	glm::vec3 lookDir = glm::normalize(moveDirection);
+	glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, -mGOColonist->mesh->position.y, moveDirection.z));
 	glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
-	//mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.005f);
+	//mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
 
 	float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
 	if (distance < 1.1f)
@@ -293,6 +310,7 @@ void Colonist::HarvestTree()
 		mCurrentCommand = CommandType::None;
 		if (mTarget->inventory->getItemCount(itemId::wood) <= 0)
 		{
+			gPathFinder->removeBuilding(mTarget->id);
 			mTarget->mesh->bIsVisible = false;
 			world->RemoveBody(mTarget->rigidBody);
 			goMap.erase(mTarget->id);
@@ -355,6 +373,7 @@ void Colonist::MineNode() {
 		mCurrentCommand = CommandType::None;
 		if (!hasStone && !hasOres)
 		{
+			gPathFinder->removeBuilding(mTarget->id);
 			mTarget->mesh->bIsVisible = false;
 			world->RemoveBody(mTarget->rigidBody);
 			goMap.erase(mTarget->id);

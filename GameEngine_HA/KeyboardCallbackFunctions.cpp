@@ -12,6 +12,7 @@
 #include "GameGUI.h"
 #include "TerrainManager.h"
 #include "ColonistManager.h"
+#include <algorithm>
 // Extern is so the compiler knows what TYPE this thing is
 // The LINKER needs the ACTUAL declaration
 // These are defined in theMainFunction.cpp
@@ -96,11 +97,14 @@ glm::vec3 GetRayDirection(double mouseX, double mouseY, const glm::mat4& viewMat
 	return rayDir;
 }
 
+static std::vector<int> selectedColonists;
+
+glm::vec3 selectionStart = glm::vec3(0.0f);
+glm::vec3 selectionEnd = glm::vec3(0.0f);
+
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	// Avoid raycasting when interacting with the gui
-	//if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow))
-	//	return;
 	if (ImGui::GetIO().WantCaptureMouse)
 		return;
 	int width, height;
@@ -109,33 +113,56 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	glfwGetFramebufferSize(window, &width, &height);
 	glfwGetCursorPos(window, &mouseX, &mouseY);
 	glm::ivec4 viewport(0, 0, width, height);
-	glm::vec3 rayDirection = GetRayDirection(mouseX, mouseY, matView, matProjection, width, height);
-
-	iRayCast::RayCastHit hit;
-	if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
+	// Selection
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		if (selectedBuilding != NONE)
+		glm::vec3 rayDirection = GetRayDirection(mouseX, mouseY, matView, matProjection, width, height);
+		iRayCast::RayCastHit hit;
+		if (rayCast->doRayCast(g_cameraEye, rayDirection, 5000, hit))
 		{
-			terrainManager->createBuilding(selectedBuilding, hit);
-			selectedBuilding = NONE;
-			return;
+			selectionStart = hit.position;
+			for (size_t i = 0; i < vecColonists.size(); i++)
+			{
+				Colonist* colonist = vecColonists[i];
+				float distance = glm::length(glm::vec3(hit.position.x, colonist->mGOColonist->mesh->position.y, hit.position.z) - colonist->mGOColonist->mesh->position);
+				if (distance <= 1.f)
+				{
+					colonist->mGOColonist->isSelected = true;
+					for (size_t j = 0; j < vecColonists.size(); j++)
+					{
+						if (vecColonists[i] != vecColonists[j])
+						{
+							vecColonists[j]->mGOColonist->isSelected = false;
+						}
+					}
+					selectedColonists.clear();
+					selectedColonists.push_back(i);
+					return;
+				}
+			}
 		}
+		// Since it was a single click also check for buildings
 		if (hit.userData == gDepot->id)
 		{
 			GameGUI::depotInfoWindowOpen = true;
 			return;
 		}
-		//std::cout << "Raycasted " << "object " << hit.userData << ": " << hit.position.x << ", " << hit.position.y << " " << hit.position.z << std::endl;
-		if (vecColonists[0]->currentAction == "Unloading inventory...")
-			return;
+		// Make sure a busy colonist is not being given other orders
+		for (size_t i = 0; i < selectedColonists.size(); i++)
+		{
+			if (vecColonists[selectedColonists[i]]->currentAction == "Unloading inventory...")
+				return;
+		}
+		// Check if it was terrain
 		if (hit.userData == 0)
 		{
 			GameObject* goMove = new GameObject();
 			goMove->position = new glm::vec3(hit.position.x, hit.position.y, hit.position.z);
-			colonistManager->AssignCommand({ 0, 1 }, CommandType::Move, goMove);
+			std::vector<int> colInts;
+			colonistManager->AssignCommand(selectedColonists, CommandType::Move, goMove);
 		}
-		else {
-			// check if its in the goMap
+		else
+		{
 			goMap.at(hit.userData);
 			if (!(goMap.find(hit.userData) == goMap.end())) {
 				GameObject* go = goMap[hit.userData];
@@ -144,18 +171,49 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 					if (go->position == nullptr)
 						go->position = new glm::vec3();
 					*go->position = go->mesh->position;
-					colonistManager->AssignCommand({ 0, 1 }, CommandType::HarvestTree, go);
+					colonistManager->AssignCommand(selectedColonists, CommandType::HarvestTree, go);
 				}
 				if (go->buildingType == BuildingType::ROCK || go->buildingType == BuildingType::GOLD)
 				{
 					if (go->position == nullptr)
 						go->position = new glm::vec3();
 					*go->position = go->mesh->position;
-					colonistManager->AssignCommand({ 0, 1 }, CommandType::HarvestRock, go);
+					colonistManager->AssignCommand(selectedColonists, CommandType::HarvestRock, go);
 				}
 			}
-
 		}
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	{
+		iRayCast::RayCastHit end;
+		glm::vec3 endDirection = GetRayDirection(mouseX, mouseY, matView, matProjection, width, height);
+		if (rayCast->doRayCast(g_cameraEye, endDirection, 5000, end))
+		{
+			selectionEnd = end.position;
+			bool anySelected = false;
+			for (size_t i = 0; i < vecColonists.size(); i++)
+			{
+				Colonist* colonist = vecColonists[i];
+				glm::vec3 colonistPos = colonist->mGOColonist->mesh->position;
+				if (colonistPos.x >= min(selectionStart.x, selectionEnd.x) &&
+					colonistPos.x <= max(selectionStart.x, selectionEnd.x) &&
+					colonistPos.z >= min(selectionStart.z, selectionEnd.z) &&
+					colonistPos.z <= max(selectionStart.z, selectionEnd.z))
+				{
+					colonist->mGOColonist->isSelected = true;
+					selectedColonists.push_back(i);
+					anySelected = true;
+				}
+				else
+				{
+					colonist->mGOColonist->isSelected = false;
+				}
+			}
+		}
+	}
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
+	{
+		selectedColonists.clear();
 	}
 }
 

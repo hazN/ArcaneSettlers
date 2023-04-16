@@ -56,23 +56,11 @@ void AnimationManager::SetAnimation(const char* name, const char* animation)
 	}
 }
 
-void AnimationManager::UpdateAll(float dt)
+void AnimationManager::UpdateAll(float elapsedTimeInSeconds)
 {
 	for (std::pair<std::string, GameObject*> goCharacter : _mapCharacters)
 	{
-		// Get the current time in seconds
-		double currTime = glfwGetTime();
-		float elapsedTimeInSeconds = static_cast<float>(currTime - g_PrevTime);
-		g_PrevTime = currTime;
-
-		if (elapsedTimeInSeconds > 0.1f)
-			elapsedTimeInSeconds = 0.1f;
-		if (elapsedTimeInSeconds <= 0.f)
-			elapsedTimeInSeconds = 0.001f;
-
 		// Update the animation
-		//animationManager->Update(goVector, elapsedTimeInSeconds);
-
 		if (goCharacter.second->animCharacter != nullptr)
 		{
 			goCharacter.second->animCharacter->UpdateTransforms(goCharacter.second->BoneModelMatrices,
