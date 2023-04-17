@@ -168,7 +168,7 @@ void GameGUI::renderColonistsWindow()
 			colonistInfoWindowOpen = true;
 		}
 		ImGui::SameLine();
-		ImGui::Text("%s\n%s\nHP: %d", vecColonists[i]->name.c_str(), vecColonists[i]->currentAction.c_str(), vecColonists[i]->mStats->hp);
+		ImGui::Text("%s\n%s\nHP: %d", vecColonists[i]->name.substr(0, vecColonists[i]->name.find(' ')).c_str(), vecColonists[i]->currentAction.c_str(), vecColonists[i]->mStats->hp);
 	}
 
 	ImGui::End();

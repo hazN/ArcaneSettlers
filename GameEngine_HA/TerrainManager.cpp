@@ -195,6 +195,9 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
 		if (go->mesh->meshName == "Depot")
 		{
 			go->mesh->qRotation *= glm::quat(glm::vec3(glm::radians(90.f), 0.f, 0.f));
+			Building building(gDepot->id, "Depot", "Workstation.bmp", DEPOT);
+			building.mPosition = gDepot->mesh->position;
+			buildingManager->mPlayerBuildings.push_back(building);
 		}
 		RigidBodyDesc desc;
 		desc.isStatic = true;
@@ -291,8 +294,9 @@ void TerrainManager::createBuilding(BuildingType type, iRayCast::RayCastHit hit)
 
 	// Create Building and add it to the manager
 	Building building(goBuilding->id, getBuildingName(type), getBuildingIcon(type), type);
+	building.mPosition = goBuilding->mesh->position;
 	buildingManager->addBuilding(building);
-
+	buildingManager->mPlayerBuildings.push_back(building);
 	goMap.emplace(goBuilding->id, goBuilding);
 	g_pMeshObjects.push_back(goBuilding->mesh);
 
@@ -313,7 +317,24 @@ void TerrainManager::createBuilding(BuildingType type, iRayCast::RayCastHit hit)
 
 	// Grid stuff, organize later
 	{
-
+		// Convert coords from world space to grid 
+		glm::vec2 gridCoords = worldToGridCoords(goBuilding->mesh->position);
+		// Get the size of the object, aka the area of cells it covers, 2x2, 4x6, etc.
+		glm::vec2 gridSize = glm::vec2((int)(std::round((drawInfo.extentX * goBuilding->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
+			(int)(std::round((drawInfo.extentZ * goBuilding->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
+		// Buffer around it to avoid getting stuck
+		int buffer = 2;
+		// Loop through the cells that need to have the building set 
+		for (int y = gridCoords.y - gridSize.y / 2 - buffer; y < gridCoords.y + gridSize.y / 2 + buffer; ++y)
+		{
+			for (int x = gridCoords.x - gridSize.x / 2 - buffer; x < gridCoords.x + gridSize.x / 2 + buffer; ++x)
+			{
+				if (x >= 0 && x < mPathFinder->getWidth() && y >= 0 && y < mPathFinder->getHeight())
+				{
+					mPathFinder->addBuilding(x, y, goBuilding->buildingType, terrainHeight + drawInfo.extentY * goBuilding->mesh->scaleXYZ.y / 2, goBuilding->id);
+				}
+			}
+		}
 	}
 
 	goBuilding->rigidBody = _physicsFactory->CreateRigidBody(desc, shape);

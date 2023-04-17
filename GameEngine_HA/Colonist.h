@@ -29,13 +29,14 @@ public:
 
     void SetCommand(CommandType command, GameObject* target);
     void ExecuteCommand();
-    void UpdateDecisionTable();
     bool isHungry();
     bool getIsIntruderInRange();
+    void TakeDamage(int dmg);
     ColonistStats getStats();
     std::string icon;
     std::string currentAction;
     std::string name;
+    bool isDead = false;
 //private:
     void Move();
     void HarvestTree();
@@ -46,6 +47,7 @@ public:
     float deltaTime = clock();
     GameObject* mGOColonist;
     iCharacterController* mCharacterController;
+    CRITICAL_SECTION mStatsCriticalSection;
     ColonistStats* mStats;
     Inventory* mInventory;
     CommandType mCurrentCommand;

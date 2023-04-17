@@ -1,9 +1,8 @@
 #pragma once
-
 #include "BuildingType.h"
 #include "Inventory.h"
 #include <string>
-
+#include <glm/glm.hpp>
 class Building
 {
 public:
@@ -16,4 +15,5 @@ public:
     int mHealth;
     BuildingType mType;
     Inventory* mInventory;
+    glm::vec3 mPosition;
 };

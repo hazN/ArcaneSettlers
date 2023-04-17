@@ -19,6 +19,7 @@ static std::string getBuildingIcon(BuildingType type)
 	case NONE:
 		break;
 	case DEPOT:
+		return "Workstation.bmp";
 		break;
 	case TREE:
 		break;
@@ -51,6 +52,7 @@ static std::string getBuildingName(BuildingType type)
 	case NONE:
 		break;
 	case DEPOT:
+		return "Depot";
 		break;
 	case TREE:
 		break;
@@ -83,6 +85,7 @@ static std::string getBuildingMesh(BuildingType type)
 	case NONE:
 		break;
 	case DEPOT:
+		return "Depot";
 		break;
 	case TREE:
 		break;

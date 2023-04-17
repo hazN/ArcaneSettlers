@@ -19,6 +19,7 @@ public:
     ~ColonistManager();
 
     void AddColonist(GameObject* goColonist);
+    void AddEnemy(GameObject* goEnemy);
     void AssignCommand(std::vector<int> colonists, CommandType command, GameObject* goTarget);
     std::vector<std::vector<glm::vec2>> GetFlowField(glm::vec3 target);
     void Update();

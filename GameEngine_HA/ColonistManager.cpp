@@ -63,6 +63,15 @@ void ColonistManager::AddColonist(GameObject* goColonist)
 	vecColonists.push_back(colonist);
 }
 
+void ColonistManager::AddEnemy(GameObject* goEnemy)
+{
+	Enemy* enemy = new Enemy();
+	enemy->mGOEnemy = goEnemy;
+	enemy->mCharacterController = goEnemy->characterController;
+
+	vecEnemies.push_back(enemy);
+}
+
 void ColonistManager::AssignCommand(std::vector<int> ids, CommandType command, GameObject* goTarget)
 {
 	if (!goTarget)
@@ -139,6 +148,48 @@ void ColonistManager::Update()
 				{
 					colonist->mFlowfield = thisTarget->flowfield;
 				}
+			}
+		}
+	}
+	for (Enemy* enemy : vecEnemies)
+	{
+		// Enemy update logic
+		Vector3 position;
+		enemy->mCharacterController->GetPosition(position);
+		enemy->mGOEnemy->mesh->position.x = position.x;
+		enemy->mGOEnemy->mesh->position.y = position.y - 2.f;
+		enemy->mGOEnemy->mesh->position.z = position.z;
+
+		// Assign flowfield to enemy
+		
+		// If it has a colonist target get the flow field for it
+		if (enemy->mColonistTarget != nullptr)
+		{
+			glm::vec3 currentTargetPos = enemy->mColonistTarget->mGOColonist->mesh->position;
+			if (glm::distance(enemy->lastFlowFieldTarget, currentTargetPos) >= 5.0f)
+			{
+				enemy->mFlowfield = GetFlowField(currentTargetPos);
+				enemy->lastFlowFieldTarget = currentTargetPos;
+			}
+			continue;
+		}
+		// Otherwise check if its target is the depot
+		else if (enemy->mGOTarget != nullptr)
+		{
+			if (enemy->mGOTarget->buildingType == DEPOT)
+			{
+				for (targetFlowfield* thisTarget : targets)
+				{
+					if (*(thisTarget->target->position) == *gDepot->position)
+					{
+						enemy->mFlowfield = thisTarget->flowfield;
+					}
+				}
+			}
+			// Otherwise get flow field for whatever the target is
+			else
+			{
+				enemy->mFlowfield = GetFlowField(enemy->mGOTarget->mesh->position);
 			}
 		}
 	}

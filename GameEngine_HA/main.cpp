@@ -561,10 +561,12 @@ int main(int argc, char* argv[])
 	::g_pTextureManager = new cBasicTextureManager();
 	::g_pTextureManager->SetBasePath("assets/textures");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_Texture_01.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("grass.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("carbon.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Sword_Texture.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("Cleric_Texture.bmp");
+	::g_pTextureManager->Create2DTextureFromBMPFile("RedCleric.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("Medieval_Texture.bmp");
 	::g_pTextureManager->Create2DTextureFromBMPFile("woodTexture.bmp");
@@ -707,7 +709,7 @@ int main(int argc, char* argv[])
 		pColonistMesh->friendlyName = "Colonist" + std::to_string(i);
 		pColonistMesh->position = glm::vec3(0.f, 20.f, 0.f);
 		pColonistMesh->bUse_RGBA_colour = false;
-		pColonistMesh->scaleXYZ = glm::vec3(1.f);
+		pColonistMesh->scaleXYZ = glm::vec3(1);
 		pColonistMesh->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
 		pColonistMesh->textures[0] = "Warrior_Texture.bmp";
 		pColonistMesh->textureRatios[0] = 1.f;
@@ -732,7 +734,7 @@ int main(int argc, char* argv[])
 		goColonist->id = IDGenerator::GenerateID();
 		goColonist->mesh = pColonistMesh;
 		goColonist->mesh->scaleXYZ = glm::vec3(0.01f);
-		goColonist->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/RPGCharacters/riggedWarrior.fbx", goColonist, glm::vec3(0.01f));
+		goColonist->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/Characters/riggedWarrior.fbx", goColonist, glm::vec3(0.01f));
 		goColonist->animCharacter->SetAnimation(10);
 		// Create Character controller
 		iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
@@ -748,6 +750,42 @@ int main(int argc, char* argv[])
 		// Add to Colonist Manager
 		colonistManager->AddColonist(goColonist);
 	}
+	const int NUMENEMIES = 3;
+	colonistManager = new ColonistManager();
+	for (int i = 0; i < NUMENEMIES; i++) {
+		// Create colonist mesh
+		cMeshObject* pEnemy = new cMeshObject();
+		pEnemy->meshName = "Cleric";
+		pEnemy->friendlyName = "Enemy" + std::to_string(i);
+		pEnemy->position = glm::vec3(50.f + i, 0.f, 50.f + i);
+		pEnemy->bUse_RGBA_colour = false;
+		pEnemy->scaleXYZ = glm::vec3(1);
+		pEnemy->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
+		pEnemy->textures[0] = "RedCleric.bmp";
+		pEnemy->textureRatios[0] = 1.f;
+		pEnemy->textureRatios[1] = 1.f;
+		pEnemy->textureRatios[2] = 1.f;
+		pEnemy->textureRatios[3] = 1.f;
+		// Create GameObject
+		GameObject* goEnemy = new GameObject();
+		goEnemy->id = IDGenerator::GenerateID();
+		goEnemy->mesh = pEnemy;
+		goEnemy->mesh->scaleXYZ = glm::vec3(0.01f);
+		goEnemy->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/Characters/riggedCleric.fbx", goEnemy, glm::vec3(0.01f));
+		goEnemy->animCharacter->SetAnimation(10);
+		// Create Character controller
+		iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
+		cylinderShape->SetUserData(goEnemy->id);
+		glm::vec3 position = glm::vec3(50.f + i, 0.f, 50.f + i);
+		glm::quat rotation = glm::quat(glm::vec3(0));
+		iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
+		world->AddCharacterController(playerCharacterController);
+		playerCharacterController->SetGravity(Vector3(0.f, -9.81f, 0.f));
+		goEnemy->characterController = playerCharacterController;
+		goVector.push_back(goEnemy);
+		goMap.emplace(goEnemy->id, goEnemy);
+		colonistManager->AddEnemy(goEnemy);
+	}
 	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
@@ -755,10 +793,12 @@ int main(int argc, char* argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 		renderTransparentBuildingMesh();
-		for (Colonist* colonist : vecColonists)
+		colonistManager->Update();
+		for (Enemy* enemy : vecEnemies)
 		{
-			colonistManager->Update();
+			enemy->Update(0.1f);
 		}
+
 		// Play random animation
 		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		if (duration > 2.f)

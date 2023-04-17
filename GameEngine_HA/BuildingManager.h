@@ -14,6 +14,7 @@ public:
 	bool canCraft(BuildingType building);
 	std::vector<Building> getBuildings();
 	int getModifierForType(BuildingType type) const;
+	std::vector<Building> mPlayerBuildings;
 
 private:
 	std::vector<Building> mBuildings;

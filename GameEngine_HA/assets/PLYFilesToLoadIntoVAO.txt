@@ -8,13 +8,11 @@ assets/models/ISO_Shphere_flat_4div_xyz_n_rgba_uv.ply
 ISO_Sphere_2
 assets/models/Cylinder.ply
 Cylinder
-assets/models/RPGCharacters/riggedWarrior.fbx
+assets/models/Characters/riggedWarrior.fbx
 Warrior
-assets/models/RPGCharacters/FBX/Only Weapons/Warrior_Sword.fbx
-WarriorSword
 assets/models/colonyTerrain.ply
 Terrain
-assets/models/Synty/SF_Bld_Stall_01.ply
+assets/models/Buildings/SF_Bld_Stall_01.ply
 Depot
 assets/models/Buildings/Resource_PineTree.fbx
 PineTree
@@ -24,14 +22,16 @@ assets/models/Buildings/Resource_Gold_1.fbx
 Gold
 assets/models/Buildings/Houses_FirstAge_1_Level1.fbx
 Workstation
-assets/models/Synty/SF_Prop_Undead_Forge_01.ply
+assets/models/Buildings/SF_Prop_Undead_Forge_01.ply
 Forge
-assets/models/Synty/SF_Prop_Anvil_01.ply
+assets/models/Buildings/SF_Prop_Anvil_01.ply
 Anvil
-assets/models/Synty/SF_Prop_TrainingDummy_01.ply
+assets/models/Buildings/SF_Prop_TrainingDummy_01.ply
 Training Dummy
 assets/models/Buildings/Crate.fbx
 Crate
 assets/models/torus.ply
 Torus
+assets/models/Characters/riggedCleric.fbx
+Cleric
 EOF

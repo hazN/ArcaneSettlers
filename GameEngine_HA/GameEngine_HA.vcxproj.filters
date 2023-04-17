@@ -67,6 +67,9 @@
     <Filter Include="cVAOManager">
       <UniqueIdentifier>{b57a9dec-1157-45de-9e28-19faf765e536}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Artificial Intelligence\Enemy">
+      <UniqueIdentifier>{e8fed0d5-845e-46f1-b8d9-71fddcf5d0ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cVAOManager\cVAOManager.cpp">
@@ -191,6 +194,12 @@
     </ClCompile>
     <ClCompile Include="DecisionTable.cpp">
       <Filter>Artificial Intelligence\Colonist</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Artificial Intelligence\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyDecisionTable.cpp">
+      <Filter>Artificial Intelligence\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -331,6 +340,12 @@
     </ClInclude>
     <ClInclude Include="ColonistManager.h">
       <Filter>Artificial Intelligence\Colonist</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Artificial Intelligence\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyDecisionTable.h">
+      <Filter>Artificial Intelligence\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

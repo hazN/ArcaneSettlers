@@ -7,6 +7,7 @@ Colonist::Colonist()
 {
 	mStats = new ColonistStats();
 	mInventory = new Inventory();
+	InitializeCriticalSection(&mStatsCriticalSection);
 }
 
 Colonist::Colonist(ColonistStats stats)
@@ -18,10 +19,12 @@ Colonist::Colonist(ColonistStats stats)
 	mStats->chopping = stats.chopping;
 	mStats->mining = stats.mining;
 	mInventory = new Inventory();
+	InitializeCriticalSection(&mStatsCriticalSection);
 }
 
 Colonist::~Colonist()
 {
+	DeleteCriticalSection(&mStatsCriticalSection);
 }
 
 void Colonist::Update(float deltaTime) {
@@ -199,10 +202,6 @@ void Colonist::ExecuteCommand()
 	}
 }
 
-void Colonist::UpdateDecisionTable()
-{
-}
-
 bool Colonist::isHungry() {
 	return mStats->hunger < 30;
 }
@@ -210,6 +209,17 @@ bool Colonist::isHungry() {
 bool Colonist::getIsIntruderInRange()
 {
 	return false;
+}
+
+void Colonist::TakeDamage(int dmg)
+{
+	EnterCriticalSection(&mStatsCriticalSection);
+	mStats->hp -= dmg;
+	if (mStats->hp <= 0)
+	{
+		isDead = true;
+	}
+	LeaveCriticalSection(&mStatsCriticalSection);
 }
 
 ColonistStats Colonist::getStats()
@@ -256,14 +266,15 @@ void Colonist::Move()
 	glm::vec3 moveDirection = moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
 
 	// Move the colonist
-	float speed = 1.0f;
+	float speed = 1.2f;
 	float deltaTime = 0.1f;
 	glm::vec3 dir = moveDirection * speed * deltaTime;
 	mCharacterController->Move(dir);
 	glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, -mGOColonist->mesh->position.y, moveDirection.z));
 	glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
-	//mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
-
+	if (std::isnan(mGOColonist->mesh->qRotation.x))
+		mGOColonist->mesh->qRotation = glm::quat();
+	mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
 	float distance = glm::length(*mTarget->position - mGOColonist->mesh->position);
 	if (distance < 1.1f)
 	{

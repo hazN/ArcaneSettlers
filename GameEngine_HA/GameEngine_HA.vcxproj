@@ -162,6 +162,8 @@
     <ClCompile Include="cMeshObject.cpp" />
     <ClCompile Include="Colonist.cpp" />
     <ClCompile Include="ColonistManager.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyDecisionTable.cpp" />
     <ClCompile Include="GameGUI.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="cShader.cpp" />
@@ -206,6 +208,8 @@
     <ClInclude Include="cMeshObject.h" />
     <ClInclude Include="Colonist.h" />
     <ClInclude Include="ColonistManager.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyDecisionTable.h" />
     <ClInclude Include="GameGUI.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="cShaderManager.h" />
