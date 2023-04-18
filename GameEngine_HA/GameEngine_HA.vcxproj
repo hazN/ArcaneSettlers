@@ -164,6 +164,7 @@
     <ClCompile Include="ColonistManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyDecisionTable.cpp" />
+    <ClCompile Include="EventSystem.cpp" />
     <ClCompile Include="GameGUI.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="cShader.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="ColonistManager.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyDecisionTable.h" />
+    <ClInclude Include="EventSystem.h" />
     <ClInclude Include="GameGUI.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="cShaderManager.h" />

@@ -4,7 +4,7 @@
 #include <Windows.h>
 
 enum itemId {
-    wood, stone, food, ores
+    wood, stone, food, ores, gems
 };
 
 struct Item {

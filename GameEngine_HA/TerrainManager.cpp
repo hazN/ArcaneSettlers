@@ -339,4 +339,5 @@ void TerrainManager::createBuilding(BuildingType type, iRayCast::RayCastHit hit)
 
 	goBuilding->rigidBody = _physicsFactory->CreateRigidBody(desc, shape);
 	world->AddBody(goBuilding->rigidBody);
+	eventSystem->AddWealth(5);
 }

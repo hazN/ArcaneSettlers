@@ -201,6 +201,9 @@
     <ClCompile Include="EnemyDecisionTable.cpp">
       <Filter>Artificial Intelligence\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="EventSystem.cpp">
+      <Filter>GameLogic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cVAOManager\sModelDrawInfo.h">
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="EnemyDecisionTable.h">
       <Filter>Artificial Intelligence\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EventSystem.h">
+      <Filter>GameLogic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

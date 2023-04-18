@@ -354,6 +354,7 @@ void Colonist::HarvestTree()
 			delete mTarget;
 		}
 		mTarget = nullptr;
+		eventSystem->AddWealth(1);
 		return;
 	}
 }
@@ -417,6 +418,7 @@ void Colonist::MineNode() {
 			delete mTarget;
 		}
 		mTarget = nullptr;
+		eventSystem->AddWealth(3);
 		return;
 	}
 }

@@ -8,12 +8,30 @@
 #include "cBasicTextureManager.h"
 extern cBasicTextureManager* g_pTextureManager;
 
-void GameGUI::renderBottomBar()	
+void GameGUI::renderConsole()
+{
+	ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 400, ImGui::GetIO().DisplaySize.y - 250), ImGuiCond_FirstUseEver);
+
+	ImGui::Begin("Console", &consoleWindowOpen);
+	ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+	for (std::string& message : GameGUI::mMessages)
+	{
+		ImGui::TextUnformatted(message.c_str());
+	}
+
+	ImGui::SetScrollHereY(1.0f);
+	ImGui::EndChild();
+	ImGui::End();
+}
+
+void GameGUI::renderBottomBar()
 {
 	// Bar gui
 	ImVec2 barSize = ImVec2(ImGui::GetIO().DisplaySize.x, 50);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
-	ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - barSize.y)); 
+	ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - barSize.y));
 	ImGui::SetNextWindowSize(barSize);
 	ImGui::Begin("BottomBar", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
@@ -25,7 +43,7 @@ void GameGUI::renderBottomBar()
 	ImGui::SameLine();
 
 	// Display resource count
-	std::vector<std::pair<std::string, int>> resources = { {"Wood.bmp", gDepot->inventory->getItemCount(wood)}, {"Stone.bmp", gDepot->inventory->getItemCount(stone)}, {"Minerals.bmp", gDepot->inventory->getItemCount(ores)} };
+	std::vector<std::pair<std::string, int>> resources = { {"Wood.bmp", gDepot->inventory->getItemCount(wood)}, {"Stone.bmp", gDepot->inventory->getItemCount(stone)}, {"Minerals.bmp", gDepot->inventory->getItemCount(ores)}, {"Crystal.bmp", gDepot->inventory->getItemCount(gems)} };
 
 	for (std::pair<std::string, int> resource : resources)
 	{
@@ -35,12 +53,29 @@ void GameGUI::renderBottomBar()
 		ImGui::SameLine();
 	}
 
+	ImGui::SameLine();
+	if (ImGui::Button("Console"))
+	{
+		consoleWindowOpen = !consoleWindowOpen;
+	}
+
+	// Display debug message in the bottom bar
+	if (!mMessages.empty())
+	{
+		ImGui::SameLine();
+		ImGui::Text(mMessages.back().c_str());
+	}
+
 	ImGui::End();
 	ImGui::PopStyleVar();
 
 	if (buildingMenuOpen)
 	{
 		renderBuildingMenu();
+	}
+	if (consoleWindowOpen)
+	{
+		renderConsole();
 	}
 }
 
@@ -176,6 +211,8 @@ void GameGUI::renderColonistsWindow()
 bool GameGUI::colonistInfoWindowOpen = false;
 bool GameGUI::depotInfoWindowOpen = false;
 bool GameGUI::buildingMenuOpen = false;
+bool GameGUI::consoleWindowOpen = false;
+std::vector<std::string> GameGUI::mMessages;
 GameGUI::GameGUI()
 {
 	currentColonist = -1;
@@ -192,4 +229,9 @@ void GameGUI::render()
 		renderDepotInfoWindow();
 	}
 	renderBottomBar();
+}
+
+void GameGUI::addMessage(const char* message)
+{
+	GameGUI::mMessages.push_back(message);
 }

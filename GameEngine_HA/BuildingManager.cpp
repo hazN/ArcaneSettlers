@@ -88,7 +88,7 @@ int BuildingManager::getModifierForType(BuildingType type) const
 				modifier += 2;
 				break;
 			case DUMMY:
-				modifier++;
+				modifier += 0.5f;
 				break;
 			default:
 				break;

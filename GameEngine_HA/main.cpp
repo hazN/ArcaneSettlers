@@ -49,7 +49,7 @@
 #include "Colonist.h"
 #include "TerrainManager.h"
 #include "ColonistManager.h"
-
+#include "EventSystem.h"
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
 std::vector<GameObject*> gameObjects;
@@ -662,17 +662,20 @@ int main(int argc, char* argv[])
 			indices.push_back(terrainInfo.pIndices[i]);
 		}
 		iShape* terrainShape = new TriangleMeshShape(vertices, indices);
-		terrainShape->SetUserData(IDGenerator::GenerateID());
+		int id = IDGenerator::GenerateID();
+		terrainShape->SetUserData(id);
 		RigidBodyDesc terrainDesc;
 		terrainDesc.isStatic = true;
 		terrainDesc.position = Vector3(-128.0f, -50.0f, -64.0f);
 		world->AddBody(_physicsFactory->CreateRigidBody(terrainDesc, terrainShape));
 		// LOAD IN TERRAIN OBJECTS
 		GameObject* goTerrain = new GameObject();
+		goTerrain->id = id;
 		goTerrain->mesh = pTerrain;
 		terrainManager = new TerrainManager(goTerrain, &terrainInfo);
 		const int maxObjects[3] = { 150,80,20 };
 		terrainManager->placeObjectsOnTerrain(maxObjects);
+		goMap.emplace(id, goTerrain);
 	}
 	// CRAFTING RECIPES
 	{
@@ -701,7 +704,6 @@ int main(int argc, char* argv[])
 
 	const int NUMCOLONISTS = 3;
 	colonistManager = new ColonistManager();
-	std::vector<GameObject*> goVector;
 	for (int i = 0; i < NUMCOLONISTS; i++) {
 		// Create colonist mesh
 		cMeshObject* pColonistMesh = new cMeshObject();
@@ -750,52 +752,23 @@ int main(int argc, char* argv[])
 		// Add to Colonist Manager
 		colonistManager->AddColonist(goColonist);
 	}
-	const int NUMENEMIES = 3;
-	colonistManager = new ColonistManager();
-	for (int i = 0; i < NUMENEMIES; i++) {
-		// Create colonist mesh
-		cMeshObject* pEnemy = new cMeshObject();
-		pEnemy->meshName = "Cleric";
-		pEnemy->friendlyName = "Enemy" + std::to_string(i);
-		pEnemy->position = glm::vec3(50.f + i, 0.f, 50.f + i);
-		pEnemy->bUse_RGBA_colour = false;
-		pEnemy->scaleXYZ = glm::vec3(1);
-		pEnemy->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
-		pEnemy->textures[0] = "RedCleric.bmp";
-		pEnemy->textureRatios[0] = 1.f;
-		pEnemy->textureRatios[1] = 1.f;
-		pEnemy->textureRatios[2] = 1.f;
-		pEnemy->textureRatios[3] = 1.f;
-		// Create GameObject
-		GameObject* goEnemy = new GameObject();
-		goEnemy->id = IDGenerator::GenerateID();
-		goEnemy->mesh = pEnemy;
-		goEnemy->mesh->scaleXYZ = glm::vec3(0.01f);
-		goEnemy->animCharacter = animationManager->CreateAnimatedCharacter("assets/models/Characters/riggedCleric.fbx", goEnemy, glm::vec3(0.01f));
-		goEnemy->animCharacter->SetAnimation(10);
-		// Create Character controller
-		iShape* cylinderShape = new CylinderShape(Vector3(0.7f, 2.f, 0.7f));
-		cylinderShape->SetUserData(goEnemy->id);
-		glm::vec3 position = glm::vec3(50.f + i, 0.f, 50.f + i);
-		glm::quat rotation = glm::quat(glm::vec3(0));
-		iCharacterController* playerCharacterController = _physicsFactory->CreateCharacterController(cylinderShape, position, rotation);
-		world->AddCharacterController(playerCharacterController);
-		playerCharacterController->SetGravity(Vector3(0.f, -9.81f, 0.f));
-		goEnemy->characterController = playerCharacterController;
-		goVector.push_back(goEnemy);
-		goMap.emplace(goEnemy->id, goEnemy);
-		colonistManager->AddEnemy(goEnemy);
-	}
+	eventSystem = new EventSystem();
 	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	bool isKeyPressed = false;
 	gPathFinder->calculateFlowfield(TerrainManager::worldToGridCoords(gDepot->mesh->position));
+	GameGUI::addMessage("Welcome to Arcane Settlers!");
+	GameGUI::addMessage("To begin either click on a unit, or drag a box to select multiple.");
+	GameGUI::addMessage("Once you have done so, click on a resource like a tree to order them to chop it down.");
+	GameGUI::addMessage("Colonists will drop their loot off at the depot once they are full, you can click on the Depot to view its contents.");
+	GameGUI::addMessage("Enemies will raid soon so it's a good idea to prepare, create a workstation to open the other buildings, then make a Training Dummy for increased combat strength.");
 	while (!glfwWindowShouldClose(window))
 	{
 		renderTransparentBuildingMesh();
 		if (!gPause)
 		{
+			eventSystem->Update();
 			colonistManager->Update();
 			for (Enemy* enemy : vecEnemies)
 			{

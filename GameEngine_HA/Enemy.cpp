@@ -129,14 +129,14 @@ void Enemy::Move()
 		return;
 	}
 	// Check if target is occupied
-	for (size_t i = 0; i < vecColonists.size(); i++)
+	for (size_t i = 0; i < vecEnemies.size(); i++)
 	{
-		if (i < vecColonists.size())
+		if (i < vecEnemies.size())
 		{
 			if (vecEnemies[i] != this)
 			{
-				float distance = glm::length(*mGOTarget->position - vecColonists[i]->mGOColonist->mesh->position);
-				float distance2 = glm::length(this->mGOEnemy->mesh->position - vecColonists[i]->mGOColonist->mesh->position);
+				float distance = glm::length(mGOTarget->mesh->position - vecEnemies[i]->mGOEnemy->mesh->position);
+				float distance2 = glm::length(this->mGOEnemy->mesh->position - vecEnemies[i]->mGOEnemy->mesh->position);
 
 				if (distance <= 1.3f && distance2 <= 2.f)
 				{
@@ -168,11 +168,11 @@ void Enemy::Move()
 	float deltaTime = 0.1f;
 	glm::vec3 dir = moveDirection * speed * deltaTime;
 	mCharacterController->Move(dir);
-	glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, mGOEnemy->mesh->position.y, moveDirection.z));
+	glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, -mGOEnemy->mesh->position.y, moveDirection.z));
 	glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
 	if (std::isnan(mGOEnemy->mesh->qRotation.x))
 		mGOEnemy->mesh->qRotation = glm::quat();
-	//mGOEnemy->mesh->qRotation = q_utils::RotateTowards(mGOEnemy->mesh->qRotation, targetDir, 3.14f * 0.05f);
+	mGOEnemy->mesh->qRotation = q_utils::RotateTowards(mGOEnemy->mesh->qRotation, targetDir, 3.14f * 0.05f);
 }
 
 void Enemy::TakeDamage(float dmg)

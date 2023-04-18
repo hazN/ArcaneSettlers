@@ -16,8 +16,8 @@
 #include "Colonist.h"
 #include "BuildingManager.h"
 #include "Enemy.h"
-// extern means the variable isn't actually here...
-// ...it's somewhere else (in a .cpp file somewhere)
+#include "EventSystem.h"
+
 extern GLFWwindow* window;
 extern cLightManager* g_pTheLightManager;
 extern std::vector< cMeshObject* > g_pMeshObjects;
@@ -65,4 +65,6 @@ extern BuildingManager* buildingManager;
 extern BuildingType selectedBuilding;
 extern PathFinder* gPathFinder;
 extern bool gPause;
+extern std::vector<GameObject*> goVector;
+extern EventSystem* eventSystem;
 #endif

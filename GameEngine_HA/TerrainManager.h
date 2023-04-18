@@ -19,10 +19,11 @@ public:
 	static glm::vec2 worldToGridCoords(glm::vec3 worldCoords);
 	void createBuilding(BuildingType type, iRayCast::RayCastHit hit);
 	PathFinder* mPathFinder;
+	static int getRandom(int min, int max);
+	static float getRandom(float min, float max);
 private:
 	static GameObject* goTerrain;
 	static sModelDrawInfo* terrainInfo;
-	int getRandom(int min, int max);
-	float getRandom(float min, float max);
+
 	void createPhysicsObjects(std::vector<GameObject*> gameObjects);
 };

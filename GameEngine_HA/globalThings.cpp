@@ -38,3 +38,5 @@ BuildingType selectedBuilding;
 PathFinder* gPathFinder;
 std::vector<Enemy*> vecEnemies;
 bool gPause = false;
+std::vector<GameObject*> goVector;
+EventSystem* eventSystem;
