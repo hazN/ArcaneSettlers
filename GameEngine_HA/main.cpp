@@ -790,6 +790,7 @@ int main(int argc, char* argv[])
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	bool isKeyPressed = false;
+	gPathFinder->calculateFlowfield(TerrainManager::worldToGridCoords(gDepot->mesh->position));
 	while (!glfwWindowShouldClose(window))
 	{
 		renderTransparentBuildingMesh();

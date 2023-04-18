@@ -28,7 +28,7 @@ EnemyActionType EnemyDecisionTable::getNextAction(Enemy& enemy)
 	{
 		float distance = glm::distance(enemy.mColonistTarget->mGOColonist->mesh->position, enemy.mGOEnemy->mesh->position);
 		if (distance <= range)
-			colonistInRange = false;
+			colonistInRange = true;
 		else enemy.mColonistTarget = nullptr;
 	}
 	// Now check if any colonist is in range
@@ -69,7 +69,7 @@ EnemyActionType EnemyDecisionTable::getNextAction(Enemy& enemy)
 		enemy.mGOTarget = gDepot;
 	}
 	float distance = glm::distance(enemy.mGOTarget->mesh->position, enemy.mGOEnemy->mesh->position);
-	currentCondition.isBuildingInRange = distance < 10.f;
+	currentCondition.isBuildingInRange = distance < 7.f;
 
 	for (const EnemyRule& rule : decisionTable) {
 		if (rule.condition == currentCondition) {

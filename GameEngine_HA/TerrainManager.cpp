@@ -237,7 +237,7 @@ void TerrainManager::createPhysicsObjects(std::vector<GameObject*> gameObjects) 
 			glm::vec2 gridSize = glm::vec2((int)(std::round((drawInfo.extentX * go->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
 				(int)(std::round((drawInfo.extentZ * go->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
 			// Buffer around it to avoid getting stuck
-			int buffer = 2;
+			int buffer = 1;
 			// Loop through the cells that need to have the building set 
 			for (int y = gridCoords.y - gridSize.y / 2 - buffer; y < gridCoords.y + gridSize.y / 2 + buffer; ++y)
 			{

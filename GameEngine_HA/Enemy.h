@@ -27,7 +27,6 @@ public:
     void Attack();
     void Move();
     void TakeDamage(int dmg);
-
     std::string icon;
     std::string currentAction;
     std::string name;

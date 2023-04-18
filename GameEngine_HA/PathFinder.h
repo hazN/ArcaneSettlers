@@ -35,6 +35,11 @@ struct Node
         this->goId = goId;
         cost = -1;
     }
+    // Comparison function based on cost
+    bool operator<(const Node& other) const
+    {
+        return cost < other.cost;
+    }
 };
 
 class PathFinder

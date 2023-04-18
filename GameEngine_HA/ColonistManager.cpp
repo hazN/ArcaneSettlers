@@ -161,36 +161,19 @@ void ColonistManager::Update()
 		enemy->mGOEnemy->mesh->position.z = position.z;
 
 		// Assign flowfield to enemy
-		
+
 		// If it has a colonist target get the flow field for it
 		if (enemy->mColonistTarget != nullptr)
 		{
-			glm::vec3 currentTargetPos = enemy->mColonistTarget->mGOColonist->mesh->position;
-			if (glm::distance(enemy->lastFlowFieldTarget, currentTargetPos) >= 5.0f)
+			if (glm::distance(enemy->mColonistTarget->mGOColonist->mesh->position, enemy->mGOEnemy->mesh->position) <= 10.f)
 			{
-				enemy->mFlowfield = GetFlowField(currentTargetPos);
-				enemy->lastFlowFieldTarget = currentTargetPos;
+				continue;
 			}
-			continue;
 		}
 		// Otherwise check if its target is the depot
 		else if (enemy->mGOTarget != nullptr)
 		{
-			if (enemy->mGOTarget->buildingType == DEPOT)
-			{
-				for (targetFlowfield* thisTarget : targets)
-				{
-					if (*(thisTarget->target->position) == *gDepot->position)
-					{
-						enemy->mFlowfield = thisTarget->flowfield;
-					}
-				}
-			}
-			// Otherwise get flow field for whatever the target is
-			else
-			{
-				enemy->mFlowfield = GetFlowField(enemy->mGOTarget->mesh->position);
-			}
+			enemy->mFlowfield = GetFlowField(enemy->mGOTarget->mesh->position);
 		}
 	}
 }

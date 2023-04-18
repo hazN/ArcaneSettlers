@@ -266,7 +266,7 @@ void Colonist::Move()
 	glm::vec3 moveDirection = moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
 
 	// Move the colonist
-	float speed = 1.2f;
+	float speed = 1.4f;
 	float deltaTime = 0.1f;
 	glm::vec3 dir = moveDirection * speed * deltaTime;
 	mCharacterController->Move(dir);
