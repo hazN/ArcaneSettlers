@@ -211,9 +211,15 @@ void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector
 	if (m_IsPlaying && m_AnimationSpeed != 0.0f)
 	{
 		m_CurrentTimeInSeconds += dt * m_AnimationSpeed;
-		m_CurrentTimeInSeconds = fmod(
-			m_CurrentTimeInSeconds, m_DurationInSeconds[m_CurrentAnimation]);
 
+		if (m_IsLooping)
+		{
+			m_CurrentTimeInSeconds = fmod(m_CurrentTimeInSeconds, m_DurationInSeconds[m_CurrentAnimation]);
+		}
+		else
+		{
+			m_CurrentTimeInSeconds = glm::clamp((float)m_CurrentTimeInSeconds, 0.0f, (float)m_DurationInSeconds[m_CurrentAnimation]);
+		}
 		int keyFrameTime = (int)((m_CurrentTimeInSeconds / m_DurationInSeconds[m_CurrentAnimation]) *
 			m_DurationInTicks[m_CurrentAnimation]);
 

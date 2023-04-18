@@ -133,7 +133,7 @@ void GameGUI::renderColonistInfoWindow()
 	ImGui::Image((void*)(intptr_t)g_pTextureManager->getTextureIDFromName(colonist->icon), ImVec2(64, 64));
 	std::string weight = "";
 	weight = std::to_string(colonist->mInventory->getCurrentWeight()) + "/" + std::to_string(colonist->mInventory->getMaxWeight());
-	ImGui::Text("Health: %d\nHunger: %f\nMining: %d\nChopping: %d\nCombat: %d\nWeight: %s", colonist->mStats->hp, colonist->mStats->hunger,
+	ImGui::Text("Health: %.2f\nHunger: %.2f\nMining: %d\nChopping: %d\nCombat: %d\nWeight: %s", colonist->mStats->hp, colonist->mStats->hunger,
 		colonist->mStats->mining, colonist->mStats->chopping, colonist->mStats->combat, weight.c_str());
 
 	// Sub-window for inventory
@@ -168,7 +168,7 @@ void GameGUI::renderColonistsWindow()
 			colonistInfoWindowOpen = true;
 		}
 		ImGui::SameLine();
-		ImGui::Text("%s\n%s\nHP: %d", vecColonists[i]->name.substr(0, vecColonists[i]->name.find(' ')).c_str(), vecColonists[i]->currentAction.c_str(), vecColonists[i]->mStats->hp);
+		ImGui::Text("%s\n%s\nHP: %.2f", vecColonists[i]->name.substr(0, vecColonists[i]->name.find(' ')).c_str(), vecColonists[i]->currentAction.c_str(), vecColonists[i]->mStats->hp);
 	}
 
 	ImGui::End();

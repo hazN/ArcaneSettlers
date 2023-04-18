@@ -113,6 +113,15 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	glfwGetFramebufferSize(window, &width, &height);
 	glfwGetCursorPos(window, &mouseX, &mouseY);
 	glm::ivec4 viewport(0, 0, width, height);
+	// Remove dead units
+	for (size_t i = 0; i < vecColonists.size(); i++)
+	{
+		if (vecColonists[i]->isDead)
+		{
+			vecColonists[i]->mGOColonist->isSelected = false;
+			vecColonists.erase(vecColonists.begin() + i);
+		}
+	}
 	// Selection
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
@@ -229,6 +238,10 @@ void key_callback(GLFWwindow* window,
 {
 	if (!isTyping)
 	{
+		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+		{
+			gPause = !gPause;
+		}
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		{
 			//glfwSetWindowShouldClose(window, GLFW_TRUE);

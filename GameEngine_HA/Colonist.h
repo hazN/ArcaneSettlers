@@ -11,7 +11,7 @@
 #include "PathFinder.h"
 struct ColonistStats {
     // MAX 100
-    int hp = 100;
+    float hp = 100;
     float hunger = 100.f;
     // Skills from lvl 1-20
     int mining = 1;
@@ -31,20 +31,23 @@ public:
     void ExecuteCommand();
     bool isHungry();
     bool getIsIntruderInRange();
-    void TakeDamage(int dmg);
+    void TakeDamage(float dmg);
     ColonistStats getStats();
     std::string icon;
     std::string currentAction;
     std::string name;
     bool isDead = false;
+    bool exitThread = false;
 //private:
     void Move();
     void HarvestTree();
     void MineNode();
     void DropOffLoot();
+    void Attack();
     void Eat();
     float duration;
     float deltaTime = clock();
+    float attackTime = clock();
     GameObject* mGOColonist;
     iCharacterController* mCharacterController;
     CRITICAL_SECTION mStatsCriticalSection;
@@ -52,6 +55,7 @@ public:
     Inventory* mInventory;
     CommandType mCurrentCommand;
     GameObject* mTarget;
+    Enemy* mEnemyTarget;
     DecisionTable mDecisionTable;
     std::vector<std::vector<glm::vec2>> mFlowfield;
 };

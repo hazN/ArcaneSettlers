@@ -2,7 +2,6 @@
 #include "Colonist.h"
 #include "cVAOManager/sModelDrawInfo.h"
 #include "globalThings.h"
-
 DecisionTable::DecisionTable() {
 	// isHungry | Command | isIntruderInRange | isInventoryFull | isTargetInRange
 	decisionTable = {
@@ -13,9 +12,8 @@ DecisionTable::DecisionTable() {
 		{ {false, CommandType::HarvestTree, false, false, true}, ActionType::HarvestTree },
 		{ {false, CommandType::HarvestRock, false, false, false}, ActionType::Move },
 		{ {false, CommandType::HarvestRock, false, false, true}, ActionType::HarvestRock },
-		{ {false, CommandType::AttackIntruder, false, false, false}, ActionType::Move },
 		{ {false, CommandType::AttackIntruder, false, false, true}, ActionType::AttackIntruder },
-		{ {false, CommandType::None, true, false}, ActionType::AttackInRange },
+		{ {std::nullopt,  CommandType::None, true, std::nullopt, std::nullopt}, ActionType::AttackIntruder },
 		{ {false, CommandType::None, false, true, false}, ActionType::DropOffLoot },
 		{ {false, CommandType::None, false, true, true}, ActionType::DropOffLoot },
 		{ {false, CommandType::None, false, false}, ActionType::Idle },
@@ -32,7 +30,9 @@ ActionType DecisionTable::getNextAction(Colonist& colonist) {
     currentCondition.playerCommand = colonist.mCurrentCommand;
     currentCondition.isIntruderInRange = colonist.getIsIntruderInRange();
     currentCondition.isInventoryFull = colonist.mInventory->isFull();
-    if (colonist.mTarget == nullptr) {
+
+    if (colonist.mTarget == nullptr) 
+    {
         currentCondition.isTargetInRange = false;
     }
     else 

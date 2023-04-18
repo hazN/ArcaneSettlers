@@ -86,12 +86,41 @@ void Enemy::Attack()
 		attackTime = clock();
 		if (mColonistTarget != nullptr)
 		{
+			float baseDamage = mStats->combat;
+			float damage = (baseDamage * (1.0f + 0.2f * (rand() / (float)(RAND_MAX) * 2.0f - 1.0f))) * 0.7f;
+			mColonistTarget->TakeDamage(damage);
+			if (mColonistTarget->isDead)
+			{
+				mColonistTarget = nullptr;
+				return;
+			}
 		}
 		else if (mGOTarget != nullptr)
 		{
+			float baseDamage = mStats->combat;
+			float damage = (baseDamage * (1.0f + 0.2f * (rand() / (float)(RAND_MAX) * 2.0f - 1.0f))) * 0.7f;
+			int count = 0;
+			for (Building building : buildingManager->mPlayerBuildings)
+			{
+				if (building.mId == mGOTarget->id)
+				{
+					building.mHealth -= damage;
+
+					break;
+				}
+				count++;
+			}
+			if (buildingManager->mPlayerBuildings[count].mHealth <= 0)
+			{
+				gPathFinder->removeBuilding(mGOTarget->id);
+				buildingManager->mPlayerBuildings.erase(buildingManager->mPlayerBuildings.begin() + count);
+				mGOTarget = nullptr;
+				return;
+			}
 		}
 	}
 }
+
 
 void Enemy::Move()
 {
@@ -102,17 +131,20 @@ void Enemy::Move()
 	// Check if target is occupied
 	for (size_t i = 0; i < vecColonists.size(); i++)
 	{
-		if (vecEnemies[i] != this)
+		if (i < vecColonists.size())
 		{
-			float distance = glm::length(*mGOTarget->position - vecColonists[i]->mGOColonist->mesh->position);
-			float distance2 = glm::length(this->mGOEnemy->mesh->position - vecColonists[i]->mGOColonist->mesh->position);
-
-			if (distance <= 1.3f && distance2 <= 2.f)
+			if (vecEnemies[i] != this)
 			{
-				// Set animation
-				if (this->mGOEnemy->animCharacter->GetCurrentAnimationID() != 1)
-					this->mGOEnemy->animCharacter->SetAnimation(1);
-				return;
+				float distance = glm::length(*mGOTarget->position - vecColonists[i]->mGOColonist->mesh->position);
+				float distance2 = glm::length(this->mGOEnemy->mesh->position - vecColonists[i]->mGOColonist->mesh->position);
+
+				if (distance <= 1.3f && distance2 <= 2.f)
+				{
+					// Set animation
+					if (this->mGOEnemy->animCharacter->GetCurrentAnimationID() != 1)
+						this->mGOEnemy->animCharacter->SetAnimation(1);
+					return;
+				}
 			}
 		}
 	}
@@ -136,20 +168,23 @@ void Enemy::Move()
 	float deltaTime = 0.1f;
 	glm::vec3 dir = moveDirection * speed * deltaTime;
 	mCharacterController->Move(dir);
-	glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, -mGOEnemy->mesh->position.y, moveDirection.z));
+	glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, mGOEnemy->mesh->position.y, moveDirection.z));
 	glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
 	if (std::isnan(mGOEnemy->mesh->qRotation.x))
 		mGOEnemy->mesh->qRotation = glm::quat();
 	//mGOEnemy->mesh->qRotation = q_utils::RotateTowards(mGOEnemy->mesh->qRotation, targetDir, 3.14f * 0.05f);
 }
 
-void Enemy::TakeDamage(int dmg)
+void Enemy::TakeDamage(float dmg)
 {
 	EnterCriticalSection(&mStatsCriticalSection);
 	mStats->hp -= dmg;
 	if (mStats->hp <= 0)
 	{
 		isDead = true;
+		this->mGOEnemy->animCharacter->SetAnimation(1);
+		this->mGOEnemy->animCharacter->m_IsLooping = false;
+		exitThread = true;
 	}
 	LeaveCriticalSection(&mStatsCriticalSection);
 }
@@ -157,7 +192,7 @@ void Enemy::TakeDamage(int dmg)
 DWORD WINAPI UpdateEnemyThread(LPVOID pVOIDEnemy) {
 	EnemyThreadData* pThreadData = static_cast<EnemyThreadData*>(pVOIDEnemy);
 
-	while (!pThreadData->bExitThread) {
+	while (!pThreadData->bExitThread && !pThreadData->pEnemy->exitThread) {
 		if (!pThreadData->bSuspendThread) {
 			pThreadData->pEnemy->Update(static_cast<float>(pThreadData->suspendTime_ms) / 1000.0f);
 		}

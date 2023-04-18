@@ -36,6 +36,7 @@ namespace physics
 		// Create controller
 		EnterCriticalSection(&PhysicsWorld::physicsCriticalSection);
 		mController = PhysicsWorld::mControllerManager->createController(*desc);
+		PhysicsWorld::mMapControllers.emplace(this, mController);
 		LeaveCriticalSection(&PhysicsWorld::physicsCriticalSection);
 		SetRotation(rotation);
 		mGravity = new Vector3(0.f, -9.81f, 0.f);

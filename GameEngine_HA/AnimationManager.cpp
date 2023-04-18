@@ -22,6 +22,7 @@ Character* AnimationManager::CreateAnimatedCharacter(const char* filename, GameO
 	//assets/models/RPGCharacters/FBX/Warrior.fbx
 	go->animCharacter->LoadCharacterFromAssimp(filename);
 	go->animCharacter->LoadAnimationFromAssimp(filename);
+	go->animCharacter->m_IsLooping = true;;
 	go->hasBones = true;
 	_mapCharacters.emplace(go->mesh->friendlyName, go);
 	_vecCharacters.push_back(go);

@@ -4,7 +4,7 @@
 #include <optional>
 
 class Colonist;
-
+class Enemy;
 enum class ActionType {
 	Eat, Move, HarvestTree, HarvestRock, AttackIntruder, AttackInRange, DropOffLoot, Idle
 };

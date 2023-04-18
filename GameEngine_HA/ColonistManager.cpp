@@ -132,6 +132,10 @@ std::vector<std::vector<glm::vec2>> ColonistManager::GetFlowField(glm::vec3 targ
 
 void ColonistManager::Update()
 {
+	for (size_t i = 0; i < vecColonists.size(); i++)
+		if (vecColonists[i]->isDead) vecColonists.erase(vecColonists.begin() + i);
+	for (size_t i = 0; i < vecEnemies.size(); i++)
+		if (vecEnemies[i]->isDead) vecEnemies.erase(vecEnemies.begin() + i);
 	for (Colonist* colonist : vecColonists)
 	{
 		Vector3 position;

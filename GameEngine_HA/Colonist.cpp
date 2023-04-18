@@ -28,11 +28,18 @@ Colonist::~Colonist()
 }
 
 void Colonist::Update(float deltaTime) {
+	if (isDead) return;
 	// Hunger decrease
 	if (rand() < 0.01f * RAND_MAX) {
 		mStats->hunger -= 0.000139f;
 	}
-
+	// Health regeneration
+	if (mStats->hp < 100.f)
+	{
+		if (rand() < 0.01f * RAND_MAX) {
+			mStats->hp += 1.f;
+		}
+	}
 	ActionType action = mDecisionTable.getNextAction(*this);
 
 	switch (action) {
@@ -144,10 +151,15 @@ void Colonist::Update(float deltaTime) {
 	}
 	case ActionType::HarvestTree:
 	case ActionType::HarvestRock:
-	case ActionType::AttackIntruder:
 	{
 		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)
 			this->mGOColonist->animCharacter->SetAnimation(11);
+		ExecuteCommand();
+		break;
+	}
+	case ActionType::AttackIntruder:
+	{
+
 		ExecuteCommand();
 		break;
 	}
@@ -184,6 +196,8 @@ void Colonist::ExecuteCommand()
 	}
 	break;
 	case ActionType::AttackIntruder:
+		currentAction = "In combat...";
+		Attack();
 		break;
 	case ActionType::DropOffLoot:
 	{
@@ -208,16 +222,28 @@ bool Colonist::isHungry() {
 
 bool Colonist::getIsIntruderInRange()
 {
+	for (Enemy* enemy : vecEnemies)
+	{
+		if (glm::distance(this->mGOColonist->mesh->position, enemy->mGOEnemy->mesh->position) <= 30.f)
+		{
+			mEnemyTarget = enemy;
+			return true;
+		}
+	}
+	mEnemyTarget = nullptr;
 	return false;
 }
 
-void Colonist::TakeDamage(int dmg)
+void Colonist::TakeDamage(float dmg)
 {
 	EnterCriticalSection(&mStatsCriticalSection);
 	mStats->hp -= dmg;
 	if (mStats->hp <= 0)
 	{
 		isDead = true;
+		this->mGOColonist->animCharacter->SetAnimation(0);
+		this->mGOColonist->animCharacter->m_IsLooping = false;
+		this->exitThread = true;
 	}
 	LeaveCriticalSection(&mStatsCriticalSection);
 }
@@ -433,6 +459,55 @@ void Colonist::DropOffLoot()
 	}
 }
 
+void Colonist::Attack()
+{
+	if (glm::distance(mEnemyTarget->mGOEnemy->mesh->position, mGOColonist->mesh->position) >= 3.1f)
+	{
+		// Set animation
+		if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
+			this->mGOColonist->animCharacter->SetAnimation(10);
+		// Move towards the colonist
+		glm::vec2 direction = glm::vec2(mGOColonist->mesh->position.x, mEnemyTarget->mGOEnemy->mesh->position.z) - glm::vec2(mGOColonist->mesh->position.x, mGOColonist->mesh->position.z);
+		glm::vec2 moveDirection = glm::normalize(direction);
+		float speed = 1.0f;
+		float deltaTime = 0.1f;
+		glm::vec3 dir = glm::vec3(moveDirection.x, 0.5f, moveDirection.y) * speed * deltaTime;
+		mCharacterController->Move(dir);
+		glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, -mGOColonist->mesh->position.y, moveDirection.y));
+		glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
+		if (std::isnan(mGOColonist->mesh->qRotation.x))
+			mGOColonist->mesh->qRotation = glm::quat();
+		mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
+	}
+	float duration = (clock() - attackTime) / (double)CLOCKS_PER_SEC;
+	if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)
+		this->mGOColonist->animCharacter->SetAnimation(11);
+	if (duration >= 0.25f)
+	{
+		attackTime = clock();
+		if (mEnemyTarget != nullptr)
+		{
+			float baseDamage = mStats->combat;
+			float damage = (baseDamage * (1.0f + 0.2f * (rand() / (float)(RAND_MAX) * 2.0f - 1.0f))) * 0.7f;
+			damage += buildingManager->getModifierForType(DUMMY);
+			mEnemyTarget->TakeDamage(damage);
+			if (mEnemyTarget->isDead)
+			{
+				mEnemyTarget = nullptr;
+				getIsIntruderInRange();
+				return;
+			}
+		}
+		// Run a level up check for combat skill
+		if (mStats->combat < 20) {
+			float levelUpChance = 0.0001f * ((20 - mStats->mining) * (20 - mStats->mining));
+			if (rand() < levelUpChance * RAND_MAX) {
+				mStats->mining += 1;
+			}
+		}
+	}
+}
+
 void Colonist::Eat()
 {
 	if (mTarget->inventory->getItemCount(itemId::food) > 0) {
@@ -448,8 +523,7 @@ void Colonist::Eat()
 DWORD WINAPI UpdateColonistThread(LPVOID pVOIDColonistData)
 {
 	ColonistThreadData* pColonistData = (ColonistThreadData*)(pVOIDColonistData);
-
-	while (!pColonistData->bExitThread) {
+	while (!pColonistData->bExitThread && !pColonistData->pColonist->exitThread) {
 		if (!pColonistData->bSuspendThread) {
 			pColonistData->pColonist->Update(1.0f / 60.0f);
 		}

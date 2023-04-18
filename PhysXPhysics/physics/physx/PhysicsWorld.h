@@ -54,6 +54,7 @@ namespace physics
 		virtual void SetGravity(const Vector3& gravity) override;
 
 		virtual void AddCharacterController(iCharacterController* characterController) override;
+		virtual void RemoveCharacterController(iCharacterController* characterController) override;
 		virtual void AddBody(iCollisionBody* body) override;
 		virtual void RemoveBody(iCollisionBody* body) override;
 		virtual void ResetWorld() override;
@@ -69,6 +70,7 @@ namespace physics
 		static physx::PxCooking* mCooking;
 		static physx::PxControllerManager* mControllerManager;
 		static CRITICAL_SECTION physicsCriticalSection;
+		static std::map<iCharacterController*, PxController*> mMapControllers;
 	private:
 		physx::PxDefaultAllocator      mDefaultAllocatorCallback;
 		physx::PxDefaultErrorCallback  mDefaultErrorCallback;

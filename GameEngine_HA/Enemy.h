@@ -12,7 +12,7 @@
 
 struct EnemyStats {
     // MAX 100
-    int hp = 100;
+    float hp = 100;
     // Skills from lvl 1-20
     int combat = 1;
 };
@@ -26,12 +26,13 @@ public:
     void Update(float deltaTime);
     void Attack();
     void Move();
-    void TakeDamage(int dmg);
+    void TakeDamage(float dmg);
     std::string icon;
     std::string currentAction;
     std::string name;
     float attackTime = clock();
     bool isDead = false;
+    bool exitThread = false;
     CRITICAL_SECTION mStatsCriticalSection;
     glm::vec3 lastFlowFieldTarget;
     GameObject* mGOEnemy;

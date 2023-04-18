@@ -37,3 +37,4 @@ BuildingManager* buildingManager;
 BuildingType selectedBuilding;
 PathFinder* gPathFinder;
 std::vector<Enemy*> vecEnemies;
+bool gPause = false;

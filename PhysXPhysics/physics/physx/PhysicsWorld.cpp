@@ -26,6 +26,7 @@ namespace physics
 	physx::PxCooking* PhysicsWorld::mCooking = nullptr;
 	physx::PxControllerManager* PhysicsWorld::mControllerManager = nullptr;
 	CRITICAL_SECTION PhysicsWorld::physicsCriticalSection;
+	std::map<iCharacterController*, PxController*> PhysicsWorld::mMapControllers;
 	PhysicsWorld::PhysicsWorld(void)
 	{
 		InitializeCriticalSection(&physicsCriticalSection);
@@ -88,6 +89,28 @@ namespace physics
 		CharacterController* character = (CharacterController*)characterController;
 		mCharacterControllers.push_back(character);
 	}
+
+	void PhysicsWorld::RemoveCharacterController(iCharacterController* characterController)
+	{
+		EnterCriticalSection(&physicsCriticalSection);
+		PxController* pxController = mMapControllers[characterController];
+		if (pxController)
+		{
+			pxController->release();
+			mMapControllers.erase(characterController);
+			for (size_t i = 0; i < mCharacterControllers.size(); i++)
+			{
+				if (mCharacterControllers[i] == characterController)
+				{
+					delete mCharacterControllers[i];
+					mCharacterControllers.erase(mCharacterControllers.begin() + i);
+					break;
+				}
+			}
+		}
+		LeaveCriticalSection(&physicsCriticalSection);
+	}
+
 
 	void PhysicsWorld::AddBody(iCollisionBody* body)
 	{

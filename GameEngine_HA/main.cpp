@@ -794,44 +794,46 @@ int main(int argc, char* argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 		renderTransparentBuildingMesh();
-		colonistManager->Update();
-		for (Enemy* enemy : vecEnemies)
+		if (!gPause)
 		{
-			enemy->Update(0.1f);
-		}
-
-		// Play random animation
-		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
-		if (duration > 2.f)
-		{
-			deltaTime = std::clock();
-			//goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
-		}
-		// Update animation manager(all animations)
-		{
-			double currTime = glfwGetTime();
-			float elapsedTimeInSeconds = (float)(currTime - g_PrevTime);
-			g_PrevTime = currTime;
-
-			if (elapsedTimeInSeconds > 0.1f)
-				elapsedTimeInSeconds = 0.1f;
-			if (elapsedTimeInSeconds <= 0.f)
-				elapsedTimeInSeconds = 0.001f;
-
-			animationManager->UpdateAll(elapsedTimeInSeconds);
-		}
-		world->TimeStep(1.f);
-
-		duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
-		// Update each object to match its rigidbodies transform
-		for (GameObject* go : gameObjects)
-		{
-			if (go->rigidBody)
+			colonistManager->Update();
+			for (Enemy* enemy : vecEnemies)
 			{
-				go->mesh->position = go->rigidBody->GetGLMPosition();
-				physics::Quaternion rot;
-				go->rigidBody->GetRotation(rot);
-				go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
+				enemy->Update(0.1f);
+			}
+			// Play random animation
+			duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+			if (duration > 2.f)
+			{
+				deltaTime = std::clock();
+				//goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
+			}
+			// Update animation manager(all animations)
+			{
+				double currTime = glfwGetTime();
+				float elapsedTimeInSeconds = (float)(currTime - g_PrevTime);
+				g_PrevTime = currTime;
+
+				if (elapsedTimeInSeconds > 0.1f)
+					elapsedTimeInSeconds = 0.1f;
+				if (elapsedTimeInSeconds <= 0.f)
+					elapsedTimeInSeconds = 0.001f;
+
+				animationManager->UpdateAll(elapsedTimeInSeconds);
+			}
+			world->TimeStep(1.f);
+
+			duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
+			// Update each object to match its rigidbodies transform
+			for (GameObject* go : gameObjects)
+			{
+				if (go->rigidBody)
+				{
+					go->mesh->position = go->rigidBody->GetGLMPosition();
+					physics::Quaternion rot;
+					go->rigidBody->GetRotation(rot);
+					go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
+				}
 			}
 		}
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);

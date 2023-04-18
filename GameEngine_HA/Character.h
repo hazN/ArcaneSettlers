@@ -81,7 +81,7 @@ public:
 
 	// Render
 	cMeshObject* Mesh;
-
+	bool m_IsLooping;
 	bool UseAssimp;
 
 private:
