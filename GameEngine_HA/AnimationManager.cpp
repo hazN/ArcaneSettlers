@@ -59,13 +59,15 @@ void AnimationManager::SetAnimation(const char* name, const char* animation)
 
 void AnimationManager::UpdateAll(float elapsedTimeInSeconds)
 {
-	for (std::pair<std::string, GameObject*> goCharacter : _mapCharacters)
+	for (GameObject* goCharacter : _vecCharacters)
 	{
+		if (goCharacter == nullptr)
+			continue;
 		// Update the animation
-		if (goCharacter.second->animCharacter != nullptr)
+		if (goCharacter->animCharacter != nullptr)
 		{
-			goCharacter.second->animCharacter->UpdateTransforms(goCharacter.second->BoneModelMatrices,
-				goCharacter.second->GlobalTransformations,
+			goCharacter->animCharacter->UpdateTransforms(goCharacter->BoneModelMatrices,
+				goCharacter->GlobalTransformations,
 				elapsedTimeInSeconds);
 		}
 	}

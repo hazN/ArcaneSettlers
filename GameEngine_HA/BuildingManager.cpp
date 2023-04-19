@@ -90,6 +90,9 @@ int BuildingManager::getModifierForType(BuildingType type) const
 			case DUMMY:
 				modifier += 0.5f;
 				break;
+			case WORKSHOP:
+				modifier = 1;
+				break;
 			default:
 				break;
 			}

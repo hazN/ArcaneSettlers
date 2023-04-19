@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "TerrainManager.h"
 #include "quaternion_utils.h"
+#include <iostream>
 
 Enemy::Enemy()
 {
@@ -156,12 +157,11 @@ void Enemy::Move()
 	// Get current position and convert to grid coord
 	glm::vec3 currentPos = mGOEnemy->mesh->position;
 	glm::vec2 currentGridPos = TerrainManager::worldToGridCoords(currentPos);
-	currentGridPos = glm::round(currentGridPos);
 
 	// Get the direction from the flowfield
-	glm::vec2 flowDirection = flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
+	glm::vec2 flowDirection = mFlowfield[(int)currentGridPos.y][(int)currentGridPos.x];
 
-	glm::vec3 moveDirection = moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
+	glm::vec3 moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
 
 	// Move the colonist
 	float speed = 1.2f;
@@ -194,7 +194,7 @@ DWORD WINAPI UpdateEnemyThread(LPVOID pVOIDEnemy) {
 
 	while (!pThreadData->bExitThread && !pThreadData->pEnemy->exitThread) {
 		if (!pThreadData->bSuspendThread) {
-			pThreadData->pEnemy->Update(static_cast<float>(pThreadData->suspendTime_ms) / 1000.0f);
+			pThreadData->pEnemy->Update((float)(pThreadData->suspendTime_ms) / 1000.0f);
 		}
 		Sleep(pThreadData->suspendTime_ms);
 	}

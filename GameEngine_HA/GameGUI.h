@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+
 class GameGUI
 {
 protected:
@@ -11,6 +12,8 @@ public:
 	void render();
 	static bool colonistInfoWindowOpen;
 	static bool depotInfoWindowOpen;
+	static bool forgeWindowOpen;
+	static bool anvilWindowOpen;
 	static bool buildingMenuOpen;
 	static bool consoleWindowOpen;
 	static void addMessage(const char* message);
@@ -20,4 +23,6 @@ public:
 	void renderBottomBar();
 	void renderBuildingMenu();
 	void renderConsole();
+	void renderForgeWindow();
+	void renderAnvilWindow();
 };

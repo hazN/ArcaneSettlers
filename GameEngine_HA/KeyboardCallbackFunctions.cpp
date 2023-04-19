@@ -162,6 +162,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			GameGUI::depotInfoWindowOpen = true;
 			return;
 		}
+		if (goMap[hit.userData])
+		{
+			if (goMap[hit.userData]->buildingType == FORGE)
+			{
+				GameGUI::forgeWindowOpen = true;
+				return;
+			}
+			if (goMap[hit.userData]->buildingType == ANVIL)
+			{
+				GameGUI::anvilWindowOpen = true;
+				return;
+			}
+		}
 		// Make sure a busy colonist is not being given other orders
 		for (size_t i = 0; i < selectedColonists.size(); i++)
 		{

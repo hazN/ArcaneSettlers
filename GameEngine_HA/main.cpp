@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	window = glfwCreateWindow(640, 480, "Project #1 - Hassan Assaf", NULL, NULL);
+	window = glfwCreateWindow(1920, 1080, "Arcane Settlers - Hassan Assaf", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -770,10 +770,6 @@ int main(int argc, char* argv[])
 		{
 			eventSystem->Update();
 			colonistManager->Update();
-			for (Enemy* enemy : vecEnemies)
-			{
-				enemy->Update(0.1f);
-			}
 			// Play random animation
 			duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 			if (duration > 2.f)
@@ -880,6 +876,8 @@ int main(int argc, char* argv[])
 		}
 		for (GameObject* go : goVector)
 		{
+			if (go == nullptr)
+				continue;
 			if (go->hasBones)
 			{
 				for (size_t i = 0; i < go->BoneModelMatrices.size(); i++)
@@ -985,19 +983,6 @@ int main(int argc, char* argv[])
 		ImGui::NewFrame();
 
 		EditGUI.render();
-		{
-			ImGui::Begin("##CH", nullptr, ImGuiWindowFlags_NoMove | ImGuiInputTextFlags_ReadOnly | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar);
-			ImDrawList* draw = ImGui::GetBackgroundDrawList();
-			draw->AddCircle(ImVec2((1920 / 2) - 10, 1009 / 2), 6, IM_COL32(255, 0, 0, 255), 100, 0.0f);
-			ImGui::End();
-		}
-		{
-			/*		ImGui::Begin("#HP", nullptr, ImGuiWindowFlags_NoMove | ImGuiInputTextFlags_ReadOnly | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar);
-					ImDrawList* draw = ImGui::GetBackgroundDrawList();
-					draw->AddRectFilled(ImVec2(width / 5, height - 25.f), ImVec2((width / 3) + (1000), height + 25.f), IM_COL32(255, 255, 255, 255), 0.0f, 0.0f);
-					draw->AddRectFilled(ImVec2(width / 5, height - 25.f), ImVec2((width / 3) + (hp*10), height + 25.f), IM_COL32(0, 255, 0, 255), 0.0f, 0.0f);
-					ImGui::End();*/
-		}
 		gameGUI.render();
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -1006,25 +991,26 @@ int main(int argc, char* argv[])
 		// Set the window title
 		//glfwSetWindowTitle(window, "Hey");
 
-		std::stringstream ssTitle;
-		ssTitle << "Camera (x,y,z): "
-			<< ::g_cameraEye.x << ", "
-			<< ::g_cameraEye.y << ", "
-			<< ::g_cameraEye.z
-			<< "Target (x,y,z): "
-			<< ::g_cameraTarget.x << ", "
-			<< ::g_cameraTarget.y << ", "
-			<< ::g_cameraTarget.z
-			<< "  Light #" << currentLight << " (xyz): "
-			<< ::g_pTheLightManager->vecTheLights[currentLight].position.x << ", "
-			<< ::g_pTheLightManager->vecTheLights[currentLight].position.y << ", "
-			<< ::g_pTheLightManager->vecTheLights[currentLight].position.z
-			<< " linear: " << ::g_pTheLightManager->vecTheLights[currentLight].atten.y
-			<< " quad: " << ::g_pTheLightManager->vecTheLights[currentLight].atten.z;
+		//std::stringstream ssTitle;
+		//ssTitle << "Camera (x,y,z): "
+		//	<< ::g_cameraEye.x << ", "
+		//	<< ::g_cameraEye.y << ", "
+		//	<< ::g_cameraEye.z
+		//	<< "Target (x,y,z): "
+		//	<< ::g_cameraTarget.x << ", "
+		//	<< ::g_cameraTarget.y << ", "
+		//	<< ::g_cameraTarget.z
+		//	<< "  Light #" << currentLight << " (xyz): "
+		//	<< ::g_pTheLightManager->vecTheLights[currentLight].position.x << ", "
+		//	<< ::g_pTheLightManager->vecTheLights[currentLight].position.y << ", "
+		//	<< ::g_pTheLightManager->vecTheLights[currentLight].position.z
+		//	<< " linear: " << ::g_pTheLightManager->vecTheLights[currentLight].atten.y
+		//	<< " quad: " << ::g_pTheLightManager->vecTheLights[currentLight].atten.z;
 
-		std::string theText = ssTitle.str();
+		//std::string theText = ssTitle.str();
+		std::string theText = "Arcane Settlers - Hassan Assaf";
 
-		glfwSetWindowTitle(window, ssTitle.str().c_str());
+		glfwSetWindowTitle(window, theText.c_str());
 		// Or this:
 		//std::string theText = ssTitle.str();
 		//glfwSetWindowTitle(window, ssTitle.str().c_str() );

@@ -131,12 +131,17 @@ std::vector<std::vector<glm::vec2>> PathFinder::calculateFlowfield(glm::vec2 des
                     if (visited[neighbourY][neighbourX])
                         continue;
 
-                    visited[neighbourY][neighbourX] = true;
+                    // Calculate the cost of the path from the current cell to the neighbor
+                    float Cost = curNode->cost + neighbour->cost;
 
-                    // Assign direction based on cost
-                    float newCost = curNode->cost + neighbour->cost;
-                    flowField[neighbourY][neighbourX] = curPos - neighbour->position;
-                    queue.push(std::make_pair(neighbour->position, curPos));
+                    // Compare cost 
+                    if (Cost < prevPos.y * mWidth + prevPos.x)
+                    {
+                        // Update the direction to the neighbor
+                        flowField[neighbourY][neighbourX] = curPos - neighbour->position;
+                        visited[neighbourY][neighbourX] = true;
+                        queue.push(std::make_pair(neighbour->position, curPos));
+                    }
                 }
             }
         }

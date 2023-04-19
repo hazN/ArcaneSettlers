@@ -11,6 +11,7 @@
 #include "PathFinder.h"
 struct ColonistStats {
     // MAX 100
+    float maxHp = 100;
     float hp = 100;
     float hunger = 100.f;
     // Skills from lvl 1-20

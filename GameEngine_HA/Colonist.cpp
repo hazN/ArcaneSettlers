@@ -34,7 +34,7 @@ void Colonist::Update(float deltaTime) {
 		mStats->hunger -= 0.000139f;
 	}
 	// Health regeneration
-	if (mStats->hp < 100.f)
+	if (mStats->hp < mStats->maxHp)
 	{
 		if (rand() < 0.01f * RAND_MAX) {
 			mStats->hp += 1.f;
@@ -159,7 +159,6 @@ void Colonist::Update(float deltaTime) {
 	}
 	case ActionType::AttackIntruder:
 	{
-
 		ExecuteCommand();
 		break;
 	}
@@ -480,6 +479,7 @@ void Colonist::Attack()
 		if (std::isnan(mGOColonist->mesh->qRotation.x))
 			mGOColonist->mesh->qRotation = glm::quat();
 		mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
+		return;
 	}
 	float duration = (clock() - attackTime) / (double)CLOCKS_PER_SEC;
 	if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)

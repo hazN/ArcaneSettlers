@@ -8,6 +8,78 @@
 #include "cBasicTextureManager.h"
 extern cBasicTextureManager* g_pTextureManager;
 
+void GameGUI::renderForgeWindow()
+{
+	if (!forgeWindowOpen)
+	{
+		return;
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(400, 200));
+	ImGui::Begin("Forge", &forgeWindowOpen, ImGuiWindowFlags_None);
+
+	ImGui::Image((void*)(intptr_t)g_pTextureManager->getTextureIDFromName("Minerals.bmp"), ImVec2(64, 64));
+	ImGui::SameLine();
+	ImGui::Text("%d", gDepot->inventory->getItemCount(ores));
+	ImGui::SameLine();
+	ImGui::Text("-->");
+	ImGui::SameLine();
+	ImGui::Image((void*)(intptr_t)g_pTextureManager->getTextureIDFromName("Crystal.bmp"), ImVec2(64, 64));
+	ImGui::SameLine();
+	ImGui::Text("%d", gDepot->inventory->getItemCount(gems));
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 1.0f, 0.5f));
+	if (ImGui::Button("Smelt", ImVec2(100, 50)))
+	{
+		if (gDepot->inventory->getItemCount(ores) > 0)
+		{
+			gDepot->inventory->removeItem(ores, 1);
+			Item gem(gems, "Gems", "Crystal.bmp", 4);
+			gDepot->inventory->addItem(gem, 1);
+		}
+	}
+	ImGui::PopStyleColor();
+
+	ImGui::End();
+}
+
+void GameGUI::renderAnvilWindow()
+{
+	if (!anvilWindowOpen)
+	{
+		return;
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(400, 400));
+	ImGui::Begin("Anvil", &anvilWindowOpen, ImGuiWindowFlags_None);
+
+	ImGui::Image((void*)(intptr_t)g_pTextureManager->getTextureIDFromName("Gems.bmp"), ImVec2(64, 64));
+	ImGui::SameLine();
+	ImGui::Text("%d", gDepot->inventory->getItemCount(gems));
+
+	ImGui::BeginChild("ColonistList", ImVec2(ImGui::GetWindowContentRegionWidth(), 300), true);
+
+	for (size_t i = 0; i < vecColonists.size(); ++i)
+	{
+		ImGui::PushID(i);
+		if (ImGui::Button("Upgrade Armour", ImVec2(100, 30)))
+		{
+			if (gDepot->inventory->getItemCount(gems) > 0)
+			{
+				vecColonists[i]->mStats->maxHp += 10;
+				gDepot->inventory->removeItem(gems, 1);
+			}
+		}
+		ImGui::SameLine();
+		ImGui::Text("%s", vecColonists[i]->name.c_str());
+		ImGui::PopID();
+	}
+
+	ImGui::EndChild();
+
+	ImGui::End();
+}
+
 void GameGUI::renderConsole()
 {
 	ImGui::SetNextWindowSize(ImVec2(400, 200), ImGuiCond_FirstUseEver);
@@ -89,7 +161,12 @@ void GameGUI::renderBuildingMenu()
 	for (std::pair<BuildingType, std::map<itemId, int>> recipe : buildingRecipes)
 	{
 		bool canCraft = buildingManager->canCraft(recipe.first);
-		// Grey out the button if its not craftable 
+
+		// Check if the workshop has been placed(unless this is the workshop)
+		if (recipe.first != WORKSHOP && buildingManager->getModifierForType(WORKSHOP) != 1)
+			canCraft = false;
+
+		// Grey out the button if it's not craftable
 		if (!canCraft)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -103,7 +180,8 @@ void GameGUI::renderBuildingMenu()
 				if (selectedBuilding == recipe.first)
 				{
 					selectedBuilding = NONE;
-				} else selectedBuilding = recipe.first;
+				}
+				else selectedBuilding = recipe.first;
 			}
 		}
 
@@ -122,7 +200,6 @@ void GameGUI::renderBuildingMenu()
 
 	ImGui::End();
 }
-
 
 void GameGUI::renderDepotInfoWindow()
 {
@@ -212,6 +289,8 @@ bool GameGUI::colonistInfoWindowOpen = false;
 bool GameGUI::depotInfoWindowOpen = false;
 bool GameGUI::buildingMenuOpen = false;
 bool GameGUI::consoleWindowOpen = false;
+bool GameGUI::forgeWindowOpen = false;
+bool GameGUI::anvilWindowOpen = false;
 std::vector<std::string> GameGUI::mMessages;
 GameGUI::GameGUI()
 {
@@ -221,15 +300,25 @@ GameGUI::GameGUI()
 void GameGUI::render()
 {
 	renderColonistsWindow();
-	if (colonistInfoWindowOpen) {
+	if (colonistInfoWindowOpen)
+	{
 		renderColonistInfoWindow();
 	}
 	if (depotInfoWindowOpen)
 	{
 		renderDepotInfoWindow();
 	}
+	if (forgeWindowOpen)
+	{
+		renderForgeWindow();
+	}
+	if (anvilWindowOpen)
+	{
+		renderAnvilWindow();
+	}
 	renderBottomBar();
 }
+
 
 void GameGUI::addMessage(const char* message)
 {
