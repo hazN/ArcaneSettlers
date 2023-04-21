@@ -7,6 +7,7 @@ Colonist::Colonist()
 {
 	mStats = new ColonistStats();
 	mInventory = new Inventory();
+	particleSystem = new ParticleSystem("Cube");
 	InitializeCriticalSection(&mStatsCriticalSection);
 }
 
@@ -317,6 +318,9 @@ void Colonist::HarvestTree()
 		duration = (clock() - deltaTime) / (double)CLOCKS_PER_SEC;
 		if (duration > 0.5f)
 		{
+			// Generate some wood particles
+			particleSystem->GenerateParticles(20, mTarget->mesh->position, 1.1f, 2.f, 0.2f, glm::vec4(0.5f, 0.25f, 0.0f, 1.0f));
+
 			// Formula to calculate efficiency, based off Smite's dmg
 			const float X = 100.0f;
 			float efficiencyMultiplier = std::max(1.0f, (float)mStats->chopping / 2.0f);
@@ -377,6 +381,8 @@ void Colonist::MineNode() {
 			Item minedItem;
 			if (hasStone)
 			{
+				// Generate some stone particles
+				particleSystem->GenerateParticles(20, mTarget->mesh->position, 1.1f, 2.f, 0.2f, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 				minedItem.id = stone;
 				minedItem.icon = "Stone.bmp";
 				minedItem.name = "Stone";
@@ -384,6 +390,8 @@ void Colonist::MineNode() {
 			}
 			else if (hasOres)
 			{
+				// Generate some gold particles
+				particleSystem->GenerateParticles(30, mTarget->mesh->position, 1.1f, 2.f, 0.2f, glm::vec4(1.f, 0.33f, 0.0f, 1.0f));
 				minedItem.id = ores;
 				minedItem.icon = "Minerals.bmp";
 				minedItem.name = "Ore";

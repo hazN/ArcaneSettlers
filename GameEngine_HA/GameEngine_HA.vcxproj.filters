@@ -12,9 +12,6 @@
     <Filter Include="Lights">
       <UniqueIdentifier>{864bc46c-7a76-49f9-8385-743e9484e3c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="cMeshObject">
-      <UniqueIdentifier>{1e7d9703-55ad-47d4-8bcd-3c6c5ccebbf5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Callback Functions">
       <UniqueIdentifier>{9991f3da-50cb-4035-a296-2383f748675d}</UniqueIdentifier>
     </Filter>
@@ -45,9 +42,6 @@
     <Filter Include="savedata">
       <UniqueIdentifier>{d251e719-3ffc-40a8-9c7a-90734358b25a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{bee1fa1c-4bf1-4d2f-a54e-5ddcb05360de}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
@@ -70,6 +64,12 @@
     <Filter Include="Artificial Intelligence\Enemy">
       <UniqueIdentifier>{e8fed0d5-845e-46f1-b8d9-71fddcf5d0ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{1e7d9703-55ad-47d4-8bcd-3c6c5ccebbf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{bee1fa1c-4bf1-4d2f-a54e-5ddcb05360de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cVAOManager\cVAOManager.cpp">
@@ -91,7 +91,7 @@
       <Filter>Lights</Filter>
     </ClCompile>
     <ClCompile Include="cMeshObject.cpp">
-      <Filter>cMeshObject</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="KeyboardCallbackFunctions.cpp">
       <Filter>Callback Functions</Filter>
@@ -150,20 +150,11 @@
     <ClCompile Include="Character.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="AnimationManager.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
     <ClCompile Include="DrawObject_function.cpp">
-      <Filter>cMeshObject</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsHelper.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="IDGenerator.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="GameGUI.cpp">
       <Filter>GUI</Filter>
@@ -204,6 +195,15 @@
     <ClCompile Include="EventSystem.cpp">
       <Filter>GameLogic</Filter>
     </ClCompile>
+    <ClCompile Include="IDGenerator.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cVAOManager\sModelDrawInfo.h">
@@ -228,7 +228,7 @@
       <Filter>Lights</Filter>
     </ClInclude>
     <ClInclude Include="cMeshObject.h">
-      <Filter>cMeshObject</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="cShaderManager.h">
       <Filter>ShaderManager</Filter>
@@ -296,9 +296,6 @@
     <ClInclude Include="JSONPersitence.h">
       <Filter>savedata</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject\GameObject.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Animation</Filter>
     </ClInclude>
@@ -310,12 +307,6 @@
     </ClInclude>
     <ClInclude Include="AnimationManager.h">
       <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsHelper.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="IDGenerator.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameGUI.h">
       <Filter>GUI</Filter>
@@ -352,6 +343,15 @@
     </ClInclude>
     <ClInclude Include="EventSystem.h">
       <Filter>GameLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="IDGenerator.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\GameObject.h">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

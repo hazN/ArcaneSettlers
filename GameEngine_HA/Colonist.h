@@ -9,7 +9,9 @@
 #include "Inventory.h"
 #include <time.h>
 #include "PathFinder.h"
-struct ColonistStats {
+#include "ParticleSystem.h"
+struct ColonistStats 
+{
     // MAX 100
     float maxHp = 100;
     float hp = 100;
@@ -20,7 +22,8 @@ struct ColonistStats {
     int combat = 1;
 };
 
-class Colonist {
+class Colonist 
+{
 public:
     Colonist();
     Colonist(ColonistStats stats);

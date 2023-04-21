@@ -138,7 +138,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -190,8 +190,8 @@
     <ClCompile Include="JSONPersitence.cpp" />
     <ClCompile Include="KeyboardCallbackFunctions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PathFinder.cpp" />
-    <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="TerrainManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -240,8 +240,8 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="JSONPersitence.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PathFinder.h" />
-    <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="quaternion_utils.h" />
     <ClInclude Include="TerrainManager.h" />
   </ItemGroup>

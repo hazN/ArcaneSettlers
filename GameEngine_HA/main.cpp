@@ -42,7 +42,6 @@
 #include <physics/physx/PhysicsFactory.h>
 #include <physics/physx/CharacterController.h>
 #include "AnimationManager.h"
-#include "PhysicsHelper.h"
 #include <Interface/iCharacterController.h>
 #include "quaternion_utils.h"
 #include "IDGenerator.h"
@@ -52,9 +51,6 @@
 #include "EventSystem.h"
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
-std::vector<GameObject*> gameObjects;
-std::vector<GameObject*> randomBalls;
-extern int ballIndex;
 TerrainManager* terrainManager;
 ColonistManager* colonistManager;
 cBasicTextureManager* g_pTextureManager = NULL;
@@ -623,8 +619,6 @@ int main(int argc, char* argv[])
 	//pVAOManager->Load();
 
 	// START OF PHYSICS
-	PhysicsHelper* physicsHelper = new PhysicsHelper();
-
 	// Initialize physicsfactory, only non-interface call
 	using namespace physics;
 	_physicsFactory = new PhysicsFactory;
@@ -753,6 +747,7 @@ int main(int argc, char* argv[])
 		colonistManager->AddColonist(goColonist);
 	}
 	eventSystem = new EventSystem();
+	particleSystem = new ParticleSystem("Cube");
 	float g_PrevTime = 0.f;
 	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
 	g_cameraEye = glm::vec3(1.f, 150, 0.f);
@@ -768,15 +763,10 @@ int main(int argc, char* argv[])
 		renderTransparentBuildingMesh();
 		if (!gPause)
 		{
+			world->TimeStep(1.f);
 			eventSystem->Update();
 			colonistManager->Update();
-			// Play random animation
-			duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
-			if (duration > 2.f)
-			{
-				deltaTime = std::clock();
-				//goWarrior->animCharacter->SetAnimation(rand() % 14, 1.5f);
-			}
+			particleSystem->Update(0.05f);
 			// Update animation manager(all animations)
 			{
 				double currTime = glfwGetTime();
@@ -790,26 +780,14 @@ int main(int argc, char* argv[])
 
 				animationManager->UpdateAll(elapsedTimeInSeconds);
 			}
-			world->TimeStep(1.f);
-
-			duration = (std::clock() - deltaTime) / (double)CLOCKS_PER_SEC;
-			// Update each object to match its rigidbodies transform
-			for (GameObject* go : gameObjects)
-			{
-				if (go->rigidBody)
-				{
-					go->mesh->position = go->rigidBody->GetGLMPosition();
-					physics::Quaternion rot;
-					go->rigidBody->GetRotation(rot);
-					go->mesh->qRotation = glm::quat(rot.w, rot.x, rot.y, rot.z);
-				}
-			}
 		}
-		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
 		// Mouse Lookaround
 		if (!menuMode && theEditMode != PHYSICS_TEST)
 			mouse_camera_update(window);
+
+		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
 		DrawConcentricDebugLightObjects();
+
 		float ratio;
 		int width, height;
 
@@ -834,8 +812,8 @@ int main(int argc, char* argv[])
 				::g_cameraEye + ::g_cameraTarget,
 				upVector);
 		}
+
 		// Pass eye location to the shader
-		// uniform vec4 eyeLocation;
 		GLint eyeLocation_UniLoc = glGetUniformLocation(shaderID, "eyeLocation");
 
 		glUniform4f(eyeLocation_UniLoc,
@@ -861,19 +839,6 @@ int main(int argc, char* argv[])
 		// In other words, go throug the vec_pMeshObjects container
 		//  and draw each one of the objects
 		// Separate from main draw so its easier to clear them
-		for (GameObject* go : randomBalls)
-		{
-			// The parent's model matrix is set to the identity
-			glm::mat4x4 matModel = glm::mat4x4(1.0f);
-
-			// All the drawing code has been moved to the DrawObject function
-			if (go->mesh == nullptr)
-				continue;
-			DrawObject(go->mesh,
-				matModel,
-				shaderID, ::g_pTextureManager,
-				pVAOManager, mModel_location, mModelInverseTransform_location);
-		}
 		for (GameObject* go : goVector)
 		{
 			if (go == nullptr)
@@ -920,6 +885,14 @@ int main(int argc, char* argv[])
 					}
 				}
 			}
+		}
+		for (Particle* particle : particleSystem->GetAliveParticles())
+		{
+			glm::mat4x4 matModel = glm::mat4x4(1.0f);
+			DrawObject(particle->mMesh,
+				matModel,
+				shaderID, ::g_pTextureManager,
+				pVAOManager, mModel_location, mModelInverseTransform_location);
 		}
 		for (std::vector< cMeshObject* >::iterator itCurrentMesh = g_pMeshObjects.begin();
 			itCurrentMesh != g_pMeshObjects.end();

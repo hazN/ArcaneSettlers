@@ -17,6 +17,7 @@
 #include "BuildingManager.h"
 #include "Enemy.h"
 #include "EventSystem.h"
+#include "ParticleSystem.h"
 
 extern GLFWwindow* window;
 extern cLightManager* g_pTheLightManager;
@@ -67,4 +68,5 @@ extern PathFinder* gPathFinder;
 extern bool gPause;
 extern std::vector<GameObject*> goVector;
 extern EventSystem* eventSystem;
+extern ParticleSystem* particleSystem;
 #endif
