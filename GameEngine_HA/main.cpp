@@ -67,7 +67,8 @@ void DrawObject(cMeshObject* pCurrentMeshObject,
 	cBasicTextureManager* pTextureManager,
 	cVAOManager* pVAOManager,
 	GLint mModel_location,                      // Uniform location of mModel matrix
-	GLint mModelInverseTransform_location);      // Uniform location of mView location
+	GLint mModelInverseTransform_location,	    // Uniform location of mView location
+	const std::vector<glm::mat4>& instanceModelMatrices = std::vector<glm::mat4>());
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
@@ -201,18 +202,6 @@ bool CreateObjects(std::string fileName)
 			pObject->scaleXYZ = scale;
 			g_pMeshObjects.push_back(pObject);
 		}
-		//else if (type == "advanced")
-		//{
-		//	in >> meshName >> friendlyName >> useRGBA >> colour.x >> colour.y >> colour.z >> colour.w >> isWireframe >> scale >> doNotLight;
-		//	cMeshObject* pObject = new cMeshObject();
-		//	pObject->meshName = meshName;
-		//	pObject->friendlyName = friendlyName;
-		//	pObject->bUse_RGBA_colour = useRGBA;
-		//	pObject->RGBA_colour = colour;
-		//	pObject->isWireframe = isWireframe;
-		//	pObject->scale = 1.0f;
-		//	pObject->bDoNotLight = doNotLight;
-		//}
 	}
 
 	return true;
@@ -222,12 +211,12 @@ bool SaveTheVAOModelTypesToFile(std::string fileTypesToLoadName,
 
 void DrawConcentricDebugLightObjects(void);
 
-// HACK: These are the light spheres we will use for debug lighting
-cMeshObject* pDebugSphere_1 = NULL;// = new cMeshObject();
-cMeshObject* pDebugSphere_2 = NULL;// = new cMeshObject();
-cMeshObject* pDebugSphere_3 = NULL;// = new cMeshObject();
-cMeshObject* pDebugSphere_4 = NULL;// = new cMeshObject();
-cMeshObject* pDebugSphere_5 = NULL;// = new cMeshObject();
+// Debug Spheres for viewing lights
+cMeshObject* pDebugSphere_1 = NULL;
+cMeshObject* pDebugSphere_2 = NULL;
+cMeshObject* pDebugSphere_3 = NULL;
+cMeshObject* pDebugSphere_4 = NULL;
+cMeshObject* pDebugSphere_5 = NULL;
 cMeshObject* renderBuildingMesh = NULL;
 
 int main(int argc, char* argv[])
@@ -766,7 +755,7 @@ int main(int argc, char* argv[])
 			world->TimeStep(1.f);
 			eventSystem->Update();
 			colonistManager->Update();
-			particleSystem->Update(0.05f);
+			particleSystem->Update(0.01f);
 			// Update animation manager(all animations)
 			{
 				double currTime = glfwGetTime();
@@ -784,61 +773,29 @@ int main(int argc, char* argv[])
 		// Mouse Lookaround
 		if (!menuMode && theEditMode != PHYSICS_TEST)
 			mouse_camera_update(window);
-
 		::g_pTheLightManager->CopyLightInformationToShader(shaderID);
 		DrawConcentricDebugLightObjects();
-
+		// Get info for frame buffer
 		float ratio;
 		int width, height;
-
 		glfwGetFramebufferSize(window, &width, &height);
 		ratio = width / (float)height;
-
 		glViewport(0, 0, width, height);
-
+		// Clear buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-
-		// Different matview based on camera being used
-		if (theEditMode == PHYSICS_TEST)
-		{
-			matView = glm::lookAt(::g_cameraEye,
-				::g_cameraTarget,
-				upVector);
-		}
-		else {
-			matView = glm::lookAt(::g_cameraEye,
-				::g_cameraEye + ::g_cameraTarget,
-				upVector);
-		}
-
+		//View Matrix
+		matView = glm::lookAt(::g_cameraEye, ::g_cameraEye + ::g_cameraTarget, upVector);
 		// Pass eye location to the shader
 		GLint eyeLocation_UniLoc = glGetUniformLocation(shaderID, "eyeLocation");
-
-		glUniform4f(eyeLocation_UniLoc,
-			::g_cameraEye.x, ::g_cameraEye.y, ::g_cameraEye.z, 1.0f);
-
-		matProjection = glm::perspective(
-			0.6f,       // Field of view (in degress, more or less 180)
-			ratio,
-			0.1f,       // Near plane (make this as LARGE as possible)
-			10000.0f);   // Far plane (make this as SMALL as possible)
-		// 6-8 digits of precision
-		//
-// Set once per scene (not per object)
+		glUniform4f(eyeLocation_UniLoc, ::g_cameraEye.x, ::g_cameraEye.y, ::g_cameraEye.z, 1.0f);
+		// Projection Matrix 
+		matProjection = glm::perspective( 0.6f, ratio, 0.1f, 10000.0f);
+		
+		// START OF DRAWING
 		glUniformMatrix4fv(mView_location, 1, GL_FALSE, glm::value_ptr(matView));
 		glUniformMatrix4fv(mProjection_location, 1, GL_FALSE, glm::value_ptr(matProjection));
-		//    ____  _             _            __
-		//   / ___|| |_ __ _ _ __| |_    ___  / _|  ___  ___ ___ _ __   ___
-		//   \___ \| __/ _` | '__| __|  / _ \| |_  / __|/ __/ _ \ '_ \ / _ \
-        //    ___) | || (_| | |  | |_  | (_) |  _| \__ \ (_|  __/ | | |  __/
-		//   |____/ \__\__,_|_|   \__|  \___/|_|   |___/\___\___|_| |_|\___|
-		//
-		// We draw everything in our "scene"
-		// In other words, go throug the vec_pMeshObjects container
-		//  and draw each one of the objects
-		// Separate from main draw so its easier to clear them
 		for (GameObject* go : goVector)
 		{
 			if (go == nullptr)
@@ -850,7 +807,6 @@ int main(int argc, char* argv[])
 					std::string name = "BoneMatrices[" + std::to_string(i) + "]";
 					GLint boneMatrix = glGetUniformLocation(shaderID, name.c_str());
 					glUniformMatrix4fv(boneMatrix, 1, GL_FALSE, glm::value_ptr(go->BoneModelMatrices[i]));
-					//std::string name = "BoneMatrices[" + std::to_string(i) + "]";
 				}
 				GLint bHasBones = glGetUniformLocation(shaderID, "bHasBones");
 				if (go->hasBones)
@@ -860,11 +816,9 @@ int main(int argc, char* argv[])
 				// The parent's model matrix is set to the identity
 				glm::mat4x4 matModel = glm::mat4x4(1.0f);
 
-				// All the drawing code has been moved to the DrawObject function
 				if (go->mesh == nullptr)
 					continue;
 
-		
 				DrawObject(go->mesh,
 					matModel,
 					shaderID, ::g_pTextureManager,
@@ -886,68 +840,103 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-		for (Particle* particle : particleSystem->GetAliveParticles())
+		// Drawing Particle System 
+		if(!particleSystem->GetAliveParticles().empty())
 		{
-			glm::mat4x4 matModel = glm::mat4x4(1.0f);
-			DrawObject(particle->mMesh,
-				matModel,
-				shaderID, ::g_pTextureManager,
-				pVAOManager, mModel_location, mModelInverseTransform_location);
-		}
-		for (std::vector< cMeshObject* >::iterator itCurrentMesh = g_pMeshObjects.begin();
-			itCurrentMesh != g_pMeshObjects.end();
-			itCurrentMesh++)
-		{
-			cMeshObject* pCurrentMeshObject = *itCurrentMesh;        // * is the iterator access thing
-
-			// Where do I put THIS??
-			// i.e. if the object is invisble by the child objects ARE visible...?
-			if (!pCurrentMeshObject->bIsVisible)
+			std::vector<glm::mat4> instanceModelMatrices;
+			for (Particle* particle : particleSystem->GetAliveParticles())
 			{
-				// Skip the rest of the loop
-				continue;
+				// Create a model matrix for each particle
+				glm::mat4 matModel = glm::mat4(1.0f);
+				glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f), particle->mMesh->position);
+				glm::mat4 matQRotation = glm::mat4(particle->mMesh->qRotation);
+				glm::mat4 matScale = glm::scale(glm::mat4(1.0f), particle->mMesh->scaleXYZ);
+				matModel = matModel * matTranslation * matQRotation * matScale;
+				// Add the model matrix to the modelmatrices vector
+				instanceModelMatrices.push_back(matModel);
 			}
-			// The parent's model matrix is set to the identity
-			glm::mat4x4 matModel = glm::mat4x4(1.0f);
+			cMeshObject* particleMesh = particleSystem->GetAliveParticles()[0]->mMesh;
 
-			// All the drawing code has been moved to the DrawObject function
-			DrawObject(pCurrentMeshObject,
+			glm::mat4x4 matModel = glm::mat4x4(1.0f);
+			DrawObject(particleMesh,
 				matModel,
 				shaderID, ::g_pTextureManager,
-				pVAOManager, mModel_location, mModelInverseTransform_location);
-		}//for ( unsigned int index
+				pVAOManager, mModel_location, mModelInverseTransform_location, instanceModelMatrices);
+		}
+		// Drawing rest of the meshes
+		{
+			// Using a map since there will be different meshes in use
+			std::map<std::string, std::vector<glm::mat4>> instanceModelMatricesMap;
+			// Loop through meshes and fill the map
+			for (cMeshObject* pCurrentMeshObject : g_pMeshObjects)
+			{
+				if (!pCurrentMeshObject->bIsVisible)
+					continue;
+				if (pCurrentMeshObject->isWireframe)
+				{
+					glm::mat4 matModel = glm::mat4(1.0f);
+					DrawObject(pCurrentMeshObject,
+						matModel,
+						shaderID, ::g_pTextureManager,
+						pVAOManager, mModel_location, mModelInverseTransform_location);
+					continue;
+				}
+				// Group objects by their mesh 
+				glm::mat4 matModel = glm::mat4(1.0f);
+				glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f), pCurrentMeshObject->position);
+				glm::mat4 matQRotation = glm::mat4(pCurrentMeshObject->qRotation);
+				glm::mat4 matScale = glm::scale(glm::mat4(1.0f), pCurrentMeshObject->scaleXYZ);
+				matModel = matModel * matTranslation * matQRotation * matScale;
+				instanceModelMatricesMap[pCurrentMeshObject->meshName].push_back(matModel);
+			}
+
+			// Draw each instance group now
+			for (const std::pair<std::string, std::vector<glm::mat4>>& instanceGroup : instanceModelMatricesMap)
+			{
+				const std::string& meshName = instanceGroup.first;
+				const std::vector<glm::mat4>& instanceModelMatrices = instanceGroup.second;
+
+				if (instanceModelMatrices.empty())
+					continue;
+
+				cMeshObject* instanceMesh = nullptr;
+				for (cMeshObject* pCurrentMeshObject : g_pMeshObjects)
+				{
+					if (pCurrentMeshObject->meshName == meshName)
+					{
+						instanceMesh = pCurrentMeshObject;
+						break;
+					}
+				}
+
+				if (instanceMesh == nullptr)
+				{
+					continue;
+				}
+
+				glm::mat4x4 matModel = glm::mat4x4(1.0f);
+				DrawObject(instanceMesh,
+					matModel,
+					shaderID, ::g_pTextureManager,
+					pVAOManager, mModel_location, mModelInverseTransform_location, instanceModelMatrices);
+			}
+
+		}
 
 		// Draw the skybox
 		{
 			GLint bIsSkyboxObject_UL = glGetUniformLocation(shaderID, "bIsSkyboxObject");
 			glUniform1f(bIsSkyboxObject_UL, (GLfloat)GL_TRUE);
-
 			glm::mat4x4 matModel = glm::mat4x4(1.0f);
-
-			// move skybox to the cameras location
 			pSkyBox->position = ::g_cameraEye;
-
-			// The scale of this large skybox needs to be smaller than the far plane
-			//  of the projection matrix.
-			// Maybe make it half the size
-			// Here, our far plane is 10000.0f...
 			pSkyBox->SetUniformScale(7500.0f);
-
-			// All the drawing code has been moved to the DrawObject function
 			DrawObject(pSkyBox,
 				matModel,
 				shaderID, ::g_pTextureManager,
 				pVAOManager, mModel_location, mModelInverseTransform_location);
-
-			// Turn this off
 			glUniform1f(bIsSkyboxObject_UL, (GLfloat)GL_FALSE);
-		}//for ( unsigned int index
-		//    _____           _          __
-		//   | ____|_ __   __| |   ___  / _|  ___  ___ ___ _ __   ___
-		//   |  _| | '_ \ / _` |  / _ \| |_  / __|/ __/ _ \ '_ \ / _ \
-        //   | |___| | | | (_| | | (_) |  _| \__ \ (_|  __/ | | |  __/
-		//   |_____|_| |_|\__,_|  \___/|_|   |___/\___\___|_| |_|\___|
-		//
+		}
+		// END OF DRAWING
 
 		glfwPollEvents();
 
@@ -961,32 +950,9 @@ int main(int argc, char* argv[])
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 
-		// Set the window title
-		//glfwSetWindowTitle(window, "Hey");
-
-		//std::stringstream ssTitle;
-		//ssTitle << "Camera (x,y,z): "
-		//	<< ::g_cameraEye.x << ", "
-		//	<< ::g_cameraEye.y << ", "
-		//	<< ::g_cameraEye.z
-		//	<< "Target (x,y,z): "
-		//	<< ::g_cameraTarget.x << ", "
-		//	<< ::g_cameraTarget.y << ", "
-		//	<< ::g_cameraTarget.z
-		//	<< "  Light #" << currentLight << " (xyz): "
-		//	<< ::g_pTheLightManager->vecTheLights[currentLight].position.x << ", "
-		//	<< ::g_pTheLightManager->vecTheLights[currentLight].position.y << ", "
-		//	<< ::g_pTheLightManager->vecTheLights[currentLight].position.z
-		//	<< " linear: " << ::g_pTheLightManager->vecTheLights[currentLight].atten.y
-		//	<< " quad: " << ::g_pTheLightManager->vecTheLights[currentLight].atten.z;
-
-		//std::string theText = ssTitle.str();
-		std::string theText = "Arcane Settlers - Hassan Assaf";
+		std::string theText = "Arcane Settlers";
 
 		glfwSetWindowTitle(window, theText.c_str());
-		// Or this:
-		//std::string theText = ssTitle.str();
-		//glfwSetWindowTitle(window, ssTitle.str().c_str() );
 	}
 
 	// Get rid of stuff
@@ -997,6 +963,7 @@ int main(int argc, char* argv[])
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }
+
 void DrawConcentricDebugLightObjects(void)
 {
 	extern bool bEnableDebugLightingObjects;
