@@ -32,19 +32,12 @@ std::string cShaderManager::cShader::getShaderTypeString(void)
 	return "UNKNOWN_SHADER_TYPE";
 }
 
-
-//// TODO: For the students to do, because it's FUN, FUN, FUN
-//std::map< std::string /*name of uniform variable*/,
-//		    unsigned int /* uniform location ID */ > 
-//						mapUniformName_to_UniformLocation;
-
 // Look up the uniform inside the shader, then save it, if it finds it
 bool cShaderManager::cShaderProgram::LoadUniformLocation(std::string variableName)
 {
-	// 
 	GLint uniLocation = glGetUniformLocation(this->ID, 
 											 variableName.c_str() );
-	// Did it find it (not -1)
+	// Did it find it 
 	if ( uniLocation == -1 )
 	{	// Nope.
 		return false;

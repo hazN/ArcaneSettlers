@@ -17,14 +17,7 @@ float rotSpeed = 0.05;
 uniform vec4 RGBA_Colour;		// "Diffuse" colour
 uniform bool bUseRGBA_Colour;	
 
-uniform sampler2D texture0;		
-uniform sampler2D texture1;
-uniform sampler2D texture2;
-uniform sampler2D texture3;
-uniform sampler2D texture4;
-uniform sampler2D texture5;
-uniform sampler2D texture6;
-uniform sampler2D texture7;
+uniform sampler2D texture0, texture1, texture2, texture3, texture4, texture5, texture6, texture7;
 
 uniform vec4 texRatio_0_3;		// Ratios of textures to blend together (0 to 1)
 uniform vec4 texRatio_4_7;

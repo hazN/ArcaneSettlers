@@ -78,68 +78,25 @@ bool cVAOManager::LoadModelIntoVAO(
 	    unsigned int shaderProgramID)
 
 {
-	// Load the model from file
-	// (We do this here, since if we can't load it, there's 
-	//	no point in doing anything else, right?)
-
+	// Load the model from the filename
 	drawInfo.meshName = fileName;
-
 	// Calculate the extents of this model
 	drawInfo.CalculateExtents();
 
-
-	// TODO: Load the model from file
-
-	// 
-	// Model is loaded and the vertices and indices are in the drawInfo struct
-	// 
-
-	// Create a VAO (Vertex Array Object), which will 
-	//	keep track of all the 'state' needed to draw 
-	//	from this buffer...
-
-	// Ask OpenGL for a new buffer ID...
+	// Create an id and bind the buffer
 	glGenVertexArrays( 1, &(drawInfo.VAO_ID) );
-	// "Bind" this buffer:
-	// - aka "make this the 'current' VAO buffer
 	glBindVertexArray(drawInfo.VAO_ID);
 
-	// Now ANY state that is related to vertex or index buffer
-	//	and vertex attribute layout, is stored in the 'state' 
-	//	of the VAO... 
-
-
-	// NOTE: OpenGL error checks have been omitted for brevity
-//	glGenBuffers(1, &vertex_buffer);
 	glGenBuffers(1, &(drawInfo.VertexBufferID) );
-
-//	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, drawInfo.VertexBufferID);
-	// sVert vertices[3]
-	glBufferData( GL_ARRAY_BUFFER, 
-				  sizeof(sVertex_RGBA_XYZ_N_UV_T_BiN_Bones) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
-				  (GLvoid*) drawInfo.pVertices,							// pVertices,			//vertices, 
-				  GL_STATIC_DRAW );
+	glBufferData( GL_ARRAY_BUFFER, sizeof(sVertex_RGBA_XYZ_N_UV_T_BiN_Bones) * drawInfo.numberOfVertices, (GLvoid*) drawInfo.pVertices, GL_STATIC_DRAW );
 
-
-	// Copy the index buffer into the video card, too
-	// Create an index buffer.
+	// Create an index buffer
 	glGenBuffers( 1, &(drawInfo.IndexBufferID) );
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawInfo.IndexBufferID);
-
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER,			// Type: Index element array
-	              sizeof( unsigned int ) * drawInfo.numberOfIndices, 
-	              (GLvoid*) drawInfo.pIndices,
-                  GL_STATIC_DRAW );
-
-
-//   __     __        _              _                            _   
-//   \ \   / /__ _ __| |_ _____  __ | |    __ _ _   _  ___  _   _| |_ 
-//    \ \ / / _ \ '__| __/ _ \ \/ / | |   / _` | | | |/ _ \| | | | __|
-//     \ V /  __/ |  | ||  __/>  <  | |__| (_| | |_| | (_) | |_| | |_ 
-//      \_/ \___|_|   \__\___/_/\_\ |_____\__,_|\__, |\___/ \__,_|\__|
-//                                              |___/                 
+	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( unsigned int ) * drawInfo.numberOfIndices, (GLvoid*) drawInfo.pIndices, GL_STATIC_DRAW );
+	
+	// Vertex Layout
 
 	// in vec4 vColour;
 	GLint vColour_location = glGetAttribLocation(shaderProgramID, "vColour");	

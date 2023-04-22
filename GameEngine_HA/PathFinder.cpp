@@ -111,6 +111,8 @@ std::vector<std::vector<glm::vec2>> PathFinder::calculateFlowfield(glm::vec2 des
         // Calculate the new direction
         Node* curNode = &mGrid[curPos.y][curPos.x];
         flowField[curPos.y][curPos.x] = prevPos - curPos;
+        bool foundOpenTile = false;
+        std::vector<std::pair<glm::vec2, glm::vec2>> neighbours;
 
         for (int dirY = -1; dirY <= 1; dirY++)
         {
@@ -137,11 +139,35 @@ std::vector<std::vector<glm::vec2>> PathFinder::calculateFlowfield(glm::vec2 des
                     // Compare cost 
                     if (Cost < prevPos.y * mWidth + prevPos.x)
                     {
-                        // Update the direction to the neighbor
-                        flowField[neighbourY][neighbourX] = curPos - neighbour->position;
-                        visited[neighbourY][neighbourX] = true;
-                        queue.push(std::make_pair(neighbour->position, curPos));
+                        if (neighbour->buildingType == NONE) {
+                            foundOpenTile = true;
+                            flowField[neighbourY][neighbourX] = curPos - neighbour->position;
+                            visited[neighbourY][neighbourX] = true;
+                            queue.push(std::make_pair(neighbour->position, curPos));
+                        }
+                        else {
+                            neighbours.push_back(std::make_pair(neighbour->position, curPos));
+                        }
                     }
+                }
+            }
+        }
+
+        if (!foundOpenTile) 
+        {
+            // Check all the neighbours to make sure we take the best route
+            for (const std::pair<glm::vec2, glm::vec2>& option : neighbours)
+            {
+                glm::vec2 newPos, prevPos;
+                std::tie(newPos, prevPos) = option;
+                int newY = newPos.y;
+                int newX = newPos.x;
+
+                if (!visited[newY][newX]) 
+                {
+                    flowField[newY][newX] = prevPos - newPos;
+                    visited[newY][newX] = true;
+                    queue.push(option);
                 }
             }
         }

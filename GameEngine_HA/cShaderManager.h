@@ -35,7 +35,6 @@ public:
 		unsigned int ID;	// ID from OpenGL (calls it a "name")
 		std::string friendlyName;	// We give it this name
 
-		// TODO: For the students to do, because it's FUN, FUN, FUN
 		std::map< std::string /*name of uniform variable*/,
 		          int /* uniform location ID */ > 
 								mapUniformName_to_UniformLocation;
