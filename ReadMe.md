@@ -12,7 +12,7 @@ Three settlers have come across a new land, help them survive by ordering them t
 ## **Controls:**  
 WASD QE -> Move Camera  
 ESC -> Lock/Unlock Camera to Mouse  
-LMB -> Interact: Select Units, Order Units(click on resources)
+LMB -> Interact: Select Units, Order Units(click on resources)  
 RMB -> Deselect All Units
 
 ![image](https://user-images.githubusercontent.com/40077821/233816329-0d1ea3a9-e737-4f89-a264-7661cbb2543d.png)
