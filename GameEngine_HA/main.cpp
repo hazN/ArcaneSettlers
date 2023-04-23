@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
 	pTerrainWireFrame->position = glm::vec3(-128.f, -49.9f, -64.f);
 	pTerrainWireFrame->isWireframe = true;
 	pTerrainWireFrame->scaleXYZ = glm::vec3(1.f);
-	g_pMeshObjects.push_back(pTerrainWireFrame);
+	//g_pMeshObjects.push_back(pTerrainWireFrame);
 
 	// DEBUG SPHERES
 	{
@@ -569,10 +569,11 @@ int main(int argc, char* argv[])
 	eventSystem = new EventSystem();
 	particleSystem = new ParticleSystem("Cube");
 	float g_PrevTime = 0.f;
-	g_cameraTarget = glm::vec3(0.f, 0, 0.f);
-	g_cameraEye = glm::vec3(1.f, 150, 0.f);
 	bool isKeyPressed = false;
 	gPathFinder->calculateFlowfield(TerrainManager::worldToGridCoords(gDepot->mesh->position));
+	g_cameraEye = glm::vec3(128.74f, 150.f, 43.1358f);
+	g_cameraTarget = glm::vec3(-0.910955f, -1.16f, -0.412506f);
+		
 	GameGUI::addMessage("Welcome to Arcane Settlers!");
 	GameGUI::addMessage("To begin either click on a unit, or drag a box to select multiple.");
 	GameGUI::addMessage("Once you have done so, click on a resource like a tree to order them to chop it down.");
@@ -580,6 +581,11 @@ int main(int argc, char* argv[])
 	GameGUI::addMessage("Enemies will raid soon so it's a good idea to prepare, create a workstation to open the other buildings, then make a Training Dummy for increased combat strength.");
 	while (!glfwWindowShouldClose(window))
 	{
+		if (glfwGetKey(window, GLFW_KEY_0))
+		{
+			std::cout << g_cameraEye.x << ", " << g_cameraEye.y << ", " << g_cameraEye.z << std::endl;
+			std::cout << g_cameraTarget.x << ", " << g_cameraTarget.y << ", " << g_cameraTarget.z << std::endl;
+		}
 		renderTransparentBuildingMesh();
 		if (!gPause)
 		{
