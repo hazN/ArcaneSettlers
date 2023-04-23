@@ -69,11 +69,11 @@ void ColonistManager::AddEnemy(GameObject* goEnemy)
 	enemy->mGOEnemy = goEnemy;
 	enemy->mCharacterController = goEnemy->characterController;
 	enemy->mGOEnemy->animCharacter->m_IsLooping = true;
+	enemy->mFlowfield = GetFlowField(gDepot->mesh->position);
 
 	EnemyThreadData* enemyData = new EnemyThreadData();
 	enemyData->pEnemy = enemy;
 	HANDLE hEnemyThread = CreateThread(NULL, 0, UpdateEnemyThread, (void*)enemyData, 0, 0);
-	enemy->mFlowfield = GetFlowField(gDepot->mesh->position);
 	vecEnemies.push_back(enemy);
 }
 
@@ -153,6 +153,8 @@ void ColonistManager::Update()
 			// Pass it the gDepot flowfield
 			for (targetFlowfield* thisTarget : targets)
 			{
+				if (thisTarget == nullptr)
+					continue;
 				if (*(thisTarget->target->position) == *gDepot->position)
 				{
 					colonist->mFlowfield = thisTarget->flowfield;

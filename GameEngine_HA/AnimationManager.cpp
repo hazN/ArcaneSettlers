@@ -24,15 +24,15 @@ Character* AnimationManager::CreateAnimatedCharacter(const char* filename, GameO
 	go->animCharacter->LoadAnimationFromAssimp(filename);
 	go->animCharacter->m_IsLooping = true;;
 	go->hasBones = true;
-	_mapCharacters.emplace(go->mesh->friendlyName, go);
-	_vecCharacters.push_back(go);
+	charactersByName.emplace(go->mesh->friendlyName, go);
+	characters.push_back(go);
 	return go->animCharacter;
 }
 
 void AnimationManager::SetAnimation(const char* name, int animation)
 {
-	std::map<std::string, GameObject*>::iterator it = _mapCharacters.find(name);
-	if (it != _mapCharacters.end())
+	std::map<std::string, GameObject*>::iterator it = charactersByName.find(name);
+	if (it != charactersByName.end())
 	{
 		GameObject* go = it->second;
 		if (go->animCharacter)
@@ -44,8 +44,8 @@ void AnimationManager::SetAnimation(const char* name, int animation)
 
 void AnimationManager::SetAnimation(const char* name, const char* animation)
 {
-	std::map<std::string, GameObject*>::iterator it = _mapCharacters.find(name);
-	if (it != _mapCharacters.end())
+	std::map<std::string, GameObject*>::iterator it = charactersByName.find(name);
+	if (it != charactersByName.end())
 	{
 		GameObject* go = it->second;
 		if (go->animCharacter)
@@ -59,7 +59,7 @@ void AnimationManager::SetAnimation(const char* name, const char* animation)
 
 void AnimationManager::UpdateAll(float elapsedTimeInSeconds)
 {
-	for (GameObject* goCharacter : _vecCharacters)
+	for (GameObject* goCharacter : characters)
 	{
 		if (goCharacter == nullptr)
 			continue;

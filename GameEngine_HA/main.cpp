@@ -5,22 +5,18 @@
 #include "Animation.h"
 #include "JSONPersitence.h"
 #include <glm/glm.hpp>
-#include <glm/vec3.hpp> // glm::vec3        (x,y,z)
-#include <glm/vec4.hpp> // glm::vec4        (x,y,z,w)
-#include <glm/mat4x4.hpp> // glm::mat4
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
+#include <glm/gtc/type_ptr.hpp>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <fstream>  // File streaming thing (like cin, etc.)
-#include <sstream>  // "string builder" type thing
-
-// Some STL (Standard Template Library) things
-#include <vector>           // aka a "smart array"
-
+#include <fstream>
+#include <sstream>
+#include <vector>
 #include "globalThings.h"
-
 #include "cShaderManager.h"
 #include "cVAOManager/cVAOManager.h"
 #include "cLightHelper.h"
@@ -32,7 +28,6 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "cBasicTextureManager.h"
 #include "GameObject/GameObject.h"
-
 #include <Interface/iPhysicsFactory.h>
 #include <Interface/SphereShape.h>
 #include <Interface/BoxShape.h>
@@ -49,8 +44,10 @@
 #include "TerrainManager.h"
 #include "ColonistManager.h"
 #include "EventSystem.h"
+
 glm::vec3 g_cameraEye = glm::vec3(0.00f, 100, 0.001f);
 glm::vec3 g_cameraTarget = glm::vec3(1.0f, 1.0f, 1.0f);
+
 TerrainManager* terrainManager;
 ColonistManager* colonistManager;
 cBasicTextureManager* g_pTextureManager = NULL;
@@ -69,12 +66,12 @@ void DrawObject(cMeshObject* pCurrentMeshObject,
 	GLint mModel_location,                      // Uniform location of mModel matrix
 	GLint mModelInverseTransform_location,	    // Uniform location of mView location
 	const std::vector<glm::mat4>& instanceModelMatrices = std::vector<glm::mat4>());
+
 static void error_callback(int error, const char* description)
 {
 	fprintf(stderr, "Error: %s\n", description);
 }
-float hp = 100;
-// From here: https://stackoverflow.com/questions/5289613/generate-random-float-between-two-floats/5289624
+
 float RandomFloat(float a, float b) {
 	float random = ((float)rand()) / (float)RAND_MAX;
 	float diff = b - a;
@@ -82,26 +79,19 @@ float RandomFloat(float a, float b) {
 	return a + r;
 }
 
-bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName,
-	cVAOManager* pVAOManager,
-	GLuint shaderID)
+bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName, cVAOManager* pVAOManager, GLuint shaderID)
 {
 	std::ifstream modelTypeFile(fileTypesToLoadName.c_str());
 	if (!modelTypeFile.is_open())
-	{
-		// Can't find that file
 		return false;
-	}
-
-	// At this point, the file is open and ready for reading
 
 	std::string PLYFileNameToLoad;
 	std::string friendlyName;
 
 	bool bKeepReadingFile = true;
 
-	const unsigned int BUFFER_SIZE = 1000;  // 1000 characters
-	char textBuffer[BUFFER_SIZE] = { 0 };  // Allocate AND clear (that's the {0} part)
+	const unsigned int BUFFER_SIZE = 1000;
+	char textBuffer[BUFFER_SIZE] = { 0 };
 
 	while (bKeepReadingFile)
 	{
@@ -131,25 +121,13 @@ bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName,
 
 		if (isFBX)
 		{
-			if (fileLoader.LoadFBXFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
-			{
-				std::cout << "Loaded the FBX file OK" << std::endl;
-			}
-			else
-			{
+			if (!fileLoader.LoadFBXFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
 				std::cout << errorText;
-			}
 		}
 		else
 		{
-			if (fileLoader.LoadPLYFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
-			{
-				//std::cout << "Loaded the file OK" << std::endl;
-			}
-			else
-			{
-				std::cout << errorText;
-			}
+			if (!fileLoader.LoadPLYFile_Format_XYZ_N_RGBA_UV(PLYFileNameToLoad, motoDrawInfo, errorText))
+				std::cout << errorText << std::endl;
 		}
 
 		if (pVAOManager->LoadModelIntoVAO(friendlyName, motoDrawInfo, shaderID))
@@ -157,7 +135,6 @@ bool LoadModelTypesIntoVAO(std::string fileTypesToLoadName,
 			std::cout << "Loaded the " << friendlyName << " model" << std::endl;
 		}
 	}
-
 	return true;
 }
 
@@ -165,24 +142,14 @@ bool CreateObjects(std::string fileName)
 {
 	std::ifstream objectFile(fileName.c_str());
 	if (!objectFile.is_open())
-	{
-		// Can't find that file
 		return false;
-	}
 
-	// Basic variables
 	std::string meshName;
 	std::string friendlyName;
 	glm::vec3 position;
-	//glm::vec3 rotation;
 	glm::quat qRotation;
 	glm::vec3 scale;
-	// Advanced
-	bool useRGBA;
-	glm::vec4 colour;
-	bool isWireframe;
-	bool doNotLight;
-	// skip first line
+	// Skip first line
 	std::getline(objectFile, meshName);
 	std::getline(objectFile, meshName);
 	meshName = "";
@@ -206,8 +173,6 @@ bool CreateObjects(std::string fileName)
 
 	return true;
 }
-bool SaveTheVAOModelTypesToFile(std::string fileTypesToLoadName,
-	cVAOManager* pVAOManager);
 
 void DrawConcentricDebugLightObjects(void);
 
@@ -221,15 +186,12 @@ cMeshObject* renderBuildingMesh = NULL;
 
 int main(int argc, char* argv[])
 {
-	//srand
 	srand(time(NULL));
 
-	std::cout << "starting up..." << std::endl;
+	std::cout << "Starting up..." << std::endl;
 
 	GLuint vertex_buffer = 0;
-
 	GLuint shaderID = 0;
-
 	GLint vpos_location = 0;
 	GLint vcol_location = 0;
 
@@ -241,7 +203,7 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-	window = glfwCreateWindow(1920, 1080, "Arcane Settlers - Hassan Assaf", NULL, NULL);
+	window = glfwCreateWindow(1920, 1080, "Arcane Settlers", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -258,18 +220,16 @@ int main(int argc, char* argv[])
 	//glfwSwapInterval(1);
 
 	// IMGUI
-	//initialize imgui
+	// Initialize imgui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
-	//platform / render bindings
+	// Platform / Render bindings
 	if (!ImGui_ImplGlfw_InitForOpenGL(window, true) || !ImGui_ImplOpenGL3_Init("#version 420"))
-	{
 		return 3;
-	}
 
-	// Create a shader thingy
+	// Create the shader manager
 	cShaderManager* pTheShaderManager = new cShaderManager();
 
 	cShaderManager::cShader vertexShader01;
@@ -291,9 +251,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	else
-	{
 		std::cout << "Compiled shader OK." << std::endl;
-	}
 
 	pTheShaderManager->useShaderProgram("Shader_1");
 
@@ -308,116 +266,26 @@ int main(int argc, char* argv[])
 	// Set up the uniform variable (from the shader
 	::g_pTheLightManager->LoadLightUniformLocations(shaderID);
 
-	// Make this a spot light
-//    vec4 param1;	// x = lightType, y = inner angle, z = outer angle, w = TBD
-//                    // 0 = pointlight
-//                    // 1 = spot light
-//                    // 2 = directional light
+	// Setup LIGHTS
 	::g_pTheLightManager->vecTheLights[0].name = "MainLight";
 	::g_pTheLightManager->vecTheLights[0].param1.x = 2.0f;
 	::g_pTheLightManager->vecTheLights[0].position = glm::vec4(0.0f, 300.0f, -1000.0f, 1.0f);
 	::g_pTheLightManager->vecTheLights[0].direction = glm::vec4(0.0f, -1.0f, 0.0f, 1.0f);
-	// inner and outer angles
 	::g_pTheLightManager->vecTheLights[0].atten = glm::vec4(0.1f, 0.001f, 0.0000001f, 1.0f);
 	::g_pTheLightManager->vecTheLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	::g_pTheLightManager->vecTheLights[0].param1.y = 10.0f;     // Degrees
 	::g_pTheLightManager->vecTheLights[0].param1.z = 20.0f;     // Degrees
 	::g_pTheLightManager->vecTheLights[0].TurnOn();
 
-	// Make light #2 a directional light
-	// BE CAREFUL about the direction and colour, since "colour" is really brightness.
-	// (i.e. there NO attenuation)
-	::g_pTheLightManager->vecTheLights[1].name = "MoonLight";
-	::g_pTheLightManager->vecTheLights[1].param1.x = 0.0f;  // 2 means directional
-	::g_pTheLightManager->vecTheLights[1].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[1].atten = glm::vec4(0.1f, 0.00001f, 0.1f, 1.0f);
-	::g_pTheLightManager->vecTheLights[1].diffuse = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[1].specular = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[1].TurnOn();
-	//::g_pTheLightManager->vecTheLights[2].name = "notSure";
-
-	::g_pTheLightManager->vecTheLights[3].name = "Torch2";
-	::g_pTheLightManager->vecTheLights[3].param1.x = 0.0f;  // 2 means directional
-	::g_pTheLightManager->vecTheLights[3].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[3].atten = glm::vec4(0.1f, 0.00001f, 0.1f, 1.0f);
-	::g_pTheLightManager->vecTheLights[3].diffuse = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[3].specular = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//::g_pTheLightManager->vecTheLights[3].TurnOn();
-
-	::g_pTheLightManager->vecTheLights[4].name = "Torch3";
-	::g_pTheLightManager->vecTheLights[4].param1.x = 0.0f;  // 2 means directional
-	::g_pTheLightManager->vecTheLights[4].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[4].atten = glm::vec4(0.1f, 0.00001f, 0.1f, 1.0f);
-	::g_pTheLightManager->vecTheLights[4].diffuse = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[4].specular = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//	::g_pTheLightManager->vecTheLights[4].TurnOn();
-
-	::g_pTheLightManager->vecTheLights[5].name = "Torch4";
-	::g_pTheLightManager->vecTheLights[5].param1.x = 0.0f;  // 2 means directional
-	::g_pTheLightManager->vecTheLights[5].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[5].atten = glm::vec4(0.1f, 0.00001f, 0.1f, 1.0f);
-	::g_pTheLightManager->vecTheLights[5].diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[5].specular = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//	::g_pTheLightManager->vecTheLights[5].TurnOn();
-
-	::g_pTheLightManager->vecTheLights[5].name = "Torch5";
-	::g_pTheLightManager->vecTheLights[5].param1.x = 0.0f;  // 2 means directional
-	::g_pTheLightManager->vecTheLights[5].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[5].atten = glm::vec4(0.1f, 0.00001f, 0.1f, 1.0f);
-	::g_pTheLightManager->vecTheLights[5].diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[5].specular = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//::g_pTheLightManager->vecTheLights[5].TurnOn();
-
-	::g_pTheLightManager->vecTheLights[6].name = "Torch6";
-	::g_pTheLightManager->vecTheLights[6].param1.x = 0.0f;  // 2 means directional
-	::g_pTheLightManager->vecTheLights[6].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[6].atten = glm::vec4(0.1f, 0.00001f, 0.1f, 1.0f);
-	::g_pTheLightManager->vecTheLights[6].diffuse = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-	::g_pTheLightManager->vecTheLights[6].specular = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	//::g_pTheLightManager->vecTheLights[6].TurnOn();
-
-	for (int i = 7; i < 16; i++)
-	{
-		::g_pTheLightManager->vecTheLights[i].param1.x = 1.0f;
-		::g_pTheLightManager->vecTheLights[i].position = glm::vec4(0.0f, 10.0f, 0.0f, 1.0f);
-		::g_pTheLightManager->vecTheLights[i].atten = glm::vec4(0.1f, 0.001f, 0.1f, 1.0f);
-		::g_pTheLightManager->vecTheLights[i].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		::g_pTheLightManager->vecTheLights[i].direction = glm::vec4(0.f, 0.f, 1.f, 1.f);
-		::g_pTheLightManager->vecTheLights[i].qDirection = glm::quat(glm::vec3(0));
-		::g_pTheLightManager->vecTheLights[i].param1.y = 10.0f;     // Degrees
-		::g_pTheLightManager->vecTheLights[i].param1.z = 20.0f;     // Degrees
-	}
-	::g_pTheLightManager->vecTheLights[7].name = "Beholder1L";
-	::g_pTheLightManager->vecTheLights[8].name = "Beholder1M";
-	::g_pTheLightManager->vecTheLights[9].name = "Beholder1R";
-	::g_pTheLightManager->vecTheLights[10].name = "Beholder2L";
-	::g_pTheLightManager->vecTheLights[11].name = "Beholder2M";
-	::g_pTheLightManager->vecTheLights[12].name = "Beholder2R";
-	::g_pTheLightManager->vecTheLights[13].name = "Beholder3L";
-	::g_pTheLightManager->vecTheLights[14].name = "Beholder3M";
-	::g_pTheLightManager->vecTheLights[15].name = "Beholder3R";
-
-	// Load the models
-
+	// Load the models into the VAO
 	if (!LoadModelTypesIntoVAO("assets/PLYFilesToLoadIntoVAO.txt", pVAOManager, shaderID))
 	{
 		if (!LoadModelTypesIntoVAO("PLYFilesToLoadIntoVAO.txt", pVAOManager, shaderID))
 		{
 			std::cout << "Error: Unable to load list of models to load into VAO file" << std::endl;
 		}
-		// Do we exit here?
-		// (How do we clean up stuff we've made, etc.)
-	}//if (!LoadModelTypesIntoVAO...
-
-// **************************************************************************************
-// START OF: LOADING the file types into the VAO manager:
-/*
-*/
-// END OF: LOADING the file types into the VAO manager
-// **************************************************************************************
-
-	// On the heap (we used new and there's a pointer)
-
+	}
+	// Make the cMeshObjects
 	if (!CreateObjects("assets/createObjects.txt"))
 	{
 		if (!CreateObjects("createObjects.txt"))
@@ -426,6 +294,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	// Making Mesh Objects
 	cMeshObject* pSkyBox = new cMeshObject();
 	pSkyBox->meshName = "Skybox_Sphere";
 	pSkyBox->friendlyName = "skybox";
@@ -452,111 +321,82 @@ int main(int argc, char* argv[])
 	pTerrainWireFrame->scaleXYZ = glm::vec3(1.f);
 	g_pMeshObjects.push_back(pTerrainWireFrame);
 
-	//cMeshObject* pWarrior = new cMeshObject();
-	//pWarrior->meshName = "Warrior";
-	//pWarrior->friendlyName = "Warrior";
-	//pWarrior->position = glm::vec3(0.f, 20.f, 0.f);
-	//pWarrior->bUse_RGBA_colour = false;
-	//pWarrior->scaleXYZ = glm::vec3(1.f);
-	//pWarrior->setRotationFromEuler(glm::vec3(0.f, glm::radians(90.f), glm::radians(90.f)));
-	//pWarrior->textures[0] = "Warrior_Texture.bmp";
-	//pWarrior->textureRatios[0] = 1.f;
-	//pWarrior->textureRatios[1] = 1.f;
-	//pWarrior->textureRatios[2] = 1.f;
-	//pWarrior->textureRatios[3] = 1.f;
-	//cMeshObject* pWarriorSword = new cMeshObject();
-	//pWarriorSword->meshName = "WarriorSword";
-	//pWarriorSword->friendlyName = "WarriorSword";
-	////pWarriorSword->position = glm::vec3(0.f, 25.f, 4.1f);
-	//pWarriorSword->position = pWarrior->position + glm::vec3(0.f, 0.f, 0.f);
-	//pWarriorSword->bUse_RGBA_colour = false;
-	//pWarriorSword->scaleXYZ = glm::vec3(0.05f);
-	//pWarriorSword->setRotationFromEuler(glm::vec3(0.f, 0.f, 0.f));
-	//pWarriorSword->textures[0] = "Warrior_Sword_Texture.bmp";
-	//pWarriorSword->textureRatios[0] = 1.f;
-	//pWarriorSword->textureRatios[1] = 1.f;
-	//pWarriorSword->textureRatios[2] = 1.f;
-	//pWarriorSword->textureRatios[3] = 1.f;
-	//g_pMeshObjects.push_back(pWarriorSword);
-	//basic Terrain Ground 0 0 0 0 0 0 1
 	// DEBUG SPHERES
-	pDebugSphere_1 = new cMeshObject();
-	pDebugSphere_1->meshName = "ISO_Sphere_1";
-	pDebugSphere_1->friendlyName = "Debug_Sphere_1";
-	pDebugSphere_1->bUse_RGBA_colour = true;
-	pDebugSphere_1->RGBA_colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	pDebugSphere_1->isWireframe = true;
-	pDebugSphere_1->SetUniformScale(1);
+	{
+		pDebugSphere_1 = new cMeshObject();
+		pDebugSphere_1->meshName = "ISO_Sphere_1";
+		pDebugSphere_1->friendlyName = "Debug_Sphere_1";
+		pDebugSphere_1->bUse_RGBA_colour = true;
+		pDebugSphere_1->RGBA_colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		pDebugSphere_1->isWireframe = true;
+		pDebugSphere_1->SetUniformScale(1);
 
-	pDebugSphere_1->bDoNotLight = true;
+		pDebugSphere_1->bDoNotLight = true;
 
-	g_pMeshObjects.push_back(pDebugSphere_1);
+		g_pMeshObjects.push_back(pDebugSphere_1);
 
-	pDebugSphere_2 = new cMeshObject();
-	pDebugSphere_2->meshName = "ISO_Sphere_1";
-	pDebugSphere_2->friendlyName = "Debug_Sphere_2";
-	pDebugSphere_2->bUse_RGBA_colour = true;
-	pDebugSphere_2->RGBA_colour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	pDebugSphere_2->isWireframe = true;
-	pDebugSphere_2->SetUniformScale(1);
-	pDebugSphere_2->bDoNotLight = true;
-	g_pMeshObjects.push_back(pDebugSphere_2);
+		pDebugSphere_2 = new cMeshObject();
+		pDebugSphere_2->meshName = "ISO_Sphere_1";
+		pDebugSphere_2->friendlyName = "Debug_Sphere_2";
+		pDebugSphere_2->bUse_RGBA_colour = true;
+		pDebugSphere_2->RGBA_colour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		pDebugSphere_2->isWireframe = true;
+		pDebugSphere_2->SetUniformScale(1);
+		pDebugSphere_2->bDoNotLight = true;
+		g_pMeshObjects.push_back(pDebugSphere_2);
 
-	pDebugSphere_3 = new cMeshObject();
-	pDebugSphere_3->meshName = "ISO_Sphere_1";
-	pDebugSphere_3->friendlyName = "Debug_Sphere_3";
-	pDebugSphere_3->bUse_RGBA_colour = true;
-	pDebugSphere_3->RGBA_colour = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	pDebugSphere_3->isWireframe = true;
-	pDebugSphere_3->SetUniformScale(1);
-	pDebugSphere_3->bDoNotLight = true;
-	g_pMeshObjects.push_back(pDebugSphere_3);
+		pDebugSphere_3 = new cMeshObject();
+		pDebugSphere_3->meshName = "ISO_Sphere_1";
+		pDebugSphere_3->friendlyName = "Debug_Sphere_3";
+		pDebugSphere_3->bUse_RGBA_colour = true;
+		pDebugSphere_3->RGBA_colour = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		pDebugSphere_3->isWireframe = true;
+		pDebugSphere_3->SetUniformScale(1);
+		pDebugSphere_3->bDoNotLight = true;
+		g_pMeshObjects.push_back(pDebugSphere_3);
 
-	pDebugSphere_4 = new cMeshObject();
-	pDebugSphere_4->meshName = "ISO_Sphere_1";
-	pDebugSphere_4->friendlyName = "Debug_Sphere_4";
-	pDebugSphere_4->bUse_RGBA_colour = true;
-	pDebugSphere_4->RGBA_colour = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
-	pDebugSphere_4->isWireframe = true;
-	pDebugSphere_4->SetUniformScale(1);
-	pDebugSphere_4->bDoNotLight = true;
-	g_pMeshObjects.push_back(pDebugSphere_4);
+		pDebugSphere_4 = new cMeshObject();
+		pDebugSphere_4->meshName = "ISO_Sphere_1";
+		pDebugSphere_4->friendlyName = "Debug_Sphere_4";
+		pDebugSphere_4->bUse_RGBA_colour = true;
+		pDebugSphere_4->RGBA_colour = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+		pDebugSphere_4->isWireframe = true;
+		pDebugSphere_4->SetUniformScale(1);
+		pDebugSphere_4->bDoNotLight = true;
+		g_pMeshObjects.push_back(pDebugSphere_4);
 
-	pDebugSphere_5 = new cMeshObject();
-	pDebugSphere_5->meshName = "ISO_Sphere_1";
-	pDebugSphere_5->friendlyName = "Debug_Sphere_5";
-	pDebugSphere_5->bUse_RGBA_colour = true;
-	pDebugSphere_5->RGBA_colour = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
-	pDebugSphere_5->isWireframe = true;
-	pDebugSphere_5->SetUniformScale(1);
-	pDebugSphere_5->bDoNotLight = true;
-	g_pMeshObjects.push_back(pDebugSphere_5);
+		pDebugSphere_5 = new cMeshObject();
+		pDebugSphere_5->meshName = "ISO_Sphere_1";
+		pDebugSphere_5->friendlyName = "Debug_Sphere_5";
+		pDebugSphere_5->bUse_RGBA_colour = true;
+		pDebugSphere_5->RGBA_colour = glm::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+		pDebugSphere_5->isWireframe = true;
+		pDebugSphere_5->SetUniformScale(1);
+		pDebugSphere_5->bDoNotLight = true;
+		g_pMeshObjects.push_back(pDebugSphere_5);
+	}
 
-	GLint mvp_location = glGetUniformLocation(shaderID, "MVP");       // program
-	// uniform mat4 mModel;
-	// uniform mat4 mView;
-	// uniform mat4 mProjection;
+	GLint mvp_location = glGetUniformLocation(shaderID, "MVP");
 	GLint mModel_location = glGetUniformLocation(shaderID, "mModel");
 	GLint mView_location = glGetUniformLocation(shaderID, "mView");
 	GLint mProjection_location = glGetUniformLocation(shaderID, "mProjection");
-	// Need this for lighting
 	GLint mModelInverseTransform_location = glGetUniformLocation(shaderID, "mModelInverseTranspose");
 
 	// Textures
 	::g_pTextureManager = new cBasicTextureManager();
-	::g_pTextureManager->SetBasePath("assets/textures");
-	::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_Texture_01.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("grass.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("carbon.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("Cleric_Texture.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("RedCleric.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("Medieval_Texture.bmp");
-	::g_pTextureManager->Create2DTextureFromBMPFile("woodTexture.bmp");
-	// ICONS
 	{
+		::g_pTextureManager->SetBasePath("assets/textures");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Dungeons_Texture_01.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("grass.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("carbon.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Warrior_Texture.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Cleric_Texture.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("RedCleric.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("grass2.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("Medieval_Texture.bmp");
+		::g_pTextureManager->Create2DTextureFromBMPFile("woodTexture.bmp");
+		// ICONS
 		::g_pTextureManager->SetBasePath("assets/icons");
 		::g_pTextureManager->Create2DTextureFromBMPFile("Bread.bmp");
 		::g_pTextureManager->Create2DTextureFromBMPFile("cleric.bmp");
@@ -601,12 +441,6 @@ int main(int argc, char* argv[])
 	GUI EditGUI;
 	GameGUI gameGUI;
 
-	float deltaTime = std::clock();
-	float duration = 0;
-	//bool increase = true;
-	int increase = 1;
-	//pVAOManager->Load();
-
 	// START OF PHYSICS
 	// Initialize physicsfactory, only non-interface call
 	using namespace physics;
@@ -627,9 +461,6 @@ int main(int argc, char* argv[])
 		sModelDrawInfo terrainInfo;
 		pVAOManager->FindDrawInfoByModelName("Terrain", terrainInfo);
 		float resolution = 1.0f;
-		//unsigned int gridWidth, gridDepth;
-		//physicsHelper->getTerrainGridSize(terrainInfo, resolution, gridWidth, gridDepth);
-		//std::vector<float> heightData = physicsHelper->generateHeightData(terrainInfo, gridWidth, gridDepth);
 		std::vector<Vector3> vertices;
 		for (size_t i = 0; i < terrainInfo.numberOfVertices; i++)
 		{
@@ -656,7 +487,7 @@ int main(int argc, char* argv[])
 		goTerrain->id = id;
 		goTerrain->mesh = pTerrain;
 		terrainManager = new TerrainManager(goTerrain, &terrainInfo);
-		const int maxObjects[3] = { 150,80,20 };
+		const int maxObjects[3] = { 150,80,40 };
 		terrainManager->placeObjectsOnTerrain(maxObjects);
 		goMap.emplace(id, goTerrain);
 	}
@@ -790,9 +621,9 @@ int main(int argc, char* argv[])
 		// Pass eye location to the shader
 		GLint eyeLocation_UniLoc = glGetUniformLocation(shaderID, "eyeLocation");
 		glUniform4f(eyeLocation_UniLoc, ::g_cameraEye.x, ::g_cameraEye.y, ::g_cameraEye.z, 1.0f);
-		// Projection Matrix 
-		matProjection = glm::perspective( 0.6f, ratio, 0.1f, 10000.0f);
-		
+		// Projection Matrix
+		matProjection = glm::perspective(0.6f, ratio, 0.1f, 10000.0f);
+
 		// START OF DRAWING
 		glUniformMatrix4fv(mView_location, 1, GL_FALSE, glm::value_ptr(matView));
 		glUniformMatrix4fv(mProjection_location, 1, GL_FALSE, glm::value_ptr(matProjection));
@@ -840,8 +671,8 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-		// Drawing Particle System 
-		if(!particleSystem->GetAliveParticles().empty())
+		// Drawing Particle System
+		if (!particleSystem->GetAliveParticles().empty())
 		{
 			std::vector<glm::mat4> instanceModelMatrices;
 			for (Particle* particle : particleSystem->GetAliveParticles())
@@ -872,7 +703,18 @@ int main(int argc, char* argv[])
 			{
 				if (!pCurrentMeshObject->bIsVisible)
 					continue;
-				if (pCurrentMeshObject->isWireframe)
+				// Only instancing these for now
+				if (pCurrentMeshObject->meshName == "Tree" || pCurrentMeshObject->meshName == "Rock" || pCurrentMeshObject->meshName == "Gold" && !pCurrentMeshObject->isWireframe)
+				{
+					// Group objects by their mesh
+					glm::mat4 matModel = glm::mat4(1.0f);
+					glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f), pCurrentMeshObject->position);
+					glm::mat4 matQRotation = glm::mat4(pCurrentMeshObject->qRotation);
+					glm::mat4 matScale = glm::scale(glm::mat4(1.0f), pCurrentMeshObject->scaleXYZ);
+					matModel = matModel * matTranslation * matQRotation * matScale;
+					instanceModelMatricesMap[pCurrentMeshObject->meshName].push_back(matModel);
+				}
+				else
 				{
 					glm::mat4 matModel = glm::mat4(1.0f);
 					DrawObject(pCurrentMeshObject,
@@ -881,13 +723,6 @@ int main(int argc, char* argv[])
 						pVAOManager, mModel_location, mModelInverseTransform_location);
 					continue;
 				}
-				// Group objects by their mesh 
-				glm::mat4 matModel = glm::mat4(1.0f);
-				glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f), pCurrentMeshObject->position);
-				glm::mat4 matQRotation = glm::mat4(pCurrentMeshObject->qRotation);
-				glm::mat4 matScale = glm::scale(glm::mat4(1.0f), pCurrentMeshObject->scaleXYZ);
-				matModel = matModel * matTranslation * matQRotation * matScale;
-				instanceModelMatricesMap[pCurrentMeshObject->meshName].push_back(matModel);
 			}
 
 			// Draw each instance group now
@@ -920,7 +755,6 @@ int main(int argc, char* argv[])
 					shaderID, ::g_pTextureManager,
 					pVAOManager, mModel_location, mModelInverseTransform_location, instanceModelMatrices);
 			}
-
 		}
 
 		// Draw the skybox

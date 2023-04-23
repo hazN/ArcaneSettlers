@@ -320,10 +320,10 @@ void TerrainManager::createBuilding(BuildingType type, iRayCast::RayCastHit hit)
 		// Convert coords from world space to grid 
 		glm::vec2 gridCoords = worldToGridCoords(goBuilding->mesh->position);
 		// Get the size of the object, aka the area of cells it covers, 2x2, 4x6, etc.
-		glm::vec2 gridSize = glm::vec2((int)(std::round((drawInfo.extentX * goBuilding->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
-			(int)(std::round((drawInfo.extentZ * goBuilding->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
+		glm::vec2 gridSize = glm::vec2((int)(std::ceil((drawInfo.extentX * goBuilding->mesh->scaleXYZ.x) / mPathFinder->getCellSize())),
+			(int)(std::ceil((drawInfo.extentZ * goBuilding->mesh->scaleXYZ.z) / mPathFinder->getCellSize())));
 		// Buffer around it to avoid getting stuck
-		int buffer = 2;
+		int buffer = 3;
 		// Loop through the cells that need to have the building set 
 		for (int y = gridCoords.y - gridSize.y / 2 - buffer; y < gridCoords.y + gridSize.y / 2 + buffer; ++y)
 		{

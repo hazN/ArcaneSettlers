@@ -159,7 +159,7 @@ void Enemy::Move()
 	glm::vec2 currentGridPos = TerrainManager::worldToGridCoords(currentPos);
 
 	// Get the direction from the flowfield
-	glm::vec2 flowDirection = mFlowfield[(int)currentGridPos.y][(int)currentGridPos.x];
+	glm::vec2 flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
 
 	glm::vec3 moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
 

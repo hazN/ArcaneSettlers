@@ -255,10 +255,10 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 					boneIdx = boneCount;
 					boneCount++;
 					BoneInfo bi;
-					bi.name = boneName;
+					bi.mName = boneName;
 					animationData.boneInfoVec.push_back(bi);
 
-					CastToGLM(bone->mOffsetMatrix, animationData.boneInfoVec[boneIdx].boneOffset);
+					CastToGLM(bone->mOffsetMatrix, animationData.boneInfoVec[boneIdx].mBoneOffset);
 					animationData.boneNameToIdMap[boneName] = boneIdx;
 				}
 				else
@@ -322,15 +322,15 @@ bool c3DModelFileLoader::LoadFBXFile_Format_XYZ_N_RGBA_UV(std::string filename, 
 				}
 				// Use a BoneInformation Map to get bone info and store the values here
 				BoneVertexData& bvd = boneVertexData[i];
-				modelDrawInfo.pVertices[currentIndex].vBoneID[0] = bvd.ids[0];
-				modelDrawInfo.pVertices[currentIndex].vBoneID[1] = bvd.ids[1];
-				modelDrawInfo.pVertices[currentIndex].vBoneID[2] = bvd.ids[2];
-				modelDrawInfo.pVertices[currentIndex].vBoneID[3] = bvd.ids[3];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[0] = bvd.mIds[0];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[1] = bvd.mIds[1];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[2] = bvd.mIds[2];
+				modelDrawInfo.pVertices[currentIndex].vBoneID[3] = bvd.mIds[3];
 
-				modelDrawInfo.pVertices[currentIndex].vBoneWeight[0] = bvd.weights[0];
-				modelDrawInfo.pVertices[currentIndex].vBoneWeight[1] = bvd.weights[1];
-				modelDrawInfo.pVertices[currentIndex].vBoneWeight[2] = bvd.weights[2];
-				modelDrawInfo.pVertices[currentIndex].vBoneWeight[3] = bvd.weights[3];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[0] = bvd.mWeights[0];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[1] = bvd.mWeights[1];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[2] = bvd.mWeights[2];
+				modelDrawInfo.pVertices[currentIndex].vBoneWeight[3] = bvd.mWeights[3];
 			}
 			// Load triangles
 			for (unsigned int i = 0; i < numTriangles; ++i)

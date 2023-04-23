@@ -8,15 +8,15 @@ struct BoneNode
 {
 	void AddChild(BoneNode* child)
 	{
-		child->parent = this;
+		child->mParent = this;
 		children.push_back(child);
 	}
 
 	int boneId;
-	std::string name;
-	BoneNode* parent;
-	glm::mat4 transformation;
-	glm::mat4 finalTransformation;
+	std::string mName;
+	BoneNode* mParent;
+	glm::mat4 mTransformation;
+	glm::mat4 mFinalTransformation;
 	std::vector<BoneNode*> children;
 };
 
@@ -25,6 +25,6 @@ typedef BoneNode AnimNode;
 
 struct BoneHierarchy
 {
-	BoneNode* root;
-	glm::mat4 globalInverseTransform;
+	BoneNode* mRoot;
+	glm::mat4 mGlobalInverseTransformation;
 };

@@ -7,12 +7,11 @@ DecisionTable::DecisionTable() {
 	decisionTable = {
 		{ {true, CommandType::None, false, std::nullopt, false}, ActionType::Move },
 		{ {true, CommandType::None, false, std::nullopt, true}, ActionType::Eat },
-		{ {false, CommandType::Move, std::nullopt, std::nullopt, std::nullopt}, ActionType::Move },
+		{ {false, CommandType::Move, false, std::nullopt, std::nullopt}, ActionType::Move },
 		{ {false, CommandType::HarvestTree, false, false, false}, ActionType::Move },
 		{ {false, CommandType::HarvestTree, false, false, true}, ActionType::HarvestTree },
 		{ {false, CommandType::HarvestRock, false, false, false}, ActionType::Move },
 		{ {false, CommandType::HarvestRock, false, false, true}, ActionType::HarvestRock },
-		{ {false, CommandType::AttackIntruder, false, false, true}, ActionType::AttackIntruder },
 		{ {std::nullopt,  CommandType::None, true, std::nullopt, std::nullopt}, ActionType::AttackIntruder },
 		{ {false, CommandType::None, false, true, false}, ActionType::DropOffLoot },
 		{ {false, CommandType::None, false, true, true}, ActionType::DropOffLoot },

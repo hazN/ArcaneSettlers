@@ -1,13 +1,10 @@
 #include "Character.h"
 
-#include <glm/gtx/easing.hpp>
 #include <iostream>
-
+#include <glm/gtx/easing.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include "globalThings.h"
-
-// #define PRINT_DEBUG_INFO
 
 void Character::CastToGLM(const aiMatrix4x4& in, glm::mat4& out)
 {
@@ -31,26 +28,26 @@ void Character::CastToGLM(const aiVector3D& in, glm::vec3& out)
 
 AssimpScene::AssimpScene(const char* filename, unsigned int flags)
 {
-	m_Scene = m_Importer.ReadFile(filename, flags);
+	mScene = mImporter.ReadFile(filename, flags);
 
-	Animations = m_Scene->mAnimations;
-	Cameras = m_Scene->mCameras;
-	Lights = m_Scene->mLights;
-	Materials = m_Scene->mMaterials;
-	Meshes = m_Scene->mMeshes;
-	Textures = m_Scene->mTextures;
+	Animations = mScene->mAnimations;
+	Cameras = mScene->mCameras;
+	Lights = mScene->mLights;
+	Materials = mScene->mMaterials;
+	Meshes = mScene->mMeshes;
+	Textures = mScene->mTextures;
 
-	RootNode = m_Scene->mRootNode;
+	RootNode = mScene->mRootNode;
 }
 
 AssimpScene::~AssimpScene() { }
 
 Character::Character()
-	: m_IsPlaying(true)
-	, m_AnimationSpeed(1.0)
-	, m_CurrentTimeInSeconds(0.0)
-	, m_CurrentAnimation(0)
-	, m_NumAnimationsLoaded(0)
+	: mIsPlaying(true)
+	, mAnimationSpeed(1.0)
+	, mCurrentTimeInSeconds(0.0)
+	, mCurrentAnimation(0)
+	, mNumAnimationsLoaded(0)
 {
 }
 
@@ -64,37 +61,41 @@ void Character::LoadCharacterFromAssimp(const char* filename)
 		aiProcess_Triangulate
 		| aiProcess_LimitBoneWeights
 		| aiProcess_JoinIdenticalVertices;
-	m_Scene = new AssimpScene(filename, flags);
+	mScene = new AssimpScene(filename, flags);
 
-	aiMatrix4x4 g = m_Scene->RootNode->mTransformation;
+	aiMatrix4x4 g = mScene->RootNode->mTransformation;
 	aiMatrix4x4 inverse = g.Inverse();
 
 	// Node hierarchy for rendering
-	m_RootNode = CreateNodeHierarchy(m_Scene->RootNode);
-	CastToGLM(inverse, m_GlobalInverseTransform);
-	if (m_Scene->HasMeshes())
+	mRootNode = CreateNodeHierarchy(mScene->RootNode);
+	CastToGLM(inverse, mGlobalInverseTransform);
+	// Check if it has meshes
+	if (mScene->HasMeshes())
 	{
 		aiMesh* mainMesh = nullptr;
 		std::vector<aiMesh*> additionalMeshes;
 
 		int maxBones = -1;
-		for (size_t i = 0; i < m_Scene->NumMeshes(); i++)
+		// Loop through meshes (fbx files can have multiple)
+		for (size_t i = 0; i < mScene->NumMeshes(); i++)
 		{
-			if (m_Scene->Meshes[i]->HasBones())
+			// Check for bones before adding them
+			if (mScene->Meshes[i]->HasBones())
 			{
-				int boneCount = m_Scene->Meshes[i]->mNumBones;
+				int boneCount = mScene->Meshes[i]->mNumBones;
+				// The mesh with the most bones is probably the main mesh
 				if (boneCount > maxBones)
 				{
 					maxBones = boneCount;
-					mainMesh = m_Scene->Meshes[i];
+					mainMesh = mScene->Meshes[i];
 				}
 				else
 				{
-					additionalMeshes.push_back(m_Scene->Meshes[i]);
+					additionalMeshes.push_back(mScene->Meshes[i]);
 				}
 			}
 		}
-
+		// Load the bones now
 		if (mainMesh)
 		{
 			LoadAssimpBones(mainMesh, additionalMeshes);
@@ -104,16 +105,15 @@ void Character::LoadCharacterFromAssimp(const char* filename)
 
 void Character::LoadAnimationFromAssimp(const char* filename)
 {
-	const aiScene* scene = m_AnimationImporter.ReadFile(filename, 0);
-
+	// Read in and get the number of animations in the file
+	const aiScene* scene = mAnimationImporter.ReadFile(filename, 0);
 	unsigned int numAnimations = scene->mNumAnimations;
-	printf("-Loading %d animations!\n", numAnimations);
 
 	// Loop through animations
 	for (unsigned int i = 0; i < numAnimations; ++i)
 	{
 		aiAnimation* animation = scene->mAnimations[i];
-		std::cout << "Loading animation: " << scene->mAnimations[i]->mName.C_Str() << std::endl;
+		// Load the animation data for each one now
 		LoadAssimpAnimation(animation);
 	}
 }
@@ -122,10 +122,11 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh)
 {
 	// Record Vertex Weights
 	int totalWeights = 0;
-	m_BoneVertexData.resize(assimpMesh->mNumVertices);
+	mBoneVertexData.resize(assimpMesh->mNumVertices);
 	int boneCount = 0;
 
 	int numBones = assimpMesh->mNumBones;
+	// Loop through each bone
 	for (int i = 0; i < numBones; i++)
 	{
 		aiBone* bone = assimpMesh->mBones[i];
@@ -133,31 +134,33 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh)
 		int boneIdx = 0;
 		std::string boneName(bone->mName.data);
 
-		printf("%d: %s\n", i, boneName.c_str());
-
-		std::map<std::string, int>::iterator it = m_BoneNameToIdMap.find(boneName);
-		if (it == m_BoneNameToIdMap.end())
+		// Check if we have already added this node
+		std::map<std::string, int>::iterator it = mBoneNameToIdMap.find(boneName);
+		if (it == mBoneNameToIdMap.end())
 		{
+			// We haven't so add it in
 			boneIdx = boneCount;
 			boneCount++;
 			BoneInfo bi;
-			bi.name = boneName;
-			m_BoneInfoVec.push_back(bi);
+			bi.mName = boneName;
+			mBoneInfoVec.push_back(bi);
 
-			CastToGLM(bone->mOffsetMatrix, m_BoneInfoVec[boneIdx].boneOffset);
-			m_BoneNameToIdMap[boneName] = boneIdx;
-			m_BoneVec.push_back(bone);
+			CastToGLM(bone->mOffsetMatrix, mBoneInfoVec[boneIdx].mBoneOffset);
+			mBoneNameToIdMap[boneName] = boneIdx;
+			mBoneVec.push_back(bone);
 		}
 		else
 		{
+			// Otherwise just return its id
 			boneIdx = it->second;
 		}
 
+		// Loop through the bone weights and add them to the vertex data
 		for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
 		{
 			float weight = bone->mWeights[weightIdx].mWeight;
 			int vertexId = bone->mWeights[weightIdx].mVertexId;
-			m_BoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
+			mBoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
 		}
 	}
 }
@@ -166,10 +169,11 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh, const std::vector<aiMe
 {
 	// Record Vertex Weights
 	int totalWeights = 0;
-	m_BoneVertexData.resize(assimpMesh->mNumVertices);
+	mBoneVertexData.resize(assimpMesh->mNumVertices);
 	int boneCount = 0;
 
 	int numBones = assimpMesh->mNumBones;
+	// Loop through each bone
 	for (int i = 0; i < numBones; i++)
 	{
 		aiBone* bone = assimpMesh->mBones[i];
@@ -177,84 +181,89 @@ void Character::LoadAssimpBones(const aiMesh* assimpMesh, const std::vector<aiMe
 		int boneIdx = 0;
 		std::string boneName(bone->mName.data);
 
-		printf("%d: %s\n", i, boneName.c_str());
-
-		std::map<std::string, int>::iterator it = m_BoneNameToIdMap.find(boneName);
-		if (it == m_BoneNameToIdMap.end())
+		// Check if we have already added this node
+		std::map<std::string, int>::iterator it = mBoneNameToIdMap.find(boneName);
+		if (it == mBoneNameToIdMap.end())
 		{
+			// We haven't so add it in
 			boneIdx = boneCount;
 			boneCount++;
 			BoneInfo bi;
-			bi.name = boneName;
-			m_BoneInfoVec.push_back(bi);
+			bi.mName = boneName;
+			mBoneInfoVec.push_back(bi);
 
-			CastToGLM(bone->mOffsetMatrix, m_BoneInfoVec[boneIdx].boneOffset);
-			m_BoneNameToIdMap[boneName] = boneIdx;
-			m_BoneVec.push_back(bone);
+			CastToGLM(bone->mOffsetMatrix, mBoneInfoVec[boneIdx].mBoneOffset);
+			mBoneNameToIdMap[boneName] = boneIdx;
+			mBoneVec.push_back(bone);
 		}
 		else
 		{
+			// Otherwise just return its id
 			boneIdx = it->second;
 		}
 
+		// Loop through the bone weights and add them to the vertex data
 		for (int weightIdx = 0; weightIdx < bone->mNumWeights; weightIdx++)
 		{
 			float weight = bone->mWeights[weightIdx].mWeight;
 			int vertexId = bone->mWeights[weightIdx].mVertexId;
-			m_BoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
+			mBoneVertexData[vertexId].AddBoneInfo(boneIdx, weight);
 		}
 	}
 }
 
 void Character::UpdateTransforms(std::vector<glm::mat4>& transforms, std::vector<glm::mat4>& globals, float dt)
 {
-	if (m_IsPlaying && m_AnimationSpeed != 0.0f)
+	if (mIsPlaying && mAnimationSpeed != 0.0f)
 	{
-		m_CurrentTimeInSeconds += dt * m_AnimationSpeed;
+		mCurrentTimeInSeconds += dt * mAnimationSpeed;
 
+		// If its looping reset the time at the end of the animation
 		if (m_IsLooping)
 		{
-			m_CurrentTimeInSeconds = fmod(m_CurrentTimeInSeconds, m_DurationInSeconds[m_CurrentAnimation]);
+			mCurrentTimeInSeconds = fmod(mCurrentTimeInSeconds, mDurationInSeconds[mCurrentAnimation]);
 		}
+		// Otherwise clamp the time to be within the duration of the animation
 		else
 		{
-			m_CurrentTimeInSeconds = glm::clamp((float)m_CurrentTimeInSeconds, 0.0f, (float)m_DurationInSeconds[m_CurrentAnimation]);
+			mCurrentTimeInSeconds = glm::clamp((float)mCurrentTimeInSeconds, 0.0f, (float)mDurationInSeconds[mCurrentAnimation]);
 		}
-		int keyFrameTime = (int)((m_CurrentTimeInSeconds / m_DurationInSeconds[m_CurrentAnimation]) *
-			m_DurationInTicks[m_CurrentAnimation]);
+
+		// Get the current keyframe
+		int keyFrameTime = (int)((mCurrentTimeInSeconds / mDurationInSeconds[mCurrentAnimation]) * mDurationInTicks[mCurrentAnimation]);
 
 		glm::mat4 identity(1.f);
 
-		if (m_TransitionTime > 0.0f)
+		// If transitioning between animations, reduce the remaining time as it goes 
+		if (mTransitionTime > 0.0f)
 		{
-			m_TransitionTime -= dt;
-			if (m_TransitionTime < 0.0f)
+			mTransitionTime -= dt;
+			if (mTransitionTime < 0.0f)
 			{
-				m_TransitionTime = 0.0f;
+				mTransitionTime = 0.0f;
 			}
 		}
 
-		//printf("--------------------\n");
-		//printf("Time: %.4f %d/%d\n", m_CurrentTimeInSeconds, keyFrameTime, (int)m_DurationInTicks);
+		// Update the bone transforms for the keyframe
+		UpdateBoneHierarchy(mRootNode, identity, keyFrameTime);
 
-		UpdateBoneHierarchy(m_RootNode, identity, keyFrameTime);
-
-		transforms.resize(m_BoneInfoVec.size());
-		globals.resize(m_BoneInfoVec.size());
-		int numTransforms = m_BoneInfoVec.size();
+		// Now update the current transforms with them
+		transforms.resize(mBoneInfoVec.size());
+		globals.resize(mBoneInfoVec.size());
+		int numTransforms = mBoneInfoVec.size();
 		for (int i = 0; i < numTransforms; i++)
 		{
-			transforms[i] = m_BoneInfoVec[i].finalTransformation;
-			globals[i] = m_BoneInfoVec[i].globalTransformation;
+			transforms[i] = mBoneInfoVec[i].mFinalTransformation;
+			globals[i] = mBoneInfoVec[i].mGlobalTransformation;
 		}
 	}
 }
 
 int Character::GetAnimationID(const char* animation)
 {
-	for (size_t i = 0; i < m_Scene->NumAnimations(); i++)
+	for (size_t i = 0; i < mScene->NumAnimations(); i++)
 	{
-		if (m_Scene->Animations[i]->mName.C_Str() == animation)
+		if (mScene->Animations[i]->mName.C_Str() == animation)
 		{
 			return i;
 		}
@@ -264,23 +273,19 @@ int Character::GetAnimationID(const char* animation)
 
 int Character::GetCurrentAnimationID()
 {
-	return m_CurrentAnimation;
+	return mCurrentAnimation;
 }
 
 std::string Character::GetCurrentAnimationName()
 {
-	return m_Scene->Animations[m_CurrentAnimation]->mName.C_Str();
+	return mScene->Animations[mCurrentAnimation]->mName.C_Str();
 }
 
 AnimNode* Character::CreateNodeHierarchy(aiNode* assimpNode, int depth)
 {
 	AnimNode* newNode = new AnimNode();
-	newNode->name = std::string(assimpNode->mName.data);
-	CastToGLM(assimpNode->mTransformation, newNode->transformation);
-
-	//for (int i = 0; i < depth; i++)
-	//	printf(" ");
-	//printf("%s (%d)\n", newNode->name.c_str(), assimpNode->mNumChildren);
+	newNode->mName = std::string(assimpNode->mName.data);
+	CastToGLM(assimpNode->mTransformation, newNode->mTransformation);
 
 	for (int i = 0; i < assimpNode->mNumChildren; i++)
 	{
@@ -296,29 +301,27 @@ void Character::LoadAssimpAnimation(const aiAnimation* animation)
 	if (animation == nullptr)
 		return;
 
-	if (m_NumAnimationsLoaded >= 14)
+	if (mNumAnimationsLoaded >= 14)
 		return;
 
 	unsigned int numChannels = animation->mNumChannels;
 
-	// Hacking in which animation channel to add
-	std::vector<AnimationData*>& channels = m_Channels[m_NumAnimationsLoaded];
+	std::vector<AnimationData*>& channels = mChannels[mNumAnimationsLoaded];
 
-	m_DurationInTicks[m_NumAnimationsLoaded] = animation->mDuration;
-	m_TicksPerSecond[m_NumAnimationsLoaded] = animation->mTicksPerSecond;
-	m_DurationInSeconds[m_NumAnimationsLoaded] =
-		m_DurationInTicks[m_NumAnimationsLoaded] / m_TicksPerSecond[m_NumAnimationsLoaded];
+	mDurationInTicks[mNumAnimationsLoaded] = animation->mDuration;
+	mTicksPerSecond[mNumAnimationsLoaded] = animation->mTicksPerSecond;
+	mDurationInSeconds[mNumAnimationsLoaded] =
+		mDurationInTicks[mNumAnimationsLoaded] / mTicksPerSecond[mNumAnimationsLoaded];
 
-	m_NumAnimationsLoaded++;
+	mNumAnimationsLoaded++;
 
 	channels.resize(numChannels);
 	for (int i = 0; i < numChannels; i++)
 	{
 		const aiNodeAnim* nodeAnim = animation->mChannels[i];
 		std::string name(nodeAnim->mNodeName.data);
-		//printf("%s\n", name.c_str());
 
-		m_BoneNameToAnimationMap[name] = i;
+		mBoneNameToAnimationMap[name] = i;
 
 		unsigned int numPositionKeys = nodeAnim->mNumPositionKeys;
 		unsigned int numRotationKeys = nodeAnim->mNumRotationKeys;
@@ -364,18 +367,17 @@ void Character::LoadAssimpAnimation(const aiAnimation* animation)
 
 AnimationData* Character::FindAnimationData(const std::string& nodeName, int animation)
 {
-	std::map<std::string, int>::iterator animIt = m_BoneNameToAnimationMap.find(nodeName);
+	std::map<std::string, int>::iterator animIt = mBoneNameToAnimationMap.find(nodeName);
 
-	//printf("%s\n", nodeName.c_str());
-	for (int i = 0; i < m_Channels[animation].size(); i++)
+	for (int i = 0; i < mChannels[animation].size(); i++)
 	{
-		if (nodeName == m_Channels[animation][i]->Name)
+		if (nodeName == mChannels[animation][i]->Name)
 		{
-			return m_Channels[animation][i];
+			return mChannels[animation][i];
 		}
 	}
 
-	if (animIt != m_BoneNameToAnimationMap.end())
+	if (animIt != mBoneNameToAnimationMap.end())
 	{
 		int breakhereplz = 0;
 	}
@@ -388,16 +390,16 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 	if (node == nullptr)
 		return;
 
-	std::string nodeName(node->name);
+	std::string nodeName(node->mName);
 
-	glm::mat4 transformationMatrix = node->transformation;
-	if (node->name == "RootNode")
+	glm::mat4 transformationMatrix = node->mTransformation;
+	if (node->mName == "RootNode")
 	{
 		nodeName = "Root";
 	}
 
-	AnimationData* animNode = FindAnimationData(nodeName, m_CurrentAnimation);
-	AnimationData* animNode2 = FindAnimationData(nodeName, m_PreviousAnimation);
+	AnimationData* animNode = FindAnimationData(nodeName, mCurrentAnimation);
+	AnimationData* animNode2 = FindAnimationData(nodeName, mPreviousAnimation);
 	if (animNode != nullptr)
 	{
 		// Calculate the position of this node.
@@ -405,14 +407,14 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 		glm::vec3 scale = GetAnimationScale(*animNode, keyFrameTime);
 		glm::quat rotation = GetAnimationRotation(*animNode, keyFrameTime);
 
-		if (animNode2 != nullptr && m_TransitionTime > 0.0f)
+		if (animNode2 != nullptr && mTransitionTime > 0.0f)
 		{
 			glm::vec3 position2 = GetAnimationPosition(*animNode2, keyFrameTime);
 			glm::vec3 scale2 = GetAnimationScale(*animNode2, keyFrameTime);
 			glm::quat rotation2 = GetAnimationRotation(*animNode2, keyFrameTime);
 
-			float currRatio = 1.0f - m_TransitionTime;
-			float prevRatio = m_TransitionTime;
+			float currRatio = 1.0f - mTransitionTime;
+			float prevRatio = mTransitionTime;
 
 			position = position * currRatio + position2 * prevRatio;
 			scale = scale * currRatio + scale2 * prevRatio;
@@ -428,12 +430,12 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 
 		glm::mat4 globalTransformation = parentTransformationMatrix * transformationMatrix;
 
-		if (m_BoneNameToIdMap.find(nodeName) != m_BoneNameToIdMap.end())
+		if (mBoneNameToIdMap.find(nodeName) != mBoneNameToIdMap.end())
 		{
 			//printf("%d : %s\n", boneIt->second, nodeName.c_str());
-			int boneIdx = m_BoneNameToIdMap[nodeName];
-			m_BoneInfoVec[boneIdx].finalTransformation = m_GlobalInverseTransform * globalTransformation * m_BoneInfoVec[boneIdx].boneOffset;
-			m_BoneInfoVec[boneIdx].globalTransformation = globalTransformation;
+			int boneIdx = mBoneNameToIdMap[nodeName];
+			mBoneInfoVec[boneIdx].mFinalTransformation = mGlobalInverseTransform * globalTransformation * mBoneInfoVec[boneIdx].mBoneOffset;
+			mBoneInfoVec[boneIdx].mGlobalTransformation = globalTransformation;
 		}
 
 		for (int i = 0; i < node->children.size(); i++)
@@ -442,23 +444,6 @@ void Character::UpdateBoneHierarchy(AnimNode* node, const glm::mat4& parentTrans
 		}
 	}
 }
-//void Character::AttachTool(cMeshObject* tool, std::string nodeName)
-//{
-//	std::map<std::string, int>::iterator boneIt = m_BoneNameToIdMap.find(nodeName);
-//
-//	if (boneIt != m_BoneNameToIdMap.end()) {
-//		int nodeIndex = boneIt->second;
-//		aiBone* foundNode = m_BoneVec[nodeIndex];
-//		this->m_Tool = new Tool();
-//		this->m_Tool->mesh = tool;
-//		this->m_Tool->attachedNode = foundNode;
-//		this->m_Tool->attachedNodeName = nodeName;
-//		this->m_Tool->iAttachedNode = nodeIndex;
-//	}
-//	else {
-//		std::cout << "Error: could not find node " << nodeName << " for the character " << this->m_Name << std::endl;
-//	}
-//}
 
 int Character::FindPositionKeyFrameIndex(const AnimationData& animation, float keyFrameTime)
 {
@@ -495,8 +480,6 @@ int Character::FindRotationKeyFrameIndex(const AnimationData& animation, float k
 
 glm::vec3 Character::GetAnimationPosition(const AnimationData& animation, float keyFrameTime)
 {
-	// Assert animation.PositionKeyFrames.size() > 0
-
 	if (animation.PositionKeyFrames.size() == 1)
 		return animation.PositionKeyFrames[0].value;
 
@@ -510,7 +493,6 @@ glm::vec3 Character::GetAnimationPosition(const AnimationData& animation, float 
 	if (ratio < 0.0f) ratio = 0.0f;
 	if (ratio > 1.0f) ratio = 1.0f;
 
-	//glm::vec3 result = glm::mix(positionKeyFrame.value, nextPositionKeyFrame.value, ratio);
 	glm::vec3 result = (nextPositionKeyFrame.value - positionKeyFrame.value) * ratio + positionKeyFrame.value;
 
 	return result;
@@ -518,8 +500,6 @@ glm::vec3 Character::GetAnimationPosition(const AnimationData& animation, float 
 
 glm::vec3 Character::GetAnimationScale(const AnimationData& animation, float keyFrameTime)
 {
-	// Assert animation.ScaleKeyFrames.size() > 0
-
 	if (animation.ScaleKeyFrames.size() == 1)
 		return animation.ScaleKeyFrames[0].value;
 
@@ -533,7 +513,6 @@ glm::vec3 Character::GetAnimationScale(const AnimationData& animation, float key
 	if (ratio < 0.0f) ratio = 0.0f;
 	if (ratio > 1.0f) ratio = 1.0f;
 
-	//glm::vec3 result = glm::mix(scaleKeyFrame.value, nextScaleKeyFrame.value, ratio);
 	glm::vec3 result = (nextScaleKeyFrame.value - scaleKeyFrame.value) * ratio + scaleKeyFrame.value;
 
 	return result;

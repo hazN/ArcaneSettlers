@@ -224,7 +224,7 @@ bool Colonist::getIsIntruderInRange()
 {
 	for (Enemy* enemy : vecEnemies)
 	{
-		if (glm::distance(this->mGOColonist->mesh->position, enemy->mGOEnemy->mesh->position) <= 30.f)
+		if (glm::distance(this->mGOColonist->mesh->position, enemy->mGOEnemy->mesh->position) <= 15.f)
 		{
 			mEnemyTarget = enemy;
 			return true;
@@ -287,9 +287,9 @@ void Colonist::Move()
 	currentGridPos = glm::round(currentGridPos);
 
 	// Get the direction from the flowfield
-	glm::vec2 flowDirection = flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
+	glm::vec2 flowDirection = mFlowfield[currentGridPos.y][currentGridPos.x];
 
-	glm::vec3 moveDirection = moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
+	glm::vec3 moveDirection = glm::vec3(flowDirection.x, 0.5f, flowDirection.y);
 
 	// Move the colonist
 	float speed = 1.4f;
@@ -470,7 +470,7 @@ void Colonist::DropOffLoot()
 
 void Colonist::Attack()
 {
-	if (glm::distance(mEnemyTarget->mGOEnemy->mesh->position, mGOColonist->mesh->position) >= 3.1f)
+	if (glm::distance(mEnemyTarget->mGOEnemy->mesh->position, mGOColonist->mesh->position) >= 2.1f)
 	{
 		// Set animation
 			if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
@@ -488,6 +488,7 @@ void Colonist::Attack()
 			mGOColonist->mesh->qRotation = glm::quat();
 		mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
 		mCurrentCommand = CommandType::None;
+		mTarget = nullptr;
 		return;
 	}
 	float duration = (clock() - attackTime) / (double)CLOCKS_PER_SEC;

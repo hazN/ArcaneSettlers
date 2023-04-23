@@ -13,38 +13,38 @@
 
 struct BoneInfo
 {
-	std::string name;
-	glm::mat4 boneOffset;
-	glm::mat4 globalTransformation;
-	glm::mat4 finalTransformation; // <- For rendering
+	std::string mName;
+	glm::mat4 mBoneOffset;
+	glm::mat4 mGlobalTransformation;
+	glm::mat4 mFinalTransformation; 
 };
 
 struct BoneVertexData
 {
 	BoneVertexData()
 	{
-		ids[0] = 0;
-		ids[1] = 0;
-		ids[2] = 0;
-		ids[3] = 0;
-		weights[0] = 0.f;
-		weights[1] = 0.f;
-		weights[2] = 0.f;
-		weights[3] = 0.f;
+		mIds[0] = 0;
+		mIds[1] = 0;
+		mIds[2] = 0;
+		mIds[3] = 0;
+		mWeights[0] = 0.f;
+		mWeights[1] = 0.f;
+		mWeights[2] = 0.f;
+		mWeights[3] = 0.f;
 	}
 
-	unsigned int ids[4];
-	float weights[4];
+	unsigned int mIds[4];
+	float mWeights[4];
 
 	void AddBoneInfo(int id, float weight)
 	{
-		int numIds = sizeof(ids) / sizeof(ids[0]);
+		int numIds = sizeof(mIds) / sizeof(mIds[0]);
 		for (int i = 0; i < numIds; i++)
 		{
-			if (weights[i] == 0.f)
+			if (mWeights[i] == 0.f)
 			{
-				ids[i] = id;
-				weights[i] = weight;
+				mIds[i] = id;
+				mWeights[i] = weight;
 				return;
 			}
 		}
@@ -112,7 +112,7 @@ struct CharacterAnimationData
 	CharacterAnimationData(const aiScene* scene) : AIScene(scene) { }
 	const aiScene* AIScene;
 
-	BoneHierarchy* BoneHierarchy;			// Utilized for Animation
+	BoneHierarchy* BoneHierarchy;			
 
 	std::vector<BoneInfo> boneInfoVec;
 	std::map<std::string, int> boneNameToIdMap;
@@ -125,8 +125,6 @@ struct CharacterAnimationData
 
 struct Animation
 {
-	// Quadriped	4 legged animal
-	// biped		Humanoid
 	std::vector<glm::mat4> GlobalTransformations;
 	bool IsCharacterAnimation;
 	std::string AnimationType;
