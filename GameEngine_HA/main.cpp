@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
 	GLint mView_location = glGetUniformLocation(shaderID, "mView");
 	GLint mProjection_location = glGetUniformLocation(shaderID, "mProjection");
 	GLint mModelInverseTransform_location = glGetUniformLocation(shaderID, "mModelInverseTranspose");
-
+	
 	// Textures
 	::g_pTextureManager = new cBasicTextureManager();
 	{

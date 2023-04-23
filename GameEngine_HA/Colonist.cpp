@@ -224,7 +224,7 @@ bool Colonist::getIsIntruderInRange()
 {
 	for (Enemy* enemy : vecEnemies)
 	{
-		if (glm::distance(this->mGOColonist->mesh->position, enemy->mGOEnemy->mesh->position) <= 15.f)
+		if (glm::distance(this->mGOColonist->mesh->position, enemy->mGOEnemy->mesh->position) <= 2.f)
 		{
 			mEnemyTarget = enemy;
 			return true;
@@ -470,27 +470,6 @@ void Colonist::DropOffLoot()
 
 void Colonist::Attack()
 {
-	if (glm::distance(mEnemyTarget->mGOEnemy->mesh->position, mGOColonist->mesh->position) >= 2.1f)
-	{
-		// Set animation
-			if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 10)
-			this->mGOColonist->animCharacter->SetAnimation(10);
-		// Move towards the colonist
-		glm::vec2 direction = glm::vec2(mGOColonist->mesh->position.x, mEnemyTarget->mGOEnemy->mesh->position.z) - glm::vec2(mGOColonist->mesh->position.x, mGOColonist->mesh->position.z);
-		glm::vec2 moveDirection = glm::normalize(direction);
-		float speed = 1.0f;
-		float deltaTime = 0.1f;
-		glm::vec3 dir = glm::vec3(moveDirection.x, 0.5f, moveDirection.y) * speed * deltaTime;
-		mCharacterController->Move(dir);
-		glm::vec3 lookDir = glm::normalize(glm::vec3(moveDirection.x, -mGOColonist->mesh->position.y, moveDirection.y));
-		glm::quat targetDir = q_utils::LookAt(lookDir, glm::vec3(0, 1, 0));
-		if (std::isnan(mGOColonist->mesh->qRotation.x))
-			mGOColonist->mesh->qRotation = glm::quat();
-		mGOColonist->mesh->qRotation = q_utils::RotateTowards(mGOColonist->mesh->qRotation, targetDir, 3.14f * 0.05f);
-		mCurrentCommand = CommandType::None;
-		mTarget = nullptr;
-		return;
-	}
 	float duration = (clock() - attackTime) / (double)CLOCKS_PER_SEC;
 	if (this->mGOColonist->animCharacter->GetCurrentAnimationID() != 11)
 		this->mGOColonist->animCharacter->SetAnimation(11);
