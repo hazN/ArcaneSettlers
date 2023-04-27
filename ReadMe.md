@@ -1,7 +1,7 @@
 # GDP2023 GameJam  
 Hassan Assaf  
 Due Apr. 22  
-    
+## **Download and Play:** https://hazndev.itch.io/arcane-settlers      
 ## **Arcane Settlers:**  
 Three settlers have come across a new land, help them survive by ordering them to gather resources, build and fight!  
 **Manage:** Click on units to select them  
